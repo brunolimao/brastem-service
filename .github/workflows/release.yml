@@ -30,6 +30,15 @@ jobs:
       - run: pnpm test
       - run: pnpm build
 
+      # O electron-builder envia os arquivos em paralelo e, se a Release ainda não existe, cada envio
+      # cria uma (foi o que aconteceu na v2.0.0). Criando antes, todos só anexam à mesma.
+      - name: Criar a Release
+        if: github.ref_type == 'tag'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" --title "${GITHUB_REF_NAME#v}" --generate-notes --verify-tag
+
       - name: Gerar o instalador
         shell: bash
         working-directory: apps/desktop
