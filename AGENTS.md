@@ -22,7 +22,8 @@ Antes de concluir qualquer tarefa: lint, typecheck e test devem passar.
 - TypeScript estrito; sem `any`. Tipos de enum vêm de `@brastem/shared`, nunca duplicados.
 - **Dinheiro** é inteiro em centavos no banco e na API; formatar só na borda (UI). **Datas** são ISO no banco/API; exibir em `dd/MM/yyyy` com date-fns `ptBR`.
 - Nunca interpolar coluna vinda do cliente em query: busca usa lista fixa de campos permitidos.
-- Gravações de OS + pagamentos + parcelas sempre em transação.
+- Gravações de OS + pagamentos + parcelas sempre em transação. O better-sqlite3 é síncrono: o callback de `db.transaction((tx) => ...)` não pode ser `async`; helpers que gravam recebem `DbLike` (banco ou `tx`) e usam `.run()`/`.get()`/`.all()`.
+- Dinheiro na API é inteiro em centavos; datas são `yyyy-MM-dd`. Listagens retornam `{ items, total, page, pageSize }`; períodos (`inicio`/`fim`) são inclusivos.
 - Auth: JWT em cookie httpOnly (SameSite=Strict), refresh rotacionado, senha com argon2. Falha de auth = 401/403, nunca 500.
 - Segredos só em env (validadas por Joi); nunca commitar `.env`.
 

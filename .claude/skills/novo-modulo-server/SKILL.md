@@ -4,8 +4,7 @@ name: novo-modulo-server
 description: Cria um módulo NestJS completo em apps/server (schema Drizzle, DTOs pt-BR, service, controller, testes). Use ao adicionar uma entidade/recurso de API.
 ---
 
-Siga o AGENTS.md. Use como modelo o módulo existente mais parecido em `apps/server/src/modules/`
-(quando ainda não houver nenhum, o primeiro módulo criado vira o modelo e esta skill deve ser atualizada com ele).
+Siga o AGENTS.md. Use como modelo `apps/server/src/modules/clientes/` (CRUD com busca paginada) e `ordens-servico/` (escrita multi-tabela em transação).
 
 1. Schema em `common/database/schema/<modulo>.ts` (dinheiro em centavos, datas ISO) + migration (`drizzle-kit generate`).
 2. `modules/<modulo>/` com module, controller, service, `dto/` (create/update/query).
