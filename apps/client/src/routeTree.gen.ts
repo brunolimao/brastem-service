@@ -13,7 +13,12 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrimeiroAcessoRouteImport } from './routes/primeiro-acesso'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppPagamentosRouteImport } from './routes/_app/pagamentos'
+import { Route as AppRelatoriosRouteImport } from './routes/_app/relatorios'
 import { Route as AppUsuariosRouteImport } from './routes/_app/usuarios'
+import { Route as AppCaixaIndexRouteImport } from './routes/_app/caixa/index'
+import { Route as AppCaixaDespesaRouteImport } from './routes/_app/caixa/despesa'
+import { Route as AppCaixaReceitaRouteImport } from './routes/_app/caixa/receita'
 import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
 import { Route as AppClientesClienteIdRouteImport } from './routes/_app/clientes/$clienteId'
 import { Route as AppClientesNovoRouteImport } from './routes/_app/clientes/novo'
@@ -41,9 +46,34 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPagamentosRoute = AppPagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRelatoriosRoute = AppRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppUsuariosRoute = AppUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCaixaIndexRoute = AppCaixaIndexRouteImport.update({
+  id: '/caixa/',
+  path: '/caixa/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCaixaDespesaRoute = AppCaixaDespesaRouteImport.update({
+  id: '/caixa/despesa',
+  path: '/caixa/despesa',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCaixaReceitaRoute = AppCaixaReceitaRouteImport.update({
+  id: '/caixa/receita',
+  path: '/caixa/receita',
   getParentRoute: () => AppRoute,
 } as any)
 const AppClientesIndexRoute = AppClientesIndexRouteImport.update({
@@ -88,10 +118,15 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/pagamentos': typeof AppPagamentosRoute
+  '/relatorios': typeof AppRelatoriosRoute
   '/usuarios': typeof AppUsuariosRoute
+  '/caixa/despesa': typeof AppCaixaDespesaRoute
+  '/caixa/receita': typeof AppCaixaReceitaRoute
   '/clientes/$clienteId': typeof AppClientesClienteIdRoute
   '/clientes/novo': typeof AppClientesNovoRoute
   '/ordens-servico/nova': typeof AppOrdensServicoNovaRoute
+  '/caixa/': typeof AppCaixaIndexRoute
   '/clientes/': typeof AppClientesIndexRoute
   '/ordens-servico/': typeof AppOrdensServicoIndexRoute
   '/ordens-servico/$ordemId/imprimir': typeof AppOrdensServicoOrdemIdImprimirRoute
@@ -100,11 +135,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/pagamentos': typeof AppPagamentosRoute
+  '/relatorios': typeof AppRelatoriosRoute
   '/usuarios': typeof AppUsuariosRoute
   '/': typeof AppIndexRoute
+  '/caixa/despesa': typeof AppCaixaDespesaRoute
+  '/caixa/receita': typeof AppCaixaReceitaRoute
   '/clientes/$clienteId': typeof AppClientesClienteIdRoute
   '/clientes/novo': typeof AppClientesNovoRoute
   '/ordens-servico/nova': typeof AppOrdensServicoNovaRoute
+  '/caixa': typeof AppCaixaIndexRoute
   '/clientes': typeof AppClientesIndexRoute
   '/ordens-servico': typeof AppOrdensServicoIndexRoute
   '/ordens-servico/$ordemId/imprimir': typeof AppOrdensServicoOrdemIdImprimirRoute
@@ -115,11 +155,16 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/_app/pagamentos': typeof AppPagamentosRoute
+  '/_app/relatorios': typeof AppRelatoriosRoute
   '/_app/usuarios': typeof AppUsuariosRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/caixa/despesa': typeof AppCaixaDespesaRoute
+  '/_app/caixa/receita': typeof AppCaixaReceitaRoute
   '/_app/clientes/$clienteId': typeof AppClientesClienteIdRoute
   '/_app/clientes/novo': typeof AppClientesNovoRoute
   '/_app/ordens-servico/nova': typeof AppOrdensServicoNovaRoute
+  '/_app/caixa/': typeof AppCaixaIndexRoute
   '/_app/clientes/': typeof AppClientesIndexRoute
   '/_app/ordens-servico/': typeof AppOrdensServicoIndexRoute
   '/_app/ordens-servico/$ordemId/imprimir': typeof AppOrdensServicoOrdemIdImprimirRoute
@@ -131,10 +176,15 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/primeiro-acesso'
+    | '/pagamentos'
+    | '/relatorios'
     | '/usuarios'
+    | '/caixa/despesa'
+    | '/caixa/receita'
     | '/clientes/$clienteId'
     | '/clientes/novo'
     | '/ordens-servico/nova'
+    | '/caixa/'
     | '/clientes/'
     | '/ordens-servico/'
     | '/ordens-servico/$ordemId/imprimir'
@@ -143,11 +193,16 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/primeiro-acesso'
+    | '/pagamentos'
+    | '/relatorios'
     | '/usuarios'
     | '/'
+    | '/caixa/despesa'
+    | '/caixa/receita'
     | '/clientes/$clienteId'
     | '/clientes/novo'
     | '/ordens-servico/nova'
+    | '/caixa'
     | '/clientes'
     | '/ordens-servico'
     | '/ordens-servico/$ordemId/imprimir'
@@ -157,11 +212,16 @@ export interface FileRouteTypes {
     | '/_app'
     | '/login'
     | '/primeiro-acesso'
+    | '/_app/pagamentos'
+    | '/_app/relatorios'
     | '/_app/usuarios'
     | '/_app/'
+    | '/_app/caixa/despesa'
+    | '/_app/caixa/receita'
     | '/_app/clientes/$clienteId'
     | '/_app/clientes/novo'
     | '/_app/ordens-servico/nova'
+    | '/_app/caixa/'
     | '/_app/clientes/'
     | '/_app/ordens-servico/'
     | '/_app/ordens-servico/$ordemId/imprimir'
@@ -204,11 +264,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/pagamentos': {
+      id: '/_app/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/pagamentos'
+      preLoaderRoute: typeof AppPagamentosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/relatorios': {
+      id: '/_app/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AppRelatoriosRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/usuarios': {
       id: '/_app/usuarios'
       path: '/usuarios'
       fullPath: '/usuarios'
       preLoaderRoute: typeof AppUsuariosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/caixa/': {
+      id: '/_app/caixa/'
+      path: '/caixa'
+      fullPath: '/caixa/'
+      preLoaderRoute: typeof AppCaixaIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/caixa/despesa': {
+      id: '/_app/caixa/despesa'
+      path: '/caixa/despesa'
+      fullPath: '/caixa/despesa'
+      preLoaderRoute: typeof AppCaixaDespesaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/caixa/receita': {
+      id: '/_app/caixa/receita'
+      path: '/caixa/receita'
+      fullPath: '/caixa/receita'
+      preLoaderRoute: typeof AppCaixaReceitaRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/clientes/': {
@@ -264,11 +359,16 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppPagamentosRoute: typeof AppPagamentosRoute
+  AppRelatoriosRoute: typeof AppRelatoriosRoute
   AppUsuariosRoute: typeof AppUsuariosRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppCaixaDespesaRoute: typeof AppCaixaDespesaRoute
+  AppCaixaReceitaRoute: typeof AppCaixaReceitaRoute
   AppClientesClienteIdRoute: typeof AppClientesClienteIdRoute
   AppClientesNovoRoute: typeof AppClientesNovoRoute
   AppOrdensServicoNovaRoute: typeof AppOrdensServicoNovaRoute
+  AppCaixaIndexRoute: typeof AppCaixaIndexRoute
   AppClientesIndexRoute: typeof AppClientesIndexRoute
   AppOrdensServicoIndexRoute: typeof AppOrdensServicoIndexRoute
   AppOrdensServicoOrdemIdImprimirRoute: typeof AppOrdensServicoOrdemIdImprimirRoute
@@ -276,11 +376,16 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppPagamentosRoute: AppPagamentosRoute,
+  AppRelatoriosRoute: AppRelatoriosRoute,
   AppUsuariosRoute: AppUsuariosRoute,
   AppIndexRoute: AppIndexRoute,
+  AppCaixaDespesaRoute: AppCaixaDespesaRoute,
+  AppCaixaReceitaRoute: AppCaixaReceitaRoute,
   AppClientesClienteIdRoute: AppClientesClienteIdRoute,
   AppClientesNovoRoute: AppClientesNovoRoute,
   AppOrdensServicoNovaRoute: AppOrdensServicoNovaRoute,
+  AppCaixaIndexRoute: AppCaixaIndexRoute,
   AppClientesIndexRoute: AppClientesIndexRoute,
   AppOrdensServicoIndexRoute: AppOrdensServicoIndexRoute,
   AppOrdensServicoOrdemIdImprimirRoute: AppOrdensServicoOrdemIdImprimirRoute,

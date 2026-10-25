@@ -11,3 +11,12 @@ export const textoDeBusca = z
   .catch(undefined)
 
 export const numeroPositivo = z.number().int().min(1).optional().catch(undefined)
+
+/** Data no formato da API (yyyy-MM-dd); qualquer outra coisa na URL é ignorada. */
+export const dataIso = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .optional()
+  .catch(undefined)
+
+export const buscaDePeriodo = z.object({ inicio: dataIso, fim: dataIso })

@@ -1,5 +1,18 @@
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ClipboardList, Home, LogOut, UserRound, Users } from 'lucide-react'
+import {
+  BarChart3,
+  ClipboardList,
+  CreditCard,
+  Home,
+  LogOut,
+  type LucideIcon,
+  TrendingDown,
+  TrendingUp,
+  UserRound,
+  Users,
+  Wallet,
+} from 'lucide-react'
+import { Fragment } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useLogout } from '@/hooks/use-auth'
@@ -7,12 +20,64 @@ import { useSessionStore } from '@/hooks/use-session-store'
 import { ROTULO_ROLE } from '@/models/usuario.model'
 import { ThemeToggle } from './theme-toggle'
 
-const itens = [
-  { to: '/', rotulo: 'Início', icone: Home, somenteAdmin: false },
-  { to: '/clientes', rotulo: 'Clientes', icone: UserRound, somenteAdmin: false },
-  { to: '/ordens-servico', rotulo: 'Ordens de serviço', icone: ClipboardList, somenteAdmin: false },
-  { to: '/usuarios', rotulo: 'Usuários', icone: Users, somenteAdmin: true },
-] as const
+interface ItemMenu {
+  to: string
+  rotulo: string
+  icone: LucideIcon
+  somenteAdmin: boolean
+  grupo: string | null
+  /** Só fica ativo na rota exata (sem as filhas). */
+  exato?: boolean
+}
+
+const itens: ItemMenu[] = [
+  { to: '/', rotulo: 'Início', icone: Home, somenteAdmin: false, grupo: null, exato: true },
+  { to: '/clientes', rotulo: 'Clientes', icone: UserRound, somenteAdmin: false, grupo: null },
+  {
+    to: '/ordens-servico',
+    rotulo: 'Ordens de serviço',
+    icone: ClipboardList,
+    somenteAdmin: false,
+    grupo: null,
+  },
+  {
+    to: '/caixa',
+    rotulo: 'Caixa',
+    icone: Wallet,
+    somenteAdmin: true,
+    grupo: 'Financeiro',
+    exato: true,
+  },
+  {
+    to: '/caixa/receita',
+    rotulo: 'Lançar receita',
+    icone: TrendingUp,
+    somenteAdmin: false,
+    grupo: 'Financeiro',
+  },
+  {
+    to: '/caixa/despesa',
+    rotulo: 'Lançar despesa',
+    icone: TrendingDown,
+    somenteAdmin: false,
+    grupo: 'Financeiro',
+  },
+  {
+    to: '/pagamentos',
+    rotulo: 'Pagamentos',
+    icone: CreditCard,
+    somenteAdmin: true,
+    grupo: 'Financeiro',
+  },
+  {
+    to: '/relatorios',
+    rotulo: 'Relatórios',
+    icone: BarChart3,
+    somenteAdmin: true,
+    grupo: 'Financeiro',
+  },
+  { to: '/usuarios', rotulo: 'Usuários', icone: Users, somenteAdmin: true, grupo: 'Administração' },
+]
 
 export function AppSidebar() {
   const usuario = useSessionStore((estado) => estado.usuario)
@@ -32,21 +97,31 @@ export function AppSidebar() {
       <nav className="flex flex-1 flex-col gap-1 p-3">
         {itens
           .filter((item) => !item.somenteAdmin || usuario?.role === 'admin')
-          .map(({ to, rotulo, icone: Icone }) => (
-            <Link
-              key={to}
-              to={to}
-              activeOptions={{ exact: to === '/' }}
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent"
-              activeProps={{
-                className:
-                  'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary',
-              }}
-            >
-              <Icone className="size-4" />
-              {rotulo}
-            </Link>
-          ))}
+          .map((item, indice, visiveis) => {
+            const Icone = item.icone
+            const novoGrupo = item.grupo && item.grupo !== visiveis[indice - 1]?.grupo
+            return (
+              <Fragment key={item.to}>
+                {novoGrupo && (
+                  <p className="mt-3 px-3 pb-1 text-sidebar-foreground/60 text-xs uppercase tracking-wide">
+                    {item.grupo}
+                  </p>
+                )}
+                <Link
+                  to={item.to}
+                  activeOptions={{ exact: item.exato }}
+                  className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent"
+                  activeProps={{
+                    className:
+                      'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary',
+                  }}
+                >
+                  <Icone className="size-4" />
+                  {item.rotulo}
+                </Link>
+              </Fragment>
+            )
+          })}
       </nav>
 
       <Separator className="bg-sidebar-border" />

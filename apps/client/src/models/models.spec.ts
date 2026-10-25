@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { rotuloParcela } from './caixa.model'
 import {
   clienteFormSchema,
   clienteParaForm,
@@ -13,6 +14,13 @@ import {
   ordemServicoVazia,
 } from './ordem-servico.model'
 import { dinheiroTexto, pagamentoVazio } from './pagamento.model'
+import { percentual } from './relatorio.model'
+import {
+  formParaPayloadTransacao,
+  opcoesCategoria,
+  transacaoFormSchema,
+  transacaoVazia,
+} from './transacao.model'
 
 const clienteApi = {
   id: 7,
@@ -163,5 +171,54 @@ describe('dinheiroTexto', () => {
 
   it.each(['abc', '1,234', '12,3,4'])('rejeita %s', (valor) => {
     expect(dinheiroTexto.safeParse(valor).success).toBe(false)
+  })
+})
+
+describe('lançamentos (receita/despesa)', () => {
+  it('categorias são diferentes para receita e despesa', () => {
+    expect(opcoesCategoria('receita').map((o) => o.valor)).toEqual(['venda', 'gorjeta', 'outros'])
+    expect(opcoesCategoria('despesa').map((o) => o.valor)).toContain('peca')
+    expect(opcoesCategoria('receita').map((o) => o.valor)).not.toContain('peca')
+  })
+
+  it('exige descrição e valor maior que zero', () => {
+    const base = transacaoVazia('despesa')
+    expect(transacaoFormSchema.safeParse(base).success).toBe(false)
+    expect(
+      transacaoFormSchema.safeParse({ ...base, descricao: 'Compressor', valor: '0,00' }).success,
+    ).toBe(false)
+    expect(
+      transacaoFormSchema.safeParse({ ...base, descricao: 'Compressor', valor: '100' }).success,
+    ).toBe(true)
+  })
+
+  it('manda centavos e só envia pagamentos quando houver', () => {
+    const base = { ...transacaoVazia('despesa'), descricao: 'Compressor', valor: '1.250,50' }
+    const semPagamentos = formParaPayloadTransacao('despesa', base)
+    expect(semPagamentos).toMatchObject({ tipo: 'despesa', valor: 125050, categoria: 'transporte' })
+    expect(semPagamentos.pagamentos).toBeUndefined()
+
+    const comPagamento = formParaPayloadTransacao('despesa', {
+      ...base,
+      pagamentos: [{ ...pagamentoVazio(), valor: '1.250,50', tipo: 'credito', parcelas: '2' }],
+    })
+    expect(comPagamento.pagamentos?.[0]).toMatchObject({
+      valor: 125050,
+      tipo: 'credito',
+      parcelas: 2,
+    })
+  })
+})
+
+describe('caixa e relatório', () => {
+  it('rotula a parcela', () => {
+    expect(rotuloParcela({ numero: 0, totalParcelas: 0 })).toBe('À vista')
+    expect(rotuloParcela({ numero: 2, totalParcelas: 3 })).toBe('2/3')
+  })
+
+  it('calcula percentual sem dividir por zero', () => {
+    expect(percentual(1, 3)).toBe(33)
+    expect(percentual(3, 3)).toBe(100)
+    expect(percentual(5, 0)).toBe(0)
   })
 })
