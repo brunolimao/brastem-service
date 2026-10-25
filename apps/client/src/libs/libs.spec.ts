@@ -7,6 +7,7 @@ import {
   reaisParaCentavos,
 } from './formatters'
 import { mascararCep, mascararCpfCnpj, mascararTelefone } from './masks'
+import { textoDeBusca } from './search-params'
 
 describe('máscaras', () => {
   it.each([
@@ -53,5 +54,14 @@ describe('formatadores', () => {
     expect(formatarData('2026-10-25')).toBe('25/10/2026')
     expect(formatarData(null)).toBe('—')
     expect(formatarDataHora('2026-10-25T14:30:00')).toBe('25/10/2026 14:30')
+  })
+})
+
+describe('textoDeBusca', () => {
+  it('aceita texto e número (a URL converte "99999" em número) e devolve sempre texto', () => {
+    expect(textoDeBusca.parse('maria')).toBe('maria')
+    expect(textoDeBusca.parse(99999)).toBe('99999')
+    expect(textoDeBusca.parse(undefined)).toBeUndefined()
+    expect(textoDeBusca.parse({ qualquer: 'coisa' })).toBeUndefined()
   })
 })

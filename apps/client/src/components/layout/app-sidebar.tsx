@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Home, LogOut, Users } from 'lucide-react'
+import { ClipboardList, Home, LogOut, UserRound, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useLogout } from '@/hooks/use-auth'
@@ -9,6 +9,8 @@ import { ThemeToggle } from './theme-toggle'
 
 const itens = [
   { to: '/', rotulo: 'Início', icone: Home, somenteAdmin: false },
+  { to: '/clientes', rotulo: 'Clientes', icone: UserRound, somenteAdmin: false },
+  { to: '/ordens-servico', rotulo: 'Ordens de serviço', icone: ClipboardList, somenteAdmin: false },
   { to: '/usuarios', rotulo: 'Usuários', icone: Users, somenteAdmin: true },
 ] as const
 
@@ -20,7 +22,7 @@ export function AppSidebar() {
   const sair = () => logout.mutate(undefined, { onSettled: () => navigate({ to: '/login' }) })
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground">
+    <aside className="flex w-60 shrink-0 print:hidden flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-3 p-4">
         <img src="/logo.jpg" alt="" className="size-10 rounded-md bg-white object-contain" />
         <span className="font-semibold tracking-tight">Brastem-Service</span>

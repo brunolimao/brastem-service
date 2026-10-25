@@ -106,3 +106,8 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+@page {
+  size: A4;
+  margin: 12mm;
+}

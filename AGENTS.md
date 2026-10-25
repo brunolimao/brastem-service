@@ -37,7 +37,7 @@ Rotas sob `/api`; documentar com decorators do Swagger.
 
 `components/{ui,layout,data-table,form,domain}`, `routes/` (file-based), `services/` (um por módulo, via `api.ts`),
 `hooks/` (queries/mutations e stores zustand), `libs/`, `models/` (tipos + schemas Zod).
-Erros de API viram toast no `libs/query-client.ts` (QueryCache/MutationCache); `services/api.ts` só lança `ApiError` e renova a sessão em 401. Não tratar toast de erro em cada tela; só toast de sucesso nas mutations. Dev: `pnpm dev` sobe server (3333) e client (5173, com proxy de `/api`). Reutilizar `DataTable`, campos de `components/form` e `PrintOS`; não copiar telas.
+Erros de API viram toast no `libs/query-client.ts` (QueryCache/MutationCache); `services/api.ts` só lança `ApiError` e renova a sessão em 401. Não tratar toast de erro em cada tela; só toast de sucesso nas mutations. Search params de listagem: use `libs/search-params.ts` (o roteador converte "123" em número ao ler a URL). Dev: `pnpm dev` sobe server (3333) e client (5173, com proxy de `/api`). Reutilizar `DataTable`, campos de `components/form` e `PrintOS`; não copiar telas.
 Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad hoc.
 
 ## Skills do projeto (`.claude/skills`)

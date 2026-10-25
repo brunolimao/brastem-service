@@ -12,8 +12,8 @@ export const Route = createFileRoute('/_app')({
   component: () => (
     <div className="flex min-h-svh">
       <AppSidebar />
-      <main className="min-w-0 flex-1 overflow-auto p-8">
-        <div className="mx-auto grid max-w-6xl gap-6">
+      <main className="min-w-0 flex-1 overflow-auto p-8 print:overflow-visible print:p-0">
+        <div className="mx-auto grid max-w-6xl gap-6 print:max-w-none">
           <Outlet />
         </div>
       </main>

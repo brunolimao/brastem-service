@@ -14,6 +14,13 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrimeiroAcessoRouteImport } from './routes/primeiro-acesso'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppUsuariosRouteImport } from './routes/_app/usuarios'
+import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
+import { Route as AppClientesClienteIdRouteImport } from './routes/_app/clientes/$clienteId'
+import { Route as AppClientesNovoRouteImport } from './routes/_app/clientes/novo'
+import { Route as AppOrdensServicoIndexRouteImport } from './routes/_app/ordens-servico/index'
+import { Route as AppOrdensServicoNovaRouteImport } from './routes/_app/ordens-servico/nova'
+import { Route as AppOrdensServicoOrdemIdIndexRouteImport } from './routes/_app/ordens-servico/$ordemId/index'
+import { Route as AppOrdensServicoOrdemIdImprimirRouteImport } from './routes/_app/ordens-servico/$ordemId/imprimir'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -39,18 +46,69 @@ const AppUsuariosRoute = AppUsuariosRouteImport.update({
   path: '/usuarios',
   getParentRoute: () => AppRoute,
 } as any)
+const AppClientesIndexRoute = AppClientesIndexRouteImport.update({
+  id: '/clientes/',
+  path: '/clientes/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClientesClienteIdRoute = AppClientesClienteIdRouteImport.update({
+  id: '/clientes/$clienteId',
+  path: '/clientes/$clienteId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClientesNovoRoute = AppClientesNovoRouteImport.update({
+  id: '/clientes/novo',
+  path: '/clientes/novo',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrdensServicoIndexRoute = AppOrdensServicoIndexRouteImport.update({
+  id: '/ordens-servico/',
+  path: '/ordens-servico/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrdensServicoNovaRoute = AppOrdensServicoNovaRouteImport.update({
+  id: '/ordens-servico/nova',
+  path: '/ordens-servico/nova',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrdensServicoOrdemIdIndexRoute =
+  AppOrdensServicoOrdemIdIndexRouteImport.update({
+    id: '/ordens-servico/$ordemId/',
+    path: '/ordens-servico/$ordemId/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppOrdensServicoOrdemIdImprimirRoute =
+  AppOrdensServicoOrdemIdImprimirRouteImport.update({
+    id: '/ordens-servico/$ordemId/imprimir',
+    path: '/ordens-servico/$ordemId/imprimir',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/usuarios': typeof AppUsuariosRoute
+  '/clientes/$clienteId': typeof AppClientesClienteIdRoute
+  '/clientes/novo': typeof AppClientesNovoRoute
+  '/ordens-servico/nova': typeof AppOrdensServicoNovaRoute
+  '/clientes/': typeof AppClientesIndexRoute
+  '/ordens-servico/': typeof AppOrdensServicoIndexRoute
+  '/ordens-servico/$ordemId/imprimir': typeof AppOrdensServicoOrdemIdImprimirRoute
+  '/ordens-servico/$ordemId/': typeof AppOrdensServicoOrdemIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/usuarios': typeof AppUsuariosRoute
   '/': typeof AppIndexRoute
+  '/clientes/$clienteId': typeof AppClientesClienteIdRoute
+  '/clientes/novo': typeof AppClientesNovoRoute
+  '/ordens-servico/nova': typeof AppOrdensServicoNovaRoute
+  '/clientes': typeof AppClientesIndexRoute
+  '/ordens-servico': typeof AppOrdensServicoIndexRoute
+  '/ordens-servico/$ordemId/imprimir': typeof AppOrdensServicoOrdemIdImprimirRoute
+  '/ordens-servico/$ordemId': typeof AppOrdensServicoOrdemIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +117,41 @@ export interface FileRoutesById {
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/_app/usuarios': typeof AppUsuariosRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/clientes/$clienteId': typeof AppClientesClienteIdRoute
+  '/_app/clientes/novo': typeof AppClientesNovoRoute
+  '/_app/ordens-servico/nova': typeof AppOrdensServicoNovaRoute
+  '/_app/clientes/': typeof AppClientesIndexRoute
+  '/_app/ordens-servico/': typeof AppOrdensServicoIndexRoute
+  '/_app/ordens-servico/$ordemId/imprimir': typeof AppOrdensServicoOrdemIdImprimirRoute
+  '/_app/ordens-servico/$ordemId/': typeof AppOrdensServicoOrdemIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/primeiro-acesso' | '/usuarios'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/primeiro-acesso'
+    | '/usuarios'
+    | '/clientes/$clienteId'
+    | '/clientes/novo'
+    | '/ordens-servico/nova'
+    | '/clientes/'
+    | '/ordens-servico/'
+    | '/ordens-servico/$ordemId/imprimir'
+    | '/ordens-servico/$ordemId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/primeiro-acesso' | '/usuarios' | '/'
+  to:
+    | '/login'
+    | '/primeiro-acesso'
+    | '/usuarios'
+    | '/'
+    | '/clientes/$clienteId'
+    | '/clientes/novo'
+    | '/ordens-servico/nova'
+    | '/clientes'
+    | '/ordens-servico'
+    | '/ordens-servico/$ordemId/imprimir'
+    | '/ordens-servico/$ordemId'
   id:
     | '__root__'
     | '/_app'
@@ -72,6 +159,13 @@ export interface FileRouteTypes {
     | '/primeiro-acesso'
     | '/_app/usuarios'
     | '/_app/'
+    | '/_app/clientes/$clienteId'
+    | '/_app/clientes/novo'
+    | '/_app/ordens-servico/nova'
+    | '/_app/clientes/'
+    | '/_app/ordens-servico/'
+    | '/_app/ordens-servico/$ordemId/imprimir'
+    | '/_app/ordens-servico/$ordemId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,17 +211,80 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppUsuariosRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/clientes/': {
+      id: '/_app/clientes/'
+      path: '/clientes'
+      fullPath: '/clientes/'
+      preLoaderRoute: typeof AppClientesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/clientes/$clienteId': {
+      id: '/_app/clientes/$clienteId'
+      path: '/clientes/$clienteId'
+      fullPath: '/clientes/$clienteId'
+      preLoaderRoute: typeof AppClientesClienteIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/clientes/novo': {
+      id: '/_app/clientes/novo'
+      path: '/clientes/novo'
+      fullPath: '/clientes/novo'
+      preLoaderRoute: typeof AppClientesNovoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ordens-servico/': {
+      id: '/_app/ordens-servico/'
+      path: '/ordens-servico'
+      fullPath: '/ordens-servico/'
+      preLoaderRoute: typeof AppOrdensServicoIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ordens-servico/nova': {
+      id: '/_app/ordens-servico/nova'
+      path: '/ordens-servico/nova'
+      fullPath: '/ordens-servico/nova'
+      preLoaderRoute: typeof AppOrdensServicoNovaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ordens-servico/$ordemId/': {
+      id: '/_app/ordens-servico/$ordemId/'
+      path: '/ordens-servico/$ordemId'
+      fullPath: '/ordens-servico/$ordemId/'
+      preLoaderRoute: typeof AppOrdensServicoOrdemIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ordens-servico/$ordemId/imprimir': {
+      id: '/_app/ordens-servico/$ordemId/imprimir'
+      path: '/ordens-servico/$ordemId/imprimir'
+      fullPath: '/ordens-servico/$ordemId/imprimir'
+      preLoaderRoute: typeof AppOrdensServicoOrdemIdImprimirRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppUsuariosRoute: typeof AppUsuariosRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppClientesClienteIdRoute: typeof AppClientesClienteIdRoute
+  AppClientesNovoRoute: typeof AppClientesNovoRoute
+  AppOrdensServicoNovaRoute: typeof AppOrdensServicoNovaRoute
+  AppClientesIndexRoute: typeof AppClientesIndexRoute
+  AppOrdensServicoIndexRoute: typeof AppOrdensServicoIndexRoute
+  AppOrdensServicoOrdemIdImprimirRoute: typeof AppOrdensServicoOrdemIdImprimirRoute
+  AppOrdensServicoOrdemIdIndexRoute: typeof AppOrdensServicoOrdemIdIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppUsuariosRoute: AppUsuariosRoute,
   AppIndexRoute: AppIndexRoute,
+  AppClientesClienteIdRoute: AppClientesClienteIdRoute,
+  AppClientesNovoRoute: AppClientesNovoRoute,
+  AppOrdensServicoNovaRoute: AppOrdensServicoNovaRoute,
+  AppClientesIndexRoute: AppClientesIndexRoute,
+  AppOrdensServicoIndexRoute: AppOrdensServicoIndexRoute,
+  AppOrdensServicoOrdemIdImprimirRoute: AppOrdensServicoOrdemIdImprimirRoute,
+  AppOrdensServicoOrdemIdIndexRoute: AppOrdensServicoOrdemIdIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
