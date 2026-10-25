@@ -213,8 +213,10 @@ export class BackupService {
   }
 
   private podarLocais() {
+    // Pela data no nome do arquivo, não pela de modificação (que empata ou muda ao copiar a pasta).
     const antigos = this.listarLocais()
       .filter((item) => PADRAO_BACKUP.test(item.nome))
+      .sort((a, b) => b.nome.localeCompare(a.nome))
       .slice(this.config.backup.retencaoLocal)
     for (const item of antigos) rmSync(join(this.config.backup.dir, item.nome), { force: true })
   }
