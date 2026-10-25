@@ -49,6 +49,7 @@ Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad 
 - Primeiro uso: `/primeiro-acesso` (cria o admin) ou `/importar` (envia o .sql do sistema antigo para `POST /api/import/legacy`, só antes de existir usuário).
 
 ## Repositório, CI e releases
+
 - Repositório público: <https://github.com/brunolimao/brastem-service> (branch `main`). Commits com o e-mail privado do GitHub (`64761402+brunolimao@users.noreply.github.com`; configurado no `git config` local). Nunca commitar `.env`, dumps `.sql`, bancos nem chaves: o repositório é público.
 - `.github/workflows/ci.yml` roda lint, typecheck, test e build no Windows a cada push/PR. `release.yml` roda ao empurrar uma tag `v*` (publica o instalador nas Releases e libera o auto-update); "Run workflow" manual só gera o instalador como artefato de teste, sem publicar.
 - Para lançar: `git tag v2.0.1 && git push origin v2.0.1` (a versão do instalador vem da tag). O app instalado usa `electron-updater` (`apps/desktop/src/atualizador.ts`), consultando as Releases ao abrir e a cada 4 h.
