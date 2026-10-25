@@ -1,0 +1,33 @@
+import { ROLES } from '@brastem/shared'
+import { z } from 'zod'
+
+export const sessaoUsuarioSchema = z.object({
+  id: z.number(),
+  usuario: z.string(),
+  role: z.enum(ROLES),
+})
+export type SessaoUsuario = z.infer<typeof sessaoUsuarioSchema>
+
+export const loginSchema = z.object({
+  usuario: z.string().min(1, 'Informe o usuário'),
+  senha: z.string().min(1, 'Informe a senha'),
+})
+export type LoginInput = z.infer<typeof loginSchema>
+
+export const primeiroAcessoSchema = z
+  .object({
+    usuario: z
+      .string()
+      .min(3, 'Use pelo menos 3 caracteres')
+      .max(50, 'Use no máximo 50 caracteres'),
+    senha: z
+      .string()
+      .min(8, 'Use pelo menos 8 caracteres')
+      .max(100, 'Use no máximo 100 caracteres'),
+    confirmarSenha: z.string().min(1, 'Repita a senha'),
+  })
+  .refine((dados) => dados.senha === dados.confirmarSenha, {
+    message: 'As senhas não conferem',
+    path: ['confirmarSenha'],
+  })
+export type PrimeiroAcessoInput = z.infer<typeof primeiroAcessoSchema>
