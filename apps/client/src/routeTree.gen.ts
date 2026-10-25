@@ -14,6 +14,7 @@ import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrimeiroAcessoRouteImport } from './routes/primeiro-acesso'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoes'
 import { Route as AppPagamentosRouteImport } from './routes/_app/pagamentos'
 import { Route as AppRelatoriosRouteImport } from './routes/_app/relatorios'
 import { Route as AppUsuariosRouteImport } from './routes/_app/usuarios'
@@ -50,6 +51,11 @@ const PrimeiroAcessoRoute = PrimeiroAcessoRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPagamentosRoute = AppPagamentosRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/configuracoes': typeof AppConfiguracoesRoute
   '/pagamentos': typeof AppPagamentosRoute
   '/relatorios': typeof AppRelatoriosRoute
   '/usuarios': typeof AppUsuariosRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/configuracoes': typeof AppConfiguracoesRoute
   '/pagamentos': typeof AppPagamentosRoute
   '/relatorios': typeof AppRelatoriosRoute
   '/usuarios': typeof AppUsuariosRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/pagamentos': typeof AppPagamentosRoute
   '/_app/relatorios': typeof AppRelatoriosRoute
   '/_app/usuarios': typeof AppUsuariosRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/login'
     | '/primeiro-acesso'
+    | '/configuracoes'
     | '/pagamentos'
     | '/relatorios'
     | '/usuarios'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/login'
     | '/primeiro-acesso'
+    | '/configuracoes'
     | '/pagamentos'
     | '/relatorios'
     | '/usuarios'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/login'
     | '/primeiro-acesso'
+    | '/_app/configuracoes'
     | '/_app/pagamentos'
     | '/_app/relatorios'
     | '/_app/usuarios'
@@ -282,6 +294,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/configuracoes': {
+      id: '/_app/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AppConfiguracoesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/pagamentos': {
@@ -379,6 +398,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppPagamentosRoute: typeof AppPagamentosRoute
   AppRelatoriosRoute: typeof AppRelatoriosRoute
   AppUsuariosRoute: typeof AppUsuariosRoute
@@ -396,6 +416,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppPagamentosRoute: AppPagamentosRoute,
   AppRelatoriosRoute: AppRelatoriosRoute,
   AppUsuariosRoute: AppUsuariosRoute,

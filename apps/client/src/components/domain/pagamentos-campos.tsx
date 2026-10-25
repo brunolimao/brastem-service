@@ -4,7 +4,7 @@ import { CampoDinheiro } from '@/components/form/campo-dinheiro'
 import { CampoSelect } from '@/components/form/campo-select'
 import { CampoTexto } from '@/components/form/campo-texto'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   OPCOES_PARCELAS,
   OPCOES_TIPO_PAGAMENTO,
@@ -27,20 +27,22 @@ interface PagamentosCamposProps {
 export function PagamentosCampos({ form, dica }: PagamentosCamposProps) {
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between">
+      <CardHeader>
         <CardTitle>Pagamentos</CardTitle>
-        <form.Field name="pagamentos" mode="array">
-          {(campo: AnyFieldApi) => (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => campo.pushValue(pagamentoVazio())}
-            >
-              <Plus /> Adicionar pagamento
-            </Button>
-          )}
-        </form.Field>
+        <CardAction>
+          <form.Field name="pagamentos" mode="array">
+            {(campo: AnyFieldApi) => (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => campo.pushValue(pagamentoVazio())}
+              >
+                <Plus /> Adicionar pagamento
+              </Button>
+            )}
+          </form.Field>
+        </CardAction>
       </CardHeader>
       <CardContent className="grid gap-3">
         <form.Field name="pagamentos" mode="array">

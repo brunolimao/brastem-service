@@ -3,6 +3,9 @@ import { pathToFileURL } from 'node:url'
 import { app, BrowserWindow, dialog, Menu, type MenuItemConstructorOptions, shell } from 'electron'
 import { carregarOuCriarSegredo, escolherPorta, montarAmbiente } from './runtime'
 
+/** Mesmo nome emitido pelo servidor (RestauracaoService). */
+const EVENTO_REINICIAR = 'brastem:reiniciar'
+
 interface ServidorEmbutido {
   close(): Promise<void>
 }
@@ -115,6 +118,11 @@ if (!app.requestSingleInstanceLock()) {
     .whenReady()
     .then(async () => {
       Menu.setApplicationMenu(montarMenu())
+      // A tela de backup prepara a troca do banco e pede para reiniciar; a troca acontece ao abrir de novo.
+      process.on(EVENTO_REINICIAR, () => {
+        app.relaunch()
+        app.quit()
+      })
       abrirJanela(await iniciarServidor())
     })
     .catch((erro) => {

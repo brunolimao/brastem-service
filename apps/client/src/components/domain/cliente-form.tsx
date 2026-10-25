@@ -8,7 +8,7 @@ import { CampoTextarea } from '@/components/form/campo-textarea'
 import { CampoTexto } from '@/components/form/campo-texto'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatarData } from '@/libs/formatters'
 import { apenasDigitos, mascararCep, mascararCpfCnpj, mascararTelefone } from '@/libs/masks'
 import {
@@ -168,20 +168,22 @@ export function ClienteFormulario({
       </Card>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle>Telefones</CardTitle>
-          <form.Field name="telefones" mode="array">
-            {(campo) => (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => campo.pushValue(telefoneVazio())}
-              >
-                <Plus /> Adicionar telefone
-              </Button>
-            )}
-          </form.Field>
+          <CardAction>
+            <form.Field name="telefones" mode="array">
+              {(campo) => (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => campo.pushValue(telefoneVazio())}
+                >
+                  <Plus /> Adicionar telefone
+                </Button>
+              )}
+            </form.Field>
+          </CardAction>
         </CardHeader>
         <CardContent className="grid gap-3">
           <form.Field name="telefones" mode="array">
@@ -226,20 +228,22 @@ export function ClienteFormulario({
       </Card>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle>Aparelhos</CardTitle>
-          <form.Field name="aparelhos" mode="array">
-            {(campo) => (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => campo.pushValue(aparelhoVazio())}
-              >
-                <Plus /> Adicionar aparelho
-              </Button>
-            )}
-          </form.Field>
+          <CardAction>
+            <form.Field name="aparelhos" mode="array">
+              {(campo) => (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => campo.pushValue(aparelhoVazio())}
+                >
+                  <Plus /> Adicionar aparelho
+                </Button>
+              )}
+            </form.Field>
+          </CardAction>
         </CardHeader>
         <CardContent className="grid gap-4">
           <form.Field name="aparelhos" mode="array">

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { credenciaisGoogleSchema, juntarBackups } from './backup.model'
 import { rotuloParcela } from './caixa.model'
 import {
   clienteFormSchema,
@@ -220,5 +221,45 @@ describe('caixa e relatório', () => {
     expect(percentual(1, 3)).toBe(33)
     expect(percentual(3, 3)).toBe(100)
     expect(percentual(5, 0)).toBe(0)
+  })
+})
+
+describe('backup', () => {
+  it('junta os backups do computador e do Drive, do mais novo para o mais antigo', () => {
+    const lista = juntarBackups({
+      local: [
+        { id: 'a.gz', nome: 'a.gz', tamanho: 1, criadoEm: '2026-10-24T10:00:00.000Z' },
+        { id: 'b.gz', nome: 'b.gz', tamanho: 1, criadoEm: '2026-10-25T10:00:00.000Z' },
+      ],
+      drive: [{ id: 'xyz', nome: 'a.gz', tamanho: 1, criadoEm: '2026-10-24T10:00:05.000Z' }],
+      erroDrive: null,
+    })
+    expect(lista.map((b) => `${b.origem}:${b.id}`)).toEqual([
+      'local:b.gz',
+      'drive:xyz',
+      'local:a.gz',
+    ])
+  })
+
+  it('funciona sem Google Drive conectado', () => {
+    const lista = juntarBackups({
+      local: [{ id: 'a.gz', nome: 'a.gz', tamanho: 1, criadoEm: '2026-10-24T10:00:00.000Z' }],
+      drive: null,
+      erroDrive: null,
+    })
+    expect(lista).toHaveLength(1)
+    expect(lista[0]?.origem).toBe('local')
+  })
+
+  it('exige as credenciais do Google completas', () => {
+    expect(
+      credenciaisGoogleSchema.safeParse({ clientId: 'curto', clientSecret: 'x' }).success,
+    ).toBe(false)
+    expect(
+      credenciaisGoogleSchema.safeParse({
+        clientId: 'cliente-123456789.apps.googleusercontent.com',
+        clientSecret: 'GOCSPX-segredo',
+      }).success,
+    ).toBe(true)
   })
 })

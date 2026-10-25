@@ -6,6 +6,7 @@ import {
   Home,
   LogOut,
   type LucideIcon,
+  Settings,
   TrendingDown,
   TrendingUp,
   UserRound,
@@ -77,6 +78,13 @@ const itens: ItemMenu[] = [
     grupo: 'Financeiro',
   },
   { to: '/usuarios', rotulo: 'Usuários', icone: Users, somenteAdmin: true, grupo: 'Administração' },
+  {
+    to: '/configuracoes',
+    rotulo: 'Configurações',
+    icone: Settings,
+    somenteAdmin: true,
+    grupo: 'Administração',
+  },
 ]
 
 export function AppSidebar() {

@@ -41,11 +41,19 @@ Erros de API viram toast no `libs/query-client.ts` (QueryCache/MutationCache); `
 Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad hoc.
 
 ## App desktop (apps/desktop)
+
 - Electron sobe o servidor Nest dentro do próprio processo, em `127.0.0.1` (porta 47831 ou outra livre), e abre uma janela nesse endereço. O servidor entrega o front (`CLIENT_DIR`), então front e API ficam na mesma origem.
 - Dados em `%APPDATA%Brastem-Servicedados` (SQLite, logs, `segredo.key` gerado na primeira abertura). `BRASTEM_PASTA_DADOS` troca essa pasta (testes).
 - `pnpm --filter @brastem/desktop start` roda o app; `... dist` gera o instalador em `apps/desktop/release`. `pnpm preparar` monta `.stage` (server via `pnpm deploy --config.node-linker=hoisted` + front). Atenção: `pnpm stage` é comando do próprio pnpm 12, por isso o script se chama `preparar`.
 - O electron-builder descarta `node_modules` em `extraResources`; elas entram pelo gancho `scripts/depois-de-empacotar.cjs`. O `better-sqlite3` 13 traz binário pronto (`prebuilds/win32-x64.node`), então não há recompilação.
 - Primeiro uso: `/primeiro-acesso` (cria o admin) ou `/importar` (envia o .sql do sistema antigo para `POST /api/import/legacy`, só antes de existir usuário).
+
+## Backup (apps/server/src/modules/backup)
+- Cópia do SQLite pela API de backup do better-sqlite3 (`sqlite.backup`), compactada em `dados/backups` (7 locais) e enviada ao Google Drive (30 no Drive) quando conectado. O agendador confere de hora em hora se já passaram 24 h; envio que falha fica `pendenteDrive` e é retentado sem criar novo snapshot.
+- Google por REST (sem SDK): OAuth de app para computador com PKCE e retorno em `http://127.0.0.1:<porta>/api/backup/google/callback`; escopo só `drive.file`. Credenciais, refresh token e pasta ficam em `dados/integracoes/google.json`, fora do banco (para não irem nos backups). Guia do Google Cloud: `docs/backup-google-drive.md`.
+- Restaurar nunca troca o banco aberto: `RestauracaoService` valida o backup e grava `restauracao-pendente.sqlite`; `aplicarRestauracaoPendente` (em `connection.ts`) faz a troca na próxima abertura e guarda o banco antigo em `backups/antes-da-restauracao-*`. O evento `brastem:reiniciar` no `process` faz o Electron reabrir sozinho.
+- Rotas públicas dentro de controller com `@Roles` continuam públicas (`RolesGuard` respeita `@Public`). Testes de backup usam um Google falso em `test/google-falso.ts` (`vi.stubGlobal('fetch')`).
+- Cabeçalho de card com botão: use `CardAction` (o `CardHeader` do shadcn é uma grade; `flex-row` não funciona).
 
 ## Skills do projeto (`.claude/skills`)
 

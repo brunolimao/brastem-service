@@ -1,4 +1,4 @@
-import { format, parseISO } from 'date-fns'
+import { format, formatDistanceToNow, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -28,3 +28,20 @@ export const formatarDataHora = (iso: string | null | undefined) =>
 
 /** Data de hoje no formato que a API usa (yyyy-MM-dd). */
 export const hojeIso = () => format(new Date(), 'yyyy-MM-dd')
+
+/** 1536 -> "1,5 KB"; 5242880 -> "5,0 MB". */
+export function formatarTamanho(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  const unidades = ['KB', 'MB', 'GB']
+  let valor = bytes / 1024
+  let indice = 0
+  while (valor >= 1024 && indice < unidades.length - 1) {
+    valor /= 1024
+    indice += 1
+  }
+  return `${valor.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ${unidades[indice]}`
+}
+
+/** "há 3 horas", "há 2 dias". */
+export const formatarHa = (iso: string) =>
+  formatDistanceToNow(parseISO(iso), { locale: ptBR, addSuffix: true })

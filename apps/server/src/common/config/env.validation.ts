@@ -7,6 +7,9 @@ export const envValidationSchema = Joi.object({
   DATA_DIR: Joi.string().default('./data'),
   // Pasta do front compilado; quando informada, o servidor também entrega a interface (app desktop).
   CLIENT_DIR: Joi.string().optional(),
+  // Credenciais OAuth do Google Drive (tipo "App para computador"). Também podem ser digitadas na tela.
+  GOOGLE_CLIENT_ID: Joi.string().optional(),
+  GOOGLE_CLIENT_SECRET: Joi.string().optional(),
   JWT_SECRET: Joi.string()
     .min(32)
     .when('NODE_ENV', {

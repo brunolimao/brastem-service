@@ -4,6 +4,7 @@ import {
   formatarData,
   formatarDataHora,
   formatarMoeda,
+  formatarTamanho,
   reaisParaCentavos,
 } from './formatters'
 import { mascararCep, mascararCpfCnpj, mascararTelefone } from './masks'
@@ -63,5 +64,16 @@ describe('textoDeBusca', () => {
     expect(textoDeBusca.parse(99999)).toBe('99999')
     expect(textoDeBusca.parse(undefined)).toBeUndefined()
     expect(textoDeBusca.parse({ qualquer: 'coisa' })).toBeUndefined()
+  })
+})
+
+describe('formatarTamanho', () => {
+  it.each([
+    [500, '500 B'],
+    [1536, '1,5 KB'],
+    [5 * 1024 * 1024, '5,0 MB'],
+    [3 * 1024 ** 3, '3,0 GB'],
+  ])('%s bytes -> %s', (bytes, esperado) => {
+    expect(formatarTamanho(bytes)).toBe(esperado)
   })
 })

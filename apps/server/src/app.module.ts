@@ -9,6 +9,7 @@ import { DatabaseModule } from './common/database/database.module.js'
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js'
 import { AppLoggerModule } from './common/logger/logger.module.js'
 import { AuthModule } from './modules/auth/auth.module.js'
+import { BackupModule } from './modules/backup/backup.module.js'
 import { CaixaModule } from './modules/caixa/caixa.module.js'
 import { ClientesModule } from './modules/clientes/clientes.module.js'
 import { ImportacaoModule } from './modules/importacao/importacao.module.js'
@@ -39,6 +40,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module.js'
     CaixaModule,
     RelatoriosModule,
     ImportacaoModule,
+    BackupModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })
