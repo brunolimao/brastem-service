@@ -6,3 +6,5 @@ allowBuilds:
   electron: true
   esbuild: true
   lefthook: true
+  "@swc/core": true
+  "@scarf/scarf": false

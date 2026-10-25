@@ -1,0 +1,23 @@
+import Joi from 'joi'
+
+export const envValidationSchema = Joi.object({
+  NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+  PORT: Joi.number().port().default(3333),
+  HOST: Joi.string().default('127.0.0.1'),
+  DATA_DIR: Joi.string().default('./data'),
+  JWT_SECRET: Joi.string()
+    .min(32)
+    .when('NODE_ENV', {
+      is: 'production',
+      // biome-ignore lint/suspicious/noThenProperty: opção `then` da API do Joi
+      then: Joi.required(),
+      otherwise: Joi.optional().default('segredo-apenas-para-dev-e-testes-0123456789'),
+    }),
+  JWT_ACCESS_TTL_MIN: Joi.number().integer().min(1).default(15),
+  REFRESH_TTL_DAYS: Joi.number().integer().min(1).default(7),
+  LOG_LEVEL: Joi.string()
+    .valid('fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent')
+    .default('info'),
+  COOKIE_SECURE: Joi.boolean().default(false),
+  SWAGGER_ENABLED: Joi.boolean().default(true),
+})
