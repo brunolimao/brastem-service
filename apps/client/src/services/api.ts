@@ -13,7 +13,7 @@ export class ApiError extends Error {
 }
 
 interface Opcoes {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: unknown
   query?: Record<string, ValorQuery>
 }

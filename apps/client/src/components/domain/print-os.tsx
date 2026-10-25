@@ -1,5 +1,6 @@
 import { formatarData, formatarMoeda } from '@/libs/formatters'
 import { mascararCpfCnpj, mascararTelefone } from '@/libs/masks'
+import type { Empresa } from '@/models/empresa.model'
 import { type OrdemServicoDetalhe, ROTULO_STATUS } from '@/models/ordem-servico.model'
 import { ROTULO_TIPO_PAGAMENTO } from '@/models/pagamento.model'
 
@@ -32,8 +33,13 @@ function Dado({
 }
 
 /** Folha A4 da ordem de serviço. Sempre clara, mesmo no tema escuro, porque é feita para o papel. */
-export function PrintOS({ detalhe }: { detalhe: OrdemServicoDetalhe }) {
+export function PrintOS({ detalhe, empresa }: { detalhe: OrdemServicoDetalhe; empresa: Empresa }) {
   const { ordemServico: os, cliente, aparelho, telefones, pagamentos, ultimasOrdens } = detalhe
+  // Só o que foi preenchido nas configurações aparece no papel.
+  const contatos = [
+    empresa.cep && `CEP ${empresa.cep}`,
+    empresa.telefone && `Fone ${empresa.telefone}`,
+  ].filter(Boolean)
   const endereco = [cliente.endereco, cliente.numero && `nº ${cliente.numero}`, cliente.complemento]
     .filter(Boolean)
     .join(', ')
@@ -43,7 +49,10 @@ export function PrintOS({ detalhe }: { detalhe: OrdemServicoDetalhe }) {
       <header className="flex items-center gap-5 border-neutral-800 border-b-2 pb-4">
         <img src="/logo.jpg" alt="" className="h-24 object-contain" />
         <div className="grid gap-0.5 text-xs">
-          <p className="font-bold text-lg">Brastem-Service</p>
+          <p className="font-bold text-lg">{empresa.nome || 'Brastem-Service'}</p>
+          {empresa.endereco && <p>{empresa.endereco}</p>}
+          {contatos.length > 0 && <p>{contatos.join(' · ')}</p>}
+          {empresa.cnpj && <p>CNPJ {empresa.cnpj}</p>}
         </div>
         <div className="ml-auto text-right">
           <p className="text-neutral-600 text-xs uppercase">Ordem de serviço</p>

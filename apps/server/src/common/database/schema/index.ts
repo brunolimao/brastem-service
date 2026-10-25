@@ -1,4 +1,5 @@
 export * from './clientes.js'
+export * from './empresa.js'
 export * from './ordens-servico.js'
 export * from './pagamentos.js'
 export * from './refresh-tokens.js'

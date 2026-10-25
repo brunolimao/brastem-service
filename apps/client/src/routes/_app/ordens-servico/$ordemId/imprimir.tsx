@@ -3,7 +3,9 @@ import { ArrowLeft, Printer } from 'lucide-react'
 import { PrintOS } from '@/components/domain/print-os'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useEmpresa } from '@/hooks/use-empresa'
 import { useOrdemServico } from '@/hooks/use-ordens-servico'
+import { empresaVazia } from '@/models/empresa.model'
 
 export const Route = createFileRoute('/_app/ordens-servico/$ordemId/imprimir')({
   component: ImprimirOrdemServicoPage,
@@ -12,6 +14,7 @@ export const Route = createFileRoute('/_app/ordens-servico/$ordemId/imprimir')({
 function ImprimirOrdemServicoPage() {
   const ordemId = Number(Route.useParams().ordemId)
   const { data, isLoading } = useOrdemServico(ordemId)
+  const { data: empresa } = useEmpresa()
 
   if (isLoading) return <Skeleton className="h-96 w-full" />
   if (!data) return <p>Ordem de serviço não encontrada.</p>
@@ -28,7 +31,7 @@ function ImprimirOrdemServicoPage() {
           <Printer /> Imprimir
         </Button>
       </div>
-      <PrintOS detalhe={data} />
+      <PrintOS detalhe={data} empresa={empresa ?? empresaVazia} />
     </>
   )
 }

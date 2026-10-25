@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module.js'
 import { BackupModule } from './modules/backup/backup.module.js'
 import { CaixaModule } from './modules/caixa/caixa.module.js'
 import { ClientesModule } from './modules/clientes/clientes.module.js'
+import { EmpresaModule } from './modules/empresa/empresa.module.js'
 import { ImportacaoModule } from './modules/importacao/importacao.module.js'
 import { OrdensServicoModule } from './modules/ordens-servico/ordens-servico.module.js'
 import { PagamentosModule } from './modules/pagamentos/pagamentos.module.js'
@@ -41,6 +42,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module.js'
     RelatoriosModule,
     ImportacaoModule,
     BackupModule,
+    EmpresaModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })

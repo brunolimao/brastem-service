@@ -15,6 +15,13 @@
       "when": 1792942588545,
       "tag": "0001_dominio",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792953514466,
+      "tag": "0002_empresa",
+      "breakpoints": true
     }
   ]
 }

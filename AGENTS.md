@@ -51,6 +51,7 @@ Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad 
 ## Repositório, CI e releases
 
 - Repositório público: <https://github.com/brunolimao/brastem-service> (branch `main`). Commits com o e-mail privado do GitHub (`64761402+brunolimao@users.noreply.github.com`; configurado no `git config` local). Nunca commitar `.env`, dumps `.sql`, bancos nem chaves: o repositório é público.
+- Dados da empresa (nome, CNPJ, telefone, endereço) **nunca** vão no código: ficam na tabela `empresa`, preenchidos em Configurações, e o cabeçalho da OS impressa mostra só o que foi preenchido. Idem para qualquer dado de cliente ou de loja: o repositório é público.
 - `.github/workflows/ci.yml` roda lint, typecheck, test e build no Windows a cada push/PR. `release.yml` roda ao empurrar uma tag `v*` (publica o instalador nas Releases e libera o auto-update); "Run workflow" manual só gera o instalador como artefato de teste, sem publicar.
 - Para lançar: `git tag v2.0.1 && git push origin v2.0.1` (a versão do instalador vem da tag). O app instalado usa `electron-updater` (`apps/desktop/src/atualizador.ts`), consultando as Releases ao abrir e a cada 4 h.
 - Todo pacote deve declarar o que importa: o CI instala em ambiente limpo e não enxerga dependências herdadas por acaso (foi assim que o `express` apareceu faltando).
