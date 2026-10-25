@@ -11,3 +11,4 @@ release
 *.sqlite-*
 data/
 coverage
+.claude/settings.local.json
