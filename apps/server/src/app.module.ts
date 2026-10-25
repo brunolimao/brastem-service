@@ -11,6 +11,7 @@ import { AppLoggerModule } from './common/logger/logger.module.js'
 import { AuthModule } from './modules/auth/auth.module.js'
 import { CaixaModule } from './modules/caixa/caixa.module.js'
 import { ClientesModule } from './modules/clientes/clientes.module.js'
+import { ImportacaoModule } from './modules/importacao/importacao.module.js'
 import { OrdensServicoModule } from './modules/ordens-servico/ordens-servico.module.js'
 import { PagamentosModule } from './modules/pagamentos/pagamentos.module.js'
 import { RelatoriosModule } from './modules/relatorios/relatorios.module.js'
@@ -37,6 +38,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module.js'
     TransacoesModule,
     CaixaModule,
     RelatoriosModule,
+    ImportacaoModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })

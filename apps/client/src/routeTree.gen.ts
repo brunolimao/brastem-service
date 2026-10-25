@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrimeiroAcessoRouteImport } from './routes/primeiro-acesso'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
@@ -29,6 +30,11 @@ import { Route as AppOrdensServicoOrdemIdImprimirRouteImport } from './routes/_a
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportarRoute = ImportarRouteImport.update({
+  id: '/importar',
+  path: '/importar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -116,6 +122,7 @@ const AppOrdensServicoOrdemIdImprimirRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/pagamentos': typeof AppPagamentosRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/ordens-servico/$ordemId/': typeof AppOrdensServicoOrdemIdIndexRoute
 }
 export interface FileRoutesByTo {
+  '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/pagamentos': typeof AppPagamentosRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/_app/pagamentos': typeof AppPagamentosRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/importar'
     | '/login'
     | '/primeiro-acesso'
     | '/pagamentos'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/ordens-servico/$ordemId/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/importar'
     | '/login'
     | '/primeiro-acesso'
     | '/pagamentos'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_app'
+    | '/importar'
     | '/login'
     | '/primeiro-acesso'
     | '/_app/pagamentos'
@@ -230,6 +242,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
+  ImportarRoute: typeof ImportarRoute
   LoginRoute: typeof LoginRoute
   PrimeiroAcessoRoute: typeof PrimeiroAcessoRoute
 }
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/importar': {
+      id: '/importar'
+      path: '/importar'
+      fullPath: '/importar'
+      preLoaderRoute: typeof ImportarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -396,6 +416,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  ImportarRoute: ImportarRoute,
   LoginRoute: LoginRoute,
   PrimeiroAcessoRoute: PrimeiroAcessoRoute,
 }

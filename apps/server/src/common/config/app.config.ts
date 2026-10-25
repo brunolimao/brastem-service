@@ -13,6 +13,7 @@ export const appConfig = registerAs('app', () => {
     host: process.env.HOST ?? '127.0.0.1',
     dataDir,
     databaseFile: nodeEnv === 'test' ? ':memory:' : join(dataDir, 'brastem.sqlite'),
+    clientDir: process.env.CLIENT_DIR || undefined,
     logsDir: join(dataDir, 'logs'),
     logLevel: nodeEnv === 'test' ? 'silent' : (process.env.LOG_LEVEL ?? 'info'),
     swaggerEnabled: process.env.SWAGGER_ENABLED !== 'false' && nodeEnv !== 'production',

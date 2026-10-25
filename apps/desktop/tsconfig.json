@@ -1,0 +1,5 @@
+{
+  "extends": "@brastem/tsconfig/node.json",
+  "compilerOptions": { "noEmit": true, "types": ["node"], "isolatedModules": true },
+  "include": ["src", "scripts"]
+}

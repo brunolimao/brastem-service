@@ -15,8 +15,15 @@ const defaultMessages: Record<number, string> = {
   403: 'Você não tem permissão para esta ação',
   404: 'Recurso não encontrado',
   409: 'Conflito com um registro existente',
+  413: 'Arquivo grande demais',
   429: 'Muitas tentativas. Tente novamente em instantes',
   500: 'Erro interno do servidor',
+}
+
+/** Erros do Express/body-parser (ex.: 413 arquivo grande, 404 do sendFile) trazem o status no próprio objeto. */
+const statusDeErroHttp = (erro: unknown) => {
+  const status = (erro as { status?: unknown } | null)?.status
+  return typeof status === 'number' && status >= 400 && status < 500 ? status : undefined
 }
 
 const frameworkDefaults = new Set(['Unauthorized', 'Forbidden', 'Not Found', 'Bad Request'])
@@ -35,7 +42,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? HttpStatus.TOO_MANY_REQUESTS
         : exception instanceof HttpException
           ? exception.getStatus()
-          : HttpStatus.INTERNAL_SERVER_ERROR
+          : (statusDeErroHttp(exception) ?? HttpStatus.INTERNAL_SERVER_ERROR)
 
     let message: string | string[] = defaultMessages[status] ?? 'Erro inesperado'
 

@@ -1,0 +1,24 @@
+{
+  "name": "@brastem/desktop",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Brastem-Service: gestão de assistência técnica",
+  "author": "Brastem-Service",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "start": "pnpm build && pnpm preparar && electron .",
+    "dist": "pnpm build && pnpm preparar && electron-builder --win",
+    "preparar": "node scripts/preparar.mjs"
+  },
+  "devDependencies": {
+    "@brastem/tsconfig": "workspace:*",
+    "@types/node": "^26.6.5",
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

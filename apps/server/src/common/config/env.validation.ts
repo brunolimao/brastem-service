@@ -5,6 +5,8 @@ export const envValidationSchema = Joi.object({
   PORT: Joi.number().port().default(3333),
   HOST: Joi.string().default('127.0.0.1'),
   DATA_DIR: Joi.string().default('./data'),
+  // Pasta do front compilado; quando informada, o servidor também entrega a interface (app desktop).
+  CLIENT_DIR: Joi.string().optional(),
   JWT_SECRET: Joi.string()
     .min(32)
     .when('NODE_ENV', {

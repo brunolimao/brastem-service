@@ -1,0 +1,34 @@
+appId: br.com.brastemservice.app
+productName: Brastem-Service
+copyright: Brastem-Service
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - package.json
+# O servidor (com seus node_modules já recompilados para o Electron) e o front vão fora do asar.
+extraResources:
+  - from: .stage/server
+    to: server
+    # As node_modules do servidor entram pelo gancho afterPack (o electron-builder as descarta aqui).
+  - from: .stage/client
+    to: client
+asar: true
+afterPack: scripts/depois-de-empacotar.cjs
+# Os módulos nativos são recompilados em scripts/preparar.mjs, não aqui.
+npmRebuild: false
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.png
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Brastem-Service
+  deleteAppDataOnUninstall: false
+  language: "1046"

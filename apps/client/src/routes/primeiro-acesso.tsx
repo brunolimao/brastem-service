@@ -1,5 +1,5 @@
 import { useForm } from '@tanstack/react-form'
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
 import { CampoTexto } from '@/components/form/campo-texto'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -76,6 +76,12 @@ function PrimeiroAcessoPage() {
               )}
             </form.Subscribe>
           </form>
+          <p className="mt-4 text-center text-muted-foreground text-sm">
+            Já usava o sistema antigo?{' '}
+            <Link to="/importar" className="text-primary underline-offset-4 hover:underline">
+              Importar os dados
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </main>

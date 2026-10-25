@@ -40,6 +40,13 @@ Rotas sob `/api`; documentar com decorators do Swagger.
 Erros de API viram toast no `libs/query-client.ts` (QueryCache/MutationCache); `services/api.ts` só lança `ApiError` e renova a sessão em 401. Não tratar toast de erro em cada tela; só toast de sucesso nas mutations. Search params de listagem: use `libs/search-params.ts` (o roteador converte "123" em número ao ler a URL). Gráficos: `components/charts/` (echarts com import parcial; a opção do gráfico é função pura em `opcao-pizza.ts`). Telas com período usam `FiltroPeriodo` e `libs/periodo.ts` (datas inclusivas, padrão = mês atual). Dev: `pnpm dev` sobe server (3333) e client (5173, com proxy de `/api`). Reutilizar `DataTable`, campos de `components/form` e `PrintOS`; não copiar telas.
 Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad hoc.
 
+## App desktop (apps/desktop)
+- Electron sobe o servidor Nest dentro do próprio processo, em `127.0.0.1` (porta 47831 ou outra livre), e abre uma janela nesse endereço. O servidor entrega o front (`CLIENT_DIR`), então front e API ficam na mesma origem.
+- Dados em `%APPDATA%Brastem-Servicedados` (SQLite, logs, `segredo.key` gerado na primeira abertura). `BRASTEM_PASTA_DADOS` troca essa pasta (testes).
+- `pnpm --filter @brastem/desktop start` roda o app; `... dist` gera o instalador em `apps/desktop/release`. `pnpm preparar` monta `.stage` (server via `pnpm deploy --config.node-linker=hoisted` + front). Atenção: `pnpm stage` é comando do próprio pnpm 12, por isso o script se chama `preparar`.
+- O electron-builder descarta `node_modules` em `extraResources`; elas entram pelo gancho `scripts/depois-de-empacotar.cjs`. O `better-sqlite3` 13 traz binário pronto (`prebuilds/win32-x64.node`), então não há recompilação.
+- Primeiro uso: `/primeiro-acesso` (cria o admin) ou `/importar` (envia o .sql do sistema antigo para `POST /api/import/legacy`, só antes de existir usuário).
+
 ## Skills do projeto (`.claude/skills`)
 
 `novo-modulo-server` · `nova-tela-client` · `verificar`
