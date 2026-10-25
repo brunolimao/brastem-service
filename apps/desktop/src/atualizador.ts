@@ -6,7 +6,9 @@ export interface AutoUpdaterMinimo {
   on(evento: 'update-available', ouvinte: (info: { version: string }) => void): unknown
   on(evento: 'update-not-available', ouvinte: () => void): unknown
   on(evento: 'error', ouvinte: (erro: Error) => void): unknown
-  checkForUpdates(): Promise<{ isUpdateAvailable?: boolean } | null | undefined>
+  checkForUpdates(): Promise<
+    { isUpdateAvailable?: boolean; downloadPromise?: Promise<unknown> | null } | null | undefined
+  >
   quitAndInstall(silencioso?: boolean, reabrir?: boolean): void
 }
 
@@ -70,6 +72,8 @@ export function iniciarAtualizador({
   const verificar = async (): Promise<ResultadoVerificacao> => {
     try {
       const resultado = await autoUpdater.checkForUpdates()
+      // Falha no download já chega pelo evento 'error' (registrado acima); sem isto vira rejeição não tratada.
+      resultado?.downloadPromise?.catch(() => undefined)
       return resultado?.isUpdateAvailable ? 'atualizacao-encontrada' : 'atualizado'
     } catch (erro) {
       registrar(`Falha ao verificar atualização: ${erro instanceof Error ? erro.message : erro}`)

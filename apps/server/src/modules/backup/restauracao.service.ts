@@ -3,7 +3,6 @@ import {
   createWriteStream,
   existsSync,
   mkdirSync,
-  renameSync,
   rmSync,
   writeFileSync,
 } from 'node:fs'
@@ -15,6 +14,7 @@ import { type ConfigType } from '@nestjs/config'
 import Database from 'better-sqlite3'
 import { appConfig } from '../../common/config/app.config.js'
 import { NOME_RESTAURACAO_PENDENTE } from '../../common/database/connection.js'
+import { moverArquivo } from '../../common/utils/arquivos.js'
 import { GoogleDriveClient } from './google-drive.client.js'
 
 /** Evento que o app desktop escuta para reiniciar sozinho depois de preparar uma restauração. */
@@ -50,7 +50,7 @@ export class RestauracaoService {
       const compactado = await this.obterArquivo(origem, id, baixado)
       await this.extrair(compactado.caminho, extraido, compactado.gzip)
       this.validar(extraido)
-      renameSync(extraido, join(pasta, NOME_RESTAURACAO_PENDENTE))
+      moverArquivo(extraido, join(pasta, NOME_RESTAURACAO_PENDENTE))
     } finally {
       // Abrir o arquivo (mesmo só para ler) faz o SQLite criar auxiliares -wal/-shm ao lado dele.
       for (const sufixo of ['', '-wal', '-shm']) rmSync(extraido + sufixo, { force: true })

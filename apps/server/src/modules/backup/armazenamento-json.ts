@@ -1,5 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
+import { moverArquivo } from '../../common/utils/arquivos.js'
 
 /** Um objeto JSON num arquivo, gravado por inteiro de uma vez (nunca fica pela metade). */
 export class ArmazenamentoJson<T extends object> {
@@ -19,7 +20,7 @@ export class ArmazenamentoJson<T extends object> {
     mkdirSync(dirname(this.arquivo), { recursive: true })
     const temporario = `${this.arquivo}.tmp`
     writeFileSync(temporario, JSON.stringify(valor, null, 2), { mode: 0o600 })
-    renameSync(temporario, this.arquivo)
+    moverArquivo(temporario, this.arquivo)
   }
 
   remover() {

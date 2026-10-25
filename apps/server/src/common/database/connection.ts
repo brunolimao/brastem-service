@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, renameSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import Database from 'better-sqlite3'
@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import type { BaseSQLiteDatabase } from 'drizzle-orm/sqlite-core'
+import { moverArquivo } from '../utils/arquivos.js'
 import * as schema from './schema/index.js'
 
 export const criarDb = (sqlite: Database.Database) => drizzle(sqlite, { schema })
@@ -39,14 +40,14 @@ export function aplicarRestauracaoPendente(arquivo: string, agora = new Date()):
       pastaBackups,
       `antes-da-restauracao-${format(agora, 'yyyy-MM-dd-HHmmss')}.sqlite`,
     )
-    renameSync(arquivo, antigo)
+    moverArquivo(arquivo, antigo)
     // Um -wal que sobrou de um fechamento abrupto ainda tem dados do banco antigo.
     for (const sufixo of ['-wal', '-shm']) {
-      if (existsSync(arquivo + sufixo)) renameSync(arquivo + sufixo, antigo + sufixo)
+      if (existsSync(arquivo + sufixo)) moverArquivo(arquivo + sufixo, antigo + sufixo)
     }
   }
 
-  renameSync(pendente, arquivo)
+  moverArquivo(pendente, arquivo)
   rmSync(`${arquivo}-wal`, { force: true })
   rmSync(`${arquivo}-shm`, { force: true })
   return true

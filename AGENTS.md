@@ -56,6 +56,12 @@ Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad 
 - Para lançar: `git tag v2.0.1 && git push origin v2.0.1` (a versão do instalador vem da tag). O app instalado usa `electron-updater` (`apps/desktop/src/atualizador.ts`), consultando as Releases ao abrir e a cada 4 h.
 - Todo pacote deve declarar o que importa: o CI instala em ambiente limpo e não enxerga dependências herdadas por acaso (foi assim que o `express` apareceu faltando).
 
+## Windows com pastas criptografadas (EFS)
+
+- Em alguns perfis (ex.: empresa) `AppDataLocal` e `AppDataRoaming` são criptografadas e **`rename` falha com `EXDEV` dentro delas**, mesmo na mesma pasta. Por isso: no servidor, mover arquivo é sempre `moverArquivo` (`common/utils/arquivos.ts`: tenta `rename`, cai para copiar+apagar); no desktop, o cache do auto-update vai para a primeira pasta onde um rename de teste funciona (`cache-atualizacao.ts` + `criar-atualizador.ts`).
+- `criar-atualizador.ts` usa um adaptador próprio do electron-updater, que deixa o `httpExecutor` vazio: ele é atribuído à mão e a versão do pacote é **fixa** (sem ^). Há teste que quebra se isso mudar. Ao atualizar o electron-updater, rode o teste de atualização de verdade (abaixo).
+- Testar atualização sem publicar: compile duas versões com `electron-builder --publish never -c.extraMetadata.version=X` usando um `publish` genérico apontando para `http://127.0.0.1:PORTA/`, instale a menor (`Setup.exe /S /D=pasta`) e sirva a maior (`latest.yml` + `.exe`). O app reaberto pelo instalador **não herda** variáveis de ambiente de teste (usa a pasta de dados padrão). Desinstale com `Uninstall Brastem-Service.exe /S`.
+
 ## Backup (apps/server/src/modules/backup)
 
 - Cópia do SQLite pela API de backup do better-sqlite3 (`sqlite.backup`), compactada em `dados/backups` (7 locais) e enviada ao Google Drive (30 no Drive) quando conectado. O agendador confere de hora em hora se já passaram 24 h; envio que falha fica `pendenteDrive` e é retentado sem criar novo snapshot.

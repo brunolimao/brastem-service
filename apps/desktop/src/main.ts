@@ -1,12 +1,15 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { app, BrowserWindow, dialog, Menu, type MenuItemConstructorOptions, shell } from 'electron'
-import { autoUpdater } from 'electron-updater'
 import { type Atualizador, iniciarAtualizador } from './atualizador'
+import { criarAtualizador } from './criar-atualizador'
 import { carregarOuCriarSegredo, escolherPorta, montarAmbiente } from './runtime'
 
 /** Mesmo nome emitido pelo servidor (RestauracaoService). */
 const EVENTO_REINICIAR = 'brastem:reiniciar'
+
+/** Onde baixar o instalador à mão quando a atualização automática não funciona. */
+const PAGINA_DE_DOWNLOADS = 'https://github.com/brunolimao/brastem-service/releases/latest'
 
 interface ServidorEmbutido {
   close(): Promise<void>
@@ -88,10 +91,15 @@ async function verificarAtualizacaoAgora() {
     atualizado: `Você já está na versão mais recente (${app.getVersion()}).`,
     erro: 'Não foi possível verificar agora. Confira a internet e tente de novo.',
   } as const
-  await dialog.showMessageBox({
-    type: resultado === 'erro' ? 'warning' : 'info',
+  const falhou = resultado === 'erro'
+  const { response } = await dialog.showMessageBox({
+    type: falhou ? 'warning' : 'info',
     message: mensagens[resultado],
+    // Se a atualização automática não funciona, o usuário ainda consegue baixar o instalador novo.
+    buttons: falhou ? ['Abrir página de downloads', 'Fechar'] : ['OK'],
+    cancelId: falhou ? 1 : 0,
   })
+  if (falhou && response === 0) void shell.openExternal(PAGINA_DE_DOWNLOADS)
 }
 
 function abrirJanela(endereco: string) {
@@ -159,7 +167,11 @@ if (!app.requestSingleInstanceLock()) {
       abrirJanela(await iniciarServidor())
       atualizador = iniciarAtualizador({
         empacotado: app.isPackaged,
-        autoUpdater,
+        autoUpdater: criarAtualizador(
+          // A primeira é a pasta padrão do electron-updater; as outras só entram se ela não aceitar renomear (EFS).
+          [process.env.LOCALAPPDATA ?? '', app.getPath('userData'), app.getPath('temp')],
+          (mensagem) => console.log(`[atualizador] ${mensagem}`),
+        ),
         registrar: (mensagem) => console.log(`[atualizador] ${mensagem}`),
         perguntarReiniciar: async (versao) => {
           const { response } = await dialog.showMessageBox({
