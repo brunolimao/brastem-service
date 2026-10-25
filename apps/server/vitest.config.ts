@@ -7,6 +7,9 @@ export default defineConfig({
   test: {
     globals: false,
     environment: 'node',
+    // Os testes e2e sobem o Nest inteiro; no CI (Windows, vários arquivos em paralelo) isso passa de 10 s.
+    hookTimeout: 60_000,
+    testTimeout: 30_000,
     include: ['src/**/*.spec.ts', 'test/**/*.e2e-spec.ts'],
     // Nada de escrever em ./data durante os testes; testes de backup definem a própria pasta.
     env: { NODE_ENV: 'test', DATA_DIR: join(tmpdir(), 'brastem-testes') },
