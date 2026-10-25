@@ -9,6 +9,12 @@ import { DatabaseModule } from './common/database/database.module.js'
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js'
 import { AppLoggerModule } from './common/logger/logger.module.js'
 import { AuthModule } from './modules/auth/auth.module.js'
+import { CaixaModule } from './modules/caixa/caixa.module.js'
+import { ClientesModule } from './modules/clientes/clientes.module.js'
+import { OrdensServicoModule } from './modules/ordens-servico/ordens-servico.module.js'
+import { PagamentosModule } from './modules/pagamentos/pagamentos.module.js'
+import { RelatoriosModule } from './modules/relatorios/relatorios.module.js'
+import { TransacoesModule } from './modules/transacoes/transacoes.module.js'
 import { UsuariosModule } from './modules/usuarios/usuarios.module.js'
 
 @Module({
@@ -25,6 +31,12 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module.js'
     DatabaseModule,
     AuthModule,
     UsuariosModule,
+    ClientesModule,
+    OrdensServicoModule,
+    PagamentosModule,
+    TransacoesModule,
+    CaixaModule,
+    RelatoriosModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })

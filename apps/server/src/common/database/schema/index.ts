@@ -1,2 +1,6 @@
+export * from './clientes.js'
+export * from './ordens-servico.js'
+export * from './pagamentos.js'
 export * from './refresh-tokens.js'
+export * from './transacoes.js'
 export * from './usuarios.js'

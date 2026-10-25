@@ -21,6 +21,7 @@ const translators: Record<string, (field: string, original: string) => string> =
   max: (f, o) => `O campo "${f}" deve ser no máximo ${number(o)}`,
   arrayMinSize: (f, o) => `O campo "${f}" deve ter no mínimo ${number(o)} item(ns)`,
   arrayMaxSize: (f, o) => `O campo "${f}" deve ter no máximo ${number(o)} item(ns)`,
+  matches: (f) => `O campo "${f}" está em um formato inválido`,
   whitelistValidation: (f) => `O campo "${f}" não é permitido`,
   nestedValidation: (f) => `O campo "${f}" é inválido`,
 }
