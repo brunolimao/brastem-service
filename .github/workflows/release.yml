@@ -1,0 +1,56 @@
+name: Release
+
+# Lançar uma versão (publica o instalador e libera a atualização automática):
+#   git tag v2.0.1 && git push origin v2.0.1
+# Execução manual (aba Actions → Release → Run workflow): só gera o instalador e o guarda como
+# arquivo de teste por 3 dias, sem publicar nada.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  instalador:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Não publica uma versão que não passa nas verificações.
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+      - name: Gerar o instalador
+        shell: bash
+        working-directory: apps/desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            # A versão vem da tag (v2.0.1 -> 2.0.1); o auto-update compara por ela.
+            VERSAO="${GITHUB_REF_NAME#v}"
+            PUBLICAR=always
+          else
+            VERSAO="0.0.0-teste.${GITHUB_RUN_NUMBER}"
+            PUBLICAR=never
+          fi
+          pnpm preparar
+          pnpm exec electron-builder --win --publish "$PUBLICAR" -c.extraMetadata.version="$VERSAO"
+
+      - name: Guardar o instalador de teste
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v4
+        with:
+          name: instalador-teste
+          path: apps/desktop/release/*.exe
+          retention-days: 3

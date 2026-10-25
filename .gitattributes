@@ -1,0 +1,5 @@
+# Mesmo fim de linha em qualquer máquina (o Biome formata com LF; sem isto o CI no Windows reclamaria).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary

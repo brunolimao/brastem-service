@@ -1,6 +1,8 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { app, BrowserWindow, dialog, Menu, type MenuItemConstructorOptions, shell } from 'electron'
+import { autoUpdater } from 'electron-updater'
+import { type Atualizador, iniciarAtualizador } from './atualizador'
 import { carregarOuCriarSegredo, escolherPorta, montarAmbiente } from './runtime'
 
 /** Mesmo nome emitido pelo servidor (RestauracaoService). */
@@ -13,6 +15,7 @@ interface ServidorEmbutido {
 let servidor: ServidorEmbutido | undefined
 let janela: BrowserWindow | undefined
 let encerrando = false
+let atualizador: Atualizador | undefined
 
 // Mesmo nome instalado ou não, para a pasta de dados (%APPDATA%\Brastem-Service) ser sempre a mesma.
 app.setName('Brastem-Service')
@@ -57,8 +60,38 @@ function montarMenu(): Menu {
         { role: 'togglefullscreen' },
       ],
     },
+    {
+      label: 'Ajuda',
+      submenu: [
+        { label: 'Verificar atualizações', click: () => void verificarAtualizacaoAgora() },
+        { type: 'separator' },
+        { label: `Brastem-Service ${app.getVersion()}`, enabled: false },
+      ],
+    },
   ]
   return Menu.buildFromTemplate(modelo)
+}
+
+/** Menu Ajuda → Verificar atualizações: responde com uma mensagem, ao contrário da checagem silenciosa. */
+async function verificarAtualizacaoAgora() {
+  if (!app.isPackaged) {
+    await dialog.showMessageBox({
+      type: 'info',
+      message: 'Atualizações só funcionam no app instalado.',
+    })
+    return
+  }
+  const resultado = (await atualizador?.verificar()) ?? 'erro'
+  const mensagens = {
+    'atualizacao-encontrada':
+      'Há uma nova versão. Ela está sendo baixada e avisaremos quando estiver pronta.',
+    atualizado: `Você já está na versão mais recente (${app.getVersion()}).`,
+    erro: 'Não foi possível verificar agora. Confira a internet e tente de novo.',
+  } as const
+  await dialog.showMessageBox({
+    type: resultado === 'erro' ? 'warning' : 'info',
+    message: mensagens[resultado],
+  })
 }
 
 function abrirJanela(endereco: string) {
@@ -124,6 +157,24 @@ if (!app.requestSingleInstanceLock()) {
         app.quit()
       })
       abrirJanela(await iniciarServidor())
+      atualizador = iniciarAtualizador({
+        empacotado: app.isPackaged,
+        autoUpdater,
+        registrar: (mensagem) => console.log(`[atualizador] ${mensagem}`),
+        perguntarReiniciar: async (versao) => {
+          const { response } = await dialog.showMessageBox({
+            type: 'info',
+            title: 'Atualização pronta',
+            message: `A versão ${versao} do Brastem-Service foi baixada.`,
+            detail:
+              'Reiniciar agora leva alguns segundos. Se preferir, ela é instalada sozinha na próxima vez que você fechar o aplicativo.',
+            buttons: ['Reiniciar agora', 'Depois'],
+            defaultId: 0,
+            cancelId: 1,
+          })
+          return response === 0
+        },
+      })
     })
     .catch((erro) => {
       mostrarErroDeInicio(erro)
@@ -132,6 +183,7 @@ if (!app.requestSingleInstanceLock()) {
 
   // Fecha o servidor (e o banco) com calma antes de sair, para não deixar o arquivo SQLite no meio de uma escrita.
   app.on('before-quit', (evento) => {
+    atualizador?.parar()
     if (encerrando || !servidor) return
     evento.preventDefault()
     encerrando = true

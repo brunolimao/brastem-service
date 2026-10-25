@@ -49,6 +49,7 @@ Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad 
 - Primeiro uso: `/primeiro-acesso` (cria o admin) ou `/importar` (envia o .sql do sistema antigo para `POST /api/import/legacy`, só antes de existir usuário).
 
 ## Backup (apps/server/src/modules/backup)
+
 - Cópia do SQLite pela API de backup do better-sqlite3 (`sqlite.backup`), compactada em `dados/backups` (7 locais) e enviada ao Google Drive (30 no Drive) quando conectado. O agendador confere de hora em hora se já passaram 24 h; envio que falha fica `pendenteDrive` e é retentado sem criar novo snapshot.
 - Google por REST (sem SDK): OAuth de app para computador com PKCE e retorno em `http://127.0.0.1:<porta>/api/backup/google/callback`; escopo só `drive.file`. Credenciais, refresh token e pasta ficam em `dados/integracoes/google.json`, fora do banco (para não irem nos backups). Guia do Google Cloud: `docs/backup-google-drive.md`.
 - Restaurar nunca troca o banco aberto: `RestauracaoService` valida o backup e grava `restauracao-pendente.sqlite`; `aplicarRestauracaoPendente` (em `connection.ts`) faz a troca na próxima abertura e guarda o banco antigo em `backups/antes-da-restauracao-*`. O evento `brastem:reiniciar` no `process` faz o Electron reabrir sozinho.

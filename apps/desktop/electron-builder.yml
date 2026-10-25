@@ -32,3 +32,10 @@ nsis:
   shortcutName: Brastem-Service
   deleteAppDataOnUninstall: false
   language: "1046"
+# Auto-update: o app instalado consulta as Releases públicas deste repositório.
+publish:
+  provider: github
+  owner: brunolimao
+  repo: brastem-service
+  # Publica direto (sem rascunho): rascunhos são invisíveis para o auto-update.
+  releaseType: release
