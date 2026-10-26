@@ -1,3 +1,4 @@
+import { RECOMENDACOES } from '@brastem/shared'
 import { hash } from '@node-rs/argon2'
 import { count, eq } from 'drizzle-orm'
 import { type Db, schema } from '../common/database/index.js'
@@ -114,11 +115,7 @@ export async function migrarDoDump(db: Db, dump: DumpLegado): Promise<RelatorioM
         resClientes.ignorados += 1
         continue
       }
-      if (
-        !['antigo', 'indicacao', 'internet', 'porta', 'outros'].includes(
-          texto(c.recomendacao).toLowerCase(),
-        )
-      ) {
+      if (!(RECOMENDACOES as readonly string[]).includes(texto(c.recomendacao).toLowerCase())) {
         recomendacoesDesconhecidas.add(texto(c.recomendacao) || '(vazio)')
       }
       tx.insert(clientes)

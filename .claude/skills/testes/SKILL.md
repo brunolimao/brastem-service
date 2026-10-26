@@ -10,17 +10,36 @@ o teste da regra. Cite o código da regra da especificação (`R-XXX-NN`) no nom
 
 ## Onde e como testar
 
-| O que mudou                                                       | Teste                                                                                                                                         | Exemplo a seguir                                                                |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Função pura (dinheiro, datas, conversões, parsing)                | unitário Vitest ao lado do arquivo (`x.spec.ts`)                                                                                              | `packages/shared/src/dinheiro.spec.ts`, `apps/server/src/legacy/legacy.spec.ts` |
-| Regra de negócio, rota, permissão, validação da API               | e2e com o Nest inteiro e banco em memória (`apps/server/test/*.e2e-spec.ts`, Supertest)                                                       | `regras.e2e-spec.ts`, `seguranca.e2e-spec.ts`                                   |
-| Banco: migração nova, mudança em dados existentes                 | `common/database/connection.spec.ts` (banco "da versão anterior" + migração nova)                                                             | teste `0004`                                                                    |
-| Tela, formulário, componente                                      | Testing Library (`*.spec.tsx`), interagindo como o usuário (`getByRole`, `getByLabelText`)                                                    | `cliente-form.spec.tsx`, `data-table.spec.tsx`                                  |
-| Schema Zod, conversão form → API                                  | `apps/client/src/models/models.spec.ts`                                                                                                       |                                                                                 |
-| Hook (invalidação depois de salvar), `api.ts`, `query-client.ts`  | Vitest com `QueryClient` de verdade e `fetch` falso                                                                                           | `services/api.spec.ts`                                                          |
-| Lógica do Electron                                                | extraia para um módulo puro em `apps/desktop/src/` e teste lá (o `main.ts` só liga as peças)                                                  | `carregamento.ts`, `atualizador.ts`                                             |
-| Abertura do app instalado (janela, servidor embutido, instalador) | teste de fumaça: `pnpm --filter @brastem/desktop fumaca` (roda também no release, antes de publicar)                                          | `apps/desktop/scripts/fumaca.mjs`                                               |
-| Algo que só se vê com dados reais (importação, migração)          | script descartável em `apps/server/scripts/_*.ts` com o dump real, **apagado depois**; o resultado vira teste permanente com dados inventados | contagens da garantia (R-IMPT-07)                                               |
+| O que mudou                                                         | Teste                                                                                                                                                                   | Exemplo a seguir                                                                |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Função pura (dinheiro, datas, conversões, parsing)                  | unitário Vitest ao lado do arquivo (`x.spec.ts`)                                                                                                                        | `packages/shared/src/dinheiro.spec.ts`, `apps/server/src/legacy/legacy.spec.ts` |
+| Regra de negócio, rota, permissão, validação da API                 | e2e com o Nest inteiro e banco em memória (`apps/server/test/*.e2e-spec.ts`, Supertest)                                                                                 | `regras.e2e-spec.ts`, `seguranca.e2e-spec.ts`                                   |
+| Banco: migração nova, mudança em dados existentes                   | `common/database/connection.spec.ts` (banco "da versão anterior" + migração nova)                                                                                       | teste `0004`                                                                    |
+| Tela, formulário, componente                                        | Testing Library (`*.spec.tsx`), interagindo como o usuário (`getByRole`, `getByLabelText`)                                                                              | `cliente-form.spec.tsx`, `data-table.spec.tsx`                                  |
+| Tela inteira (rota, URL, consultas, navegação, permissão por papel) | `abrirTela(url, { usuario, api })` de `apps/client/src/test/tela.tsx`: o app de verdade num roteador em memória com servidor falso; dados inventados em `test/dados.ts` | `apps/client/src/test/telas/*.spec.tsx`                                         |
+| Schema Zod, conversão form → API                                    | `apps/client/src/models/models.spec.ts`                                                                                                                                 |                                                                                 |
+| Hook (invalidação depois de salvar), `api.ts`, `query-client.ts`    | Vitest com `QueryClient` de verdade e `fetch` falso                                                                                                                     | `services/api.spec.ts`                                                          |
+| Lógica do Electron                                                  | extraia para um módulo puro em `apps/desktop/src/` e teste lá (o `main.ts` só liga as peças)                                                                            | `carregamento.ts`, `atualizador.ts`                                             |
+| Abertura do app instalado (janela, servidor embutido, instalador)   | teste de fumaça: `pnpm --filter @brastem/desktop fumaca` (roda também no release, antes de publicar)                                                                    | `apps/desktop/scripts/fumaca.mjs`                                               |
+| Algo que só se vê com dados reais (importação, migração)            | script descartável em `apps/server/scripts/_*.ts` com o dump real, **apagado depois**; o resultado vira teste permanente com dados inventados                           | contagens da garantia (R-IMPT-07)                                               |
+
+## Testes de tela
+
+```tsx
+const tela = abrirTela('/clientes?busca=maria', {
+  usuario: COMUM, // padrão: ADMIN; null = ninguém logado
+  api: { 'GET /clientes': pagina([clienteListado()]), 'DELETE /clientes/7': undefined },
+})
+await screen.findByText('João da Silva')
+expect(tela.ultimo('GET /clientes').query.get('busca')).toBe('maria')
+await esperarCaminho(tela, '/clientes/7')
+```
+
+- Pedido sem resposta prevista falha alto (status 599 com "rota não prevista"): declare tudo que a tela pede.
+- `resposta(404, { message })` simula erro do servidor; uma função recebe o pedido (`query`, `corpo`).
+- Espere a tela antes de interagir (`findBy*`, `esperarTitulo`): cada tela é carregada sob demanda.
+- Gráficos: faça `vi.mock('echarts-for-react/lib/core', ...)` no arquivo (o jsdom não tem canvas).
+- Arquivos de teste ficam em `src/test/telas/`, nunca em `src/routes/` (lá viram rotas).
 
 ## Provar que o teste pega o defeito
 
@@ -29,6 +48,9 @@ Um teste que passa com o defeito não protege nada. Depois de escrever o teste d
 1. desfaça a correção (ou troque a linha principal por uma versão errada);
 2. rode só aquele teste e confirme que **falha** pelo motivo certo;
 3. restaure a correção e confirme que passa.
+
+Se a mutação "escapa" (o teste continua passando), ou falta teste, ou o trecho é redundante (outra parte
+já garante o mesmo resultado, como a proteção da rota). Decida qual dos dois antes de seguir.
 
 ## Bons hábitos
 

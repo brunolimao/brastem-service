@@ -50,5 +50,6 @@
 - `apps/server/test/auth.e2e-spec.ts` — rotas exigem login; só admin gerencia usuários e ninguém apaga a si mesmo (R-PERM-01, R-PERM-04).
 - `apps/server/test/dominio.e2e-spec.ts` — "usuário comum não acessa caixa, relatórios nem exclusões" (R-PERM-03).
 - `apps/server/test/seguranca.e2e-spec.ts` — "usuário excluído perde o acesso na hora" (R-PERM-02).
+- `apps/client/src/test/telas/acesso.spec.tsx` — usuário comum que abre o endereço de uma tela restrita volta ao Início (R-PERM-03).
 - `apps/client/src/components/layout/app-sidebar.spec.tsx` — menu do usuário comum sem as telas restritas (R-PERM-03).
 - `apps/server/test/transacoes.e2e-spec.ts` — usuário comum lança, mas não lista nem exclui lançamentos (R-PERM-03).

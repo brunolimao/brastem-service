@@ -1,81 +1,11 @@
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { empresaVazia } from '@/models/empresa.model'
-import type { OrdemServicoDetalhe } from '@/models/ordem-servico.model'
+import { ordemDetalhe } from '@/test/dados'
 import { PrintOS } from './print-os'
 
-const detalhe: OrdemServicoDetalhe = {
-  ordemServico: {
-    id: 42,
-    clienteId: 7,
-    aparelhoId: 3,
-    status: 'FECHADO',
-    valor: 30000,
-    taxaDeslocamento: 5000,
-    relatado: 'Não gela',
-    identificado: 'Compressor queimado',
-    solucionado: 'Troca do compressor',
-    observacao: '',
-    garantiaDias: 90,
-    isGarantia: false,
-    abertura: '2026-09-30',
-    fechamento: '2026-10-01',
-    criadoEm: '2026-09-30T10:00:00.000Z',
-  },
-  cliente: {
-    id: 7,
-    nome: 'João da Silva',
-    cpf: '12345678901',
-    email: '',
-    endereco: 'Rua A',
-    numero: '10',
-    complemento: '',
-    bairro: 'Centro',
-    cep: '31910-520',
-    uf: 'MG',
-    cidade: 'Belo Horizonte',
-    negativado: false,
-    motivo: '',
-    recomendacao: 'internet',
-    referencia: '',
-    criadoEm: '2026-09-01T10:00:00.000Z',
-  },
-  aparelho: {
-    id: 3,
-    clienteId: 7,
-    ordem: 1,
-    nome: 'Geladeira',
-    marca: 'Brastemp',
-    modelo: 'Frost Free',
-    pnc: '123',
-    garantiaAte: null,
-    observacao: '',
-  },
-  telefones: [{ id: 1, clienteId: 7, nome: 'Casa', telefone: '31999991111' }],
-  pagamentos: [
-    { id: 1, tipo: 'credito', parcelas: 3, data: '2026-10-01', valor: 35000, observacao: '' },
-  ],
-  ultimasOrdens: [
-    {
-      id: 42,
-      abertura: '2026-09-30',
-      fechamento: '2026-10-01',
-      valor: 30000,
-      taxaDeslocamento: 5000,
-      solucionado: 'Troca do compressor',
-      garantiaDias: 90,
-    },
-    {
-      id: 30,
-      abertura: '2025-01-10',
-      fechamento: '2025-01-11',
-      valor: 12000,
-      taxaDeslocamento: 0,
-      solucionado: 'Troca do termostato',
-      garantiaDias: null,
-    },
-  ],
-}
+// A mesma OS de exemplo das telas (dados inventados).
+const detalhe = ordemDetalhe()
 
 describe('PrintOS', () => {
   it('mostra o número da OS, o cliente formatado e os serviços anteriores sem repetir a atual', () => {

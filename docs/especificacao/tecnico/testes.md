@@ -25,15 +25,16 @@
 
 ## Camadas
 
-| Camada                                        | Ferramenta                                                | Onde                                                 |
-| --------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------- |
-| Funções puras (dinheiro, datas, conversões)   | Vitest                                                    | `x.spec.ts` ao lado do arquivo, em todos os pacotes  |
-| API: regras, permissões, validação, banco     | Vitest + Supertest com o Nest inteiro e SQLite em memória | `apps/server/test/*.e2e-spec.ts`                     |
-| Migrações do banco                            | Vitest com um banco da versão anterior                    | `apps/server/src/common/database/connection.spec.ts` |
-| Telas, formulários, hooks, tratamento de erro | Vitest + Testing Library (jsdom)                          | `apps/client/src/**/*.spec.tsx`                      |
-| Lógica do Electron                            | Vitest em módulos puros (o `main.ts` só liga as peças)    | `apps/desktop/src/*.spec.ts`                         |
-| App instalado abrindo de verdade              | Teste de fumaça                                           | `apps/desktop/scripts/fumaca.mjs`                    |
-| Atualização automática de ponta a ponta       | Manual, com servidor local (ver `AGENTS.md`)              | —                                                    |
+| Camada                                          | Ferramenta                                                      | Onde                                                 |
+| ----------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------- |
+| Funções puras (dinheiro, datas, conversões)     | Vitest                                                          | `x.spec.ts` ao lado do arquivo, em todos os pacotes  |
+| API: regras, permissões, validação, banco       | Vitest + Supertest com o Nest inteiro e SQLite em memória       | `apps/server/test/*.e2e-spec.ts`                     |
+| Migrações do banco                              | Vitest com um banco da versão anterior                          | `apps/server/src/common/database/connection.spec.ts` |
+| Telas, formulários, hooks, tratamento de erro   | Vitest + Testing Library (jsdom)                                | `apps/client/src/**/*.spec.tsx`                      |
+| Telas inteiras: rota, URL, permissão, navegação | Roteador real em memória + servidor falso (`src/test/tela.tsx`) | `apps/client/src/test/telas/*.spec.tsx`              |
+| Lógica do Electron                              | Vitest em módulos puros (o `main.ts` só liga as peças)          | `apps/desktop/src/*.spec.ts`                         |
+| App instalado abrindo de verdade                | Teste de fumaça                                                 | `apps/desktop/scripts/fumaca.mjs`                    |
+| Atualização automática de ponta a ponta         | Manual, com servidor local (ver `AGENTS.md`)                    | —                                                    |
 
 ## Comandos
 
@@ -51,5 +52,9 @@
 
 ## Testes
 
+- `apps/client/src/test/telas/*.spec.tsx` — cada tela aberta pela URL: login e volta à tela pedida, primeiro
+  acesso, importação, telas só do administrador (R-ACE-06, R-ACE-01, R-PERM-03), listas com busca e páginas na
+  URL, cadastro e edição, OS, caixa, pagamentos, relatórios, usuários e configurações.
+- `packages/shared/src/enums.spec.ts` — valores gravados no banco não mudam (renomear exige migração).
 - O próprio teste de fumaça foi validado por mutação: com o `main.ts` anterior à correção da janela em branco
   (R-ATU-10), ele reprova com "tempo esgotado"; com a correção, passa em cerca de 20 s.

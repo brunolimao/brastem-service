@@ -21,3 +21,6 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 }
+
+// Nem rolagem de janela (o roteador rola para o topo ao trocar de tela).
+window.scrollTo = () => undefined

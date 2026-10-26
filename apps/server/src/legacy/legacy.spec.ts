@@ -128,6 +128,8 @@ describe('migração', () => {
 
     const cliente = db.select().from(schema.clientes).where(eq(schema.clientes.id, 2)).get()
     expect(cliente).toMatchObject({ negativado: true, recomendacao: 'porta' })
+    // "internet" é conhecida; "xyz" e o vazio viram "porta" e aparecem no aviso.
+    expect(relatorio.avisos).toContain('Recomendações fora do padrão viraram "porta": xyz, (vazio)')
     expect(db.select().from(schema.clientes).where(eq(schema.clientes.id, 3)).get()?.nome).toBe(
       '(sem nome)',
     )
