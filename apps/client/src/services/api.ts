@@ -67,13 +67,16 @@ export async function api<T>(caminho: string, { method = 'GET', body, query }: O
       body: body === undefined ? undefined : JSON.stringify(body),
     })
 
-  let resposta = await enviar().catch(() => {
-    throw new ApiError(0, ['Não foi possível conectar ao servidor.'])
-  })
+  const enviarOuFalhar = () =>
+    enviar().catch(() => {
+      throw new ApiError(0, ['Não foi possível conectar ao servidor.'])
+    })
+
+  let resposta = await enviarOuFalhar()
 
   if (resposta.status === 401 && !ROTAS_DE_AUTENTICACAO.includes(caminho)) {
     if (await renovarSessao()) {
-      resposta = await enviar()
+      resposta = await enviarOuFalhar()
     } else {
       aoExpirarSessao?.()
       throw await lerErro(resposta, true)

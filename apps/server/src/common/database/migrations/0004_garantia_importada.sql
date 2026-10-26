@@ -1,0 +1,1 @@
+ALTER TABLE `aparelhos` ADD `garantia_importada` text;

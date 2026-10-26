@@ -53,6 +53,11 @@ export const aparelhos = sqliteTable(
     pnc: text('pnc').notNull().default(''),
     /** Fim da garantia (yyyy-MM-dd). */
     garantiaAte: text('garantia_ate'),
+    /**
+     * Garantia que veio do sistema antigo (yyyy-MM-dd). Ela pode não ter uma OS que a explique, então
+     * o recálculo da garantia (pela maior entre as OS fechadas) nunca fica abaixo dela.
+     */
+    garantiaImportada: text('garantia_importada'),
     observacao: text('observacao').notNull().default(''),
   },
   (t) => [index('aparelhos_cliente_id_idx').on(t.clienteId)],

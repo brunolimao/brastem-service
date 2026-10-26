@@ -65,6 +65,18 @@ describe('api', () => {
     expect(aoExpirarSessao).not.toHaveBeenCalled()
   })
 
+  it('se a rede cai depois de renovar a sessão, avisa que não conectou (não um erro genérico)', async () => {
+    fetchMock
+      .mockResolvedValueOnce(resposta(401, { message: 'expirou' }))
+      .mockResolvedValueOnce(resposta(200))
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+
+    await expect(api('/clientes')).rejects.toMatchObject({
+      status: 0,
+      message: 'Não foi possível conectar ao servidor.',
+    })
+  })
+
   it('várias chamadas com 401 ao mesmo tempo disparam uma única renovação', async () => {
     fetchMock.mockImplementation(async (url) => {
       if (url === '/api/auth/refresh') return resposta(200)

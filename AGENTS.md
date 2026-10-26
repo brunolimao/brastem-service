@@ -27,6 +27,8 @@ Antes de concluir qualquer tarefa: lint, typecheck e test devem passar.
 - Auth: JWT em cookie httpOnly (SameSite=Strict), refresh rotacionado, senha com argon2. Falha de auth = 401/403, nunca 500.
 - Segredos só em env (validadas por Joi); nunca commitar `.env`.
 
+- Garantia do aparelho: sempre `recalcularGarantia` (`modules/ordens-servico/garantia.ts`): a maior entre as OS fechadas (fechamento + dias) e `garantiaImportada` (a que veio do sistema antigo, que é um piso). O sistema antigo não somava garantias escritas como texto ("90 DIAS"); a importação corrige isso e avisa no relatório.
+
 ### Server (`apps/server/src`)
 
 `common/{config,database,logger,auth,filters,interceptors,pipes,validation,utils}` e `modules/<modulo>/`
@@ -69,6 +71,7 @@ Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad 
 - Cópia do SQLite pela API de backup do better-sqlite3 (`sqlite.backup`), compactada em `dados/backups` (7 locais) e enviada ao Google Drive (30 no Drive) quando conectado. O agendador confere de hora em hora se já passaram 24 h; envio que falha fica `pendenteDrive` e é retentado sem criar novo snapshot.
 - Google por REST (sem SDK): OAuth de app para computador com PKCE e retorno em `http://127.0.0.1:<porta>/api/backup/google/callback`; escopo só `drive.file`. Credenciais, refresh token e pasta ficam em `dados/integracoes/google.json`, fora do banco (para não irem nos backups). Guia do Google Cloud: `docs/backup-google-drive.md`.
 - Restaurar nunca troca o banco aberto: `RestauracaoService` valida o backup e grava `restauracao-pendente.sqlite`; `aplicarRestauracaoPendente` (em `connection.ts`) faz a troca na próxima abertura e guarda o banco antigo em `backups/antes-da-restauracao-*`. O evento `brastem:reiniciar` no `process` faz o Electron reabrir sozinho.
+- Antes de aplicar migrações pendentes, `migrarSchema` grava `backups/antes-da-migracao-*.sqlite` (restaurável pela tela, como `antes-da-restauracao-*`; padrão em `PADRAO_BACKUP_LOCAL`) e roda com chaves estrangeiras desligadas (recriar tabela com elas ligadas apagaria OS em cascata). Banco de versão mais nova é recusado ao abrir e ao restaurar.
 - Rotas públicas dentro de controller com `@Roles` continuam públicas (`RolesGuard` respeita `@Public`). Testes de backup usam um Google falso em `test/google-falso.ts` (`vi.stubGlobal('fetch')`).
 - Cabeçalho de card com botão: use `CardAction` (o `CardHeader` do shadcn é uma grade; `flex-row` não funciona).
 

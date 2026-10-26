@@ -1,7 +1,6 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { and, count, desc, eq, or, type SQL, sql } from 'drizzle-orm'
 import { type Db, type DbLike, DRIZZLE, schema } from '../../common/database/index.js'
-import { somarDias } from '../../common/utils/dates.js'
 import { reaisParaCentavos } from '../../common/utils/money.js'
 import { contem, limites, type Pagina } from '../../common/utils/pagination.js'
 import { PagamentosService } from '../pagamentos/pagamentos.service.js'
@@ -11,6 +10,7 @@ import {
   type OrdensServicoQueryDto,
   type UpdateOrdemServicoDto,
 } from './dto/ordem-servico.dto.js'
+import { recalcularGarantia } from './garantia.js'
 
 const { ordensServico, clientes, aparelhos, telefones } = schema
 
@@ -155,7 +155,7 @@ export class OrdensServicoService {
         .returning({ id: ordensServico.id })
         .get()
 
-      this.recalcularGarantia(tx, dto.aparelhoId)
+      recalcularGarantia(tx, dto.aparelhoId)
       this.pagamentos.criar(tx, { ordemServicoId: os.id }, itens ?? [])
       return os.id
     })
@@ -179,7 +179,7 @@ export class OrdensServicoService {
         .set({ ...enviados, ...camposDeFechamento(final.status) })
         .where(eq(ordensServico.id, id))
         .run()
-      this.recalcularGarantia(tx, atual.aparelhoId)
+      recalcularGarantia(tx, atual.aparelhoId)
 
       if (itens) {
         this.pagamentos.removerDaOrdem(tx, id)
@@ -197,7 +197,7 @@ export class OrdensServicoService {
         .returning({ aparelhoId: ordensServico.aparelhoId })
         .get()
       if (!removida) throw new NotFoundException('Ordem de serviço não encontrada')
-      this.recalcularGarantia(tx, removida.aparelhoId)
+      recalcularGarantia(tx, removida.aparelhoId)
     })
   }
 
@@ -205,25 +205,6 @@ export class OrdensServicoService {
     if (status === 'FECHADO' && !fechamento) {
       throw new BadRequestException('Informe a data de fechamento para fechar a ordem de serviço')
     }
-  }
-
-  /**
-   * A garantia do aparelho vai até o fim da garantia mais longa entre as OS fechadas dele
-   * (fechamento + dias). Recalcular, em vez de sobrescrever, evita que editar uma OS antiga encurte a
-   * garantia dada por uma mais nova, e faz apagar a garantia de uma OS valer de verdade.
-   */
-  private recalcularGarantia(db: DbLike, aparelhoId: number) {
-    const fins = db
-      .select({ fechamento: ordensServico.fechamento, dias: ordensServico.garantiaDias })
-      .from(ordensServico)
-      .where(and(eq(ordensServico.aparelhoId, aparelhoId), eq(ordensServico.status, 'FECHADO')))
-      .all()
-      .flatMap(({ fechamento, dias }) => (fechamento && dias ? [somarDias(fechamento, dias)] : []))
-      .sort()
-    db.update(aparelhos)
-      .set({ garantiaAte: fins.at(-1) ?? null })
-      .where(eq(aparelhos.id, aparelhoId))
-      .run()
   }
 }
 

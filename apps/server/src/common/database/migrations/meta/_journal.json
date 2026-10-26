@@ -29,6 +29,13 @@
       "when": 1793022175309,
       "tag": "0003_indices",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1793042598716,
+      "tag": "0004_garantia_importada",
+      "breakpoints": true
     }
   ]
 }

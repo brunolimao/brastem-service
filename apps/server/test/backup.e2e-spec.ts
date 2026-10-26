@@ -1,8 +1,18 @@
 import 'reflect-metadata'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { gunzipSync } from 'node:zlib'
 import type { INestApplication } from '@nestjs/common'
+import Database from 'better-sqlite3'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { criarGoogleFalso } from './google-falso.js'
@@ -306,6 +316,42 @@ describe('backup e restauração (e2e)', () => {
         process.off('brastem:reiniciar', escuta)
         rmSync(pendente(), { force: true })
       }
+    })
+
+    /** Cópia descompactada do último backup, com o nome que o app usa antes de migrar o banco. */
+    const copiaAntesDaMigracao = async () => {
+      const nome = 'antes-da-migracao-2026-10-26-090000.sqlite'
+      const gz = readFileSync(join(pastaBackups, await nomeDoUltimoBackup()))
+      writeFileSync(join(pastaBackups, nome), gunzipSync(gz))
+      return nome
+    }
+
+    it('lista e restaura a cópia que o app guarda antes de atualizar o banco', async () => {
+      const nome = await copiaAntesDaMigracao()
+      const lista = (await admin.get('/api/backup/arquivos').expect(200)).body.local as {
+        id: string
+      }[]
+      expect(lista.map((a) => a.id)).toContain(nome)
+
+      await admin.post('/api/backup/restaurar').send({ origem: 'local', id: nome }).expect(200)
+      expect(existsSync(pendente())).toBe(true)
+      rmSync(pendente())
+      rmSync(join(pastaBackups, nome))
+    })
+
+    it('recusa backup gravado por uma versão mais nova do app', async () => {
+      const nome = await copiaAntesDaMigracao()
+      const banco = new Database(join(pastaBackups, nome))
+      banco.exec('update __drizzle_migrations set created_at = created_at + 100000000000')
+      banco.close()
+
+      const res = await admin
+        .post('/api/backup/restaurar')
+        .send({ origem: 'local', id: nome })
+        .expect(400)
+      expect(res.body.message).toContain('versão mais nova')
+      expect(existsSync(pendente())).toBe(false)
+      rmSync(join(pastaBackups, nome))
     })
 
     it('recusa arquivo que não é um backup do sistema, nome com caminho e arquivo inexistente', async () => {

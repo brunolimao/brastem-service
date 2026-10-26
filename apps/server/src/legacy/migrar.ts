@@ -1,8 +1,9 @@
 import { hash } from '@node-rs/argon2'
-import { count } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import { type Db, schema } from '../common/database/index.js'
 import { somarMeses } from '../common/utils/dates.js'
 import { dividirEmParcelas } from '../common/utils/money.js'
+import { recalcularGarantia } from '../modules/ordens-servico/garantia.js'
 import {
   dataHoraParaIso,
   dataParaIso,
@@ -190,6 +191,7 @@ export async function migrarDoDump(db: Db, dump: DumpLegado): Promise<RelatorioM
           modelo: texto(a.modelo),
           pnc: texto(a.pnc),
           garantiaAte: dataParaIso(a.garantia),
+          garantiaImportada: dataParaIso(a.garantia),
           observacao: texto(a.observacao),
         })
         .run()
@@ -252,6 +254,23 @@ export async function migrarDoDump(db: Db, dump: DumpLegado): Promise<RelatorioM
     }
     if (statusDesconhecidos > 0)
       aviso(`${statusDesconhecidos} OS com status fora do padrão viraram APROVADO.`)
+
+    // Garantia de cada aparelho pela regra do sistema novo (a maior entre as OS e a antiga). O sistema
+    // antigo não somava garantias escritas como texto ("90 DIAS"): gravava a data de fechamento, ou seja,
+    // garantia zero. Aqui elas passam a valer o que foi combinado com o cliente.
+    let garantiasCorrigidas = 0
+    for (const [id] of aparelhoDoCliente) {
+      const antes = tx
+        .select({ garantiaAte: aparelhos.garantiaAte })
+        .from(aparelhos)
+        .where(eq(aparelhos.id, id))
+        .get()?.garantiaAte
+      if (recalcularGarantia(tx, id) !== (antes ?? null)) garantiasCorrigidas += 1
+    }
+    if (garantiasCorrigidas > 0)
+      aviso(
+        `${garantiasCorrigidas} aparelho(s) com a garantia recalculada pelas OS (no sistema antigo, garantias escritas como "90 DIAS" não eram somadas à data de fechamento).`,
+      )
 
     // Transações (receitas/despesas avulsas)
     const listaTransacoes = dump.Transacaos ?? []

@@ -74,6 +74,44 @@ describe('migração', () => {
     return db
   }
 
+  it('corrige a garantia que o sistema antigo zerava ("90 DIAS") e mantém a que só existia lá', async () => {
+    const db = novoBanco()
+    const os = (id: number, aparelho: number, garantia: string, fechamento: string) => ({
+      id,
+      valor: '100',
+      status: 'FECHADO',
+      servico: '0',
+      garantia,
+      abertura: fechamento,
+      fechamento,
+      isGarantia: 'nao',
+      ClienteId: 1,
+      AparelhoId: aparelho,
+      createdAt: `${fechamento} 10:00:00`,
+    })
+    const relatorio = await migrarDoDump(db, {
+      Clientes: [{ id: 1, nome: 'Maria', createdAt: '2024-01-01 10:00:00' }],
+      Aparelhos: [
+        // O antigo gravou a garantia = fechamento (somou 0 dias por causa do texto "90 DIAS").
+        { id: 1, contagem: '1', nome: 'Geladeira', garantia: '15/02/2024', ClienteId: 1 },
+        // Garantia que só existe no aparelho (a OS dela não tem fechamento).
+        { id: 2, contagem: '2', nome: 'Fogão', garantia: '31/12/2026', ClienteId: 1 },
+      ],
+      OrdemServicos: [os(1, 1, '90 DIAS', '2024-02-15 00:00:00'), os(2, 2, '30', '')],
+    })
+
+    const garantias = db
+      .select({ id: schema.aparelhos.id, ate: schema.aparelhos.garantiaAte })
+      .from(schema.aparelhos)
+      .orderBy(schema.aparelhos.id)
+      .all()
+    expect(garantias).toEqual([
+      { id: 1, ate: '2024-05-15' },
+      { id: 2, ate: '2026-12-31' },
+    ])
+    expect(relatorio.avisos.join(' ')).toContain('garantia recalculada')
+  })
+
   it('importa mantendo ids, converte tipos e ignora órfãos', async () => {
     const db = novoBanco()
     const relatorio = await migrarDoDump(db, lerDump(dumpExemplo))

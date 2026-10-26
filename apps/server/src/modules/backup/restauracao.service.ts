@@ -15,13 +15,13 @@ import Database from 'better-sqlite3'
 import { appConfig } from '../../common/config/app.config.js'
 import { NOME_RESTAURACAO_PENDENTE, situacaoDoSchema } from '../../common/database/connection.js'
 import { moverArquivo } from '../../common/utils/arquivos.js'
+import { PADRAO_BACKUP_LOCAL } from './backup.service.js'
 import { GoogleDriveClient } from './google-drive.client.js'
 
 /** Evento que o app desktop escuta para reiniciar sozinho depois de preparar uma restauração. */
 export const EVENTO_REINICIAR = 'brastem:reiniciar'
 
 const TABELAS_OBRIGATORIAS = ['usuarios', 'clientes', 'ordens_servico', 'pagamentos', 'parcelas']
-const NOME_LOCAL_VALIDO = /^(brastem|antes-da-restauracao)-[\w-]+\.sqlite(\.gz)?$/
 const ID_DRIVE_VALIDO = /^[\w-]{10,120}$/
 
 export type OrigemRestauracao = 'local' | 'drive'
@@ -75,7 +75,7 @@ export class RestauracaoService {
     }
 
     // Só o nome do arquivo, nunca um caminho: impede sair da pasta de backups.
-    if (basename(id) !== id || !NOME_LOCAL_VALIDO.test(id)) {
+    if (basename(id) !== id || !PADRAO_BACKUP_LOCAL.test(id)) {
       throw new BadRequestException('Nome de backup inválido.')
     }
     const caminho = join(this.config.backup.dir, id)

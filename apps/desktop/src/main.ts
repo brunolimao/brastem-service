@@ -259,7 +259,8 @@ if (!app.requestSingleInstanceLock()) {
       })
       carregarApp(await iniciarServidor())
     })
-    .catch((erro) => falhaAoIniciar(erro))
+    // Se até a tela de erro falhar, ao menos não fica um processo aberto sem janela.
+    .catch((erro) => falhaAoIniciar(erro).catch(() => app.quit()))
 
   // Fecha o servidor (e o banco) com calma antes de sair, para não deixar o arquivo SQLite no meio de uma escrita.
   app.on('before-quit', (evento) => {

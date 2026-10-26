@@ -52,6 +52,13 @@ export interface EstadoBackup {
 /** Backups feitos pelo app: `brastem-AAAA-MM-DD-HHmmss.sqlite.gz`. */
 export const PADRAO_BACKUP = /^brastem-\d{4}-\d{2}-\d{2}-\d{6}\.sqlite\.gz$/
 
+/**
+ * Arquivos da pasta de backups que podem ser restaurados pela tela: os do dia a dia e as cópias que o
+ * app guarda sozinho antes de restaurar um backup e antes de atualizar a estrutura do banco.
+ */
+export const PADRAO_BACKUP_LOCAL =
+  /^(brastem|antes-da-restauracao|antes-da-migracao)-[\w-]+\.sqlite(\.gz)?$/
+
 @Injectable()
 export class BackupService {
   private readonly logger = new Logger(BackupService.name)
@@ -195,7 +202,7 @@ export class BackupService {
   listarLocais(): ArquivoBackup[] {
     if (!existsSync(this.config.backup.dir)) return []
     return readdirSync(this.config.backup.dir)
-      .filter((nome) => /^(brastem|antes-da-restauracao)-.*\.sqlite(\.gz)?$/.test(nome))
+      .filter((nome) => PADRAO_BACKUP_LOCAL.test(nome))
       .map((nome) => {
         const info = statSync(join(this.config.backup.dir, nome))
         return { id: nome, nome, tamanho: info.size, criadoEm: info.mtime.toISOString() }
