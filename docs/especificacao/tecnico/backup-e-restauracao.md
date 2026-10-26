@@ -43,3 +43,4 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
 - `apps/server/test/backup.e2e-spec.ts` — backup, retenção, Drive (com Google falso), envio pendente, restauração e recusas (R-BKP-01 a R-BKP-08).
 - `apps/server/src/common/database/connection.spec.ts` — troca do banco na abertura (R-BKP-06, R-BKP-07).
 - `apps/server/src/common/utils/arquivos.spec.ts` — R-BKP-09.
+- `apps/server/src/modules/backup/backup.agendador.spec.ts` — 1 minuto depois de abrir e de hora em hora; falha não derruba o app (R-BKP-01).

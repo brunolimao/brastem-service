@@ -109,6 +109,8 @@ Todos os usuários cadastram e editam. Só o administrador exclui um cliente.
 - `apps/server/test/regras.e2e-spec.ts` — busca só pelos dígitos (R-CLI-01); data de cadastro corrigível e data inválida (R-CLI-04).
 - `apps/server/src/common/utils/utils.spec.ts` — o que conta como "texto que é só número" (R-CLI-01).
 - `apps/client/src/components/domain/cliente-form.spec.tsx` — confirmação ao remover aparelho e atalhos que salvam antes (R-APA-02, R-CLI-07).
+- `apps/client/src/components/domain/busca-lista.spec.tsx` — busca em _Todos_ por padrão e caixa acompanhando a URL.
+- `apps/client/src/hooks/hooks.spec.tsx` — salvar cliente recarrega OS, caixa e relatórios (R-APA-02).
 
 ## Limitações conhecidas
 

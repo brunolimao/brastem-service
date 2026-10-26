@@ -19,5 +19,20 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      // components/ui é o shadcn gerado; routeTree.gen.ts é gerado pelo roteador.
+      exclude: [
+        'src/**/*.spec.{ts,tsx}',
+        'src/test/**',
+        'src/components/ui/**',
+        'src/routeTree.gen.ts',
+        'src/main.tsx',
+      ],
+      reporter: ['text-summary', 'json-summary', 'html'],
+      // Mínimo conferido no CI: só sobe (R-TST-04).
+      thresholds: { lines: 73 },
+    },
   },
 })

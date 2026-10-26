@@ -64,6 +64,7 @@
 - `packages/shared/src/dinheiro.spec.ts` — R-DAD-01.
 - `apps/server/src/common/database/connection.spec.ts` — backup antes de migrar, sem cascata, banco mais novo, migração 0004 (R-DAD-08, R-DAD-09).
 - `apps/server/test/regras.e2e-spec.ts` — `null` e datas inválidas viram 400 (R-DAD-02, R-DAD-07).
+- `apps/client/src/components/form/campo-dinheiro.spec.tsx` — "1.250" vira R$ 1.250,00 ao sair do campo (R-DAD-01).
 
 ## Como mudar o banco
 

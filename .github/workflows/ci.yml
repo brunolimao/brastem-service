@@ -30,5 +30,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      # Testes com a cobertura mínima de cada pacote (R-TST-04).
+      - run: pnpm test:cobertura
       - run: pnpm build

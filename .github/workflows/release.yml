@@ -69,7 +69,8 @@ jobs:
       # Não publica uma versão que não passa nas verificações.
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      # Testes com a cobertura mínima de cada pacote (R-TST-04).
+      - run: pnpm test:cobertura
       - run: pnpm build
 
       - name: Gerar o instalador
@@ -80,6 +81,12 @@ jobs:
         run: |
           pnpm preparar
           pnpm exec electron-builder --win --publish never -c.extraMetadata.version="$VERSAO"
+
+      # Abre o app gerado com uma pasta de dados vazia e só segue se a janela carregar o sistema
+      # (janela em branco, servidor que não sobe ou arquivo faltando no instalador barram a versão).
+      - name: Teste de fumaça
+        working-directory: apps/desktop
+        run: pnpm fumaca
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

@@ -64,6 +64,8 @@ Todos lançam receitas e despesas. Ver a lista e excluir é do administrador (pe
 - `apps/server/test/dominio.e2e-spec.ts` — despesa negativa no caixa (R-TRA-04).
 - `apps/server/test/regras.e2e-spec.ts` — soma dos pagamentos (R-TRA-02).
 - `apps/client/src/models/models.spec.ts` — categorias e soma dos pagamentos no formulário (R-TRA-02, R-TRA-03).
+- `apps/server/test/transacoes.e2e-spec.ts` — listagem (período inclusivo, tipo, páginas), validação em português, exclusão com pagamentos e parcelas, permissões (R-TRA-03, R-TRA-05).
+- `apps/client/src/components/domain/transacao-form.spec.tsx` — campos obrigatórios e soma dos pagamentos na tela (R-TRA-01, R-TRA-02).
 
 ## Limitações conhecidas
 

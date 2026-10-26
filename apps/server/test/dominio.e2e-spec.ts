@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import type { INestApplication } from '@nestjs/common'
-import { format } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createApp } from '../src/bootstrap.js'
@@ -13,7 +13,9 @@ describe('domínio (e2e)', () => {
   let osId = 0
 
   const credenciais = { usuario: 'admin', senha: 'senha-segura-1' }
-  const hoje = format(new Date(), 'yyyy-MM-dd')
+  // Clientes criados agora: de ontem a amanhã, para o teste não falhar se rodar perto da meia-noite.
+  const ontem = format(addDays(new Date(), -1), 'yyyy-MM-dd')
+  const amanha = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   beforeAll(async () => {
     app = await createApp()
@@ -182,7 +184,7 @@ describe('domínio (e2e)', () => {
     expect(outubro.kpis).toMatchObject({ valorTotal: 35000, valorFechado: 35000, totalOrdens: 1 })
     expect(outubro.status.FECHADO).toBe(1)
 
-    const novos = (await admin.get('/api/relatorios').query({ inicio: hoje, fim: hoje })).body
+    const novos = (await admin.get('/api/relatorios').query({ inicio: ontem, fim: amanha })).body
     expect(novos.kpis.novosClientes).toBe(2)
     expect(novos.cidades).toEqual([{ name: 'Belo Horizonte', value: 1 }])
     expect(novos.recomendacaoClientes.internet).toBe(1)

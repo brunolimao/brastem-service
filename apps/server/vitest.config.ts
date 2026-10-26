@@ -13,6 +13,14 @@ export default defineConfig({
     include: ['src/**/*.spec.ts', 'test/**/*.e2e-spec.ts'],
     // Nada de escrever em ./data durante os testes; testes de backup definem a própria pasta.
     env: { NODE_ENV: 'test', DATA_DIR: join(tmpdir(), 'brastem-testes') },
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.spec.ts', 'src/main.ts'],
+      reporter: ['text-summary', 'json-summary', 'html'],
+      // Mínimo conferido no CI: só sobe (R-TST-04).
+      thresholds: { lines: 91 },
+    },
   },
   plugins: [
     swc.vite({

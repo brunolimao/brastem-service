@@ -14,10 +14,12 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:cobertura": "vitest run --coverage"
   },
   "devDependencies": {
     "@brastem/tsconfig": "workspace:*",
+    "@vitest/coverage-v8": "5.0.5",
     "typescript": "latest",
     "vitest": "latest"
   }

@@ -45,3 +45,8 @@ mensagens em português. Com o app em desenvolvimento, a documentação interati
 | GET        | `/sistema`                              | público (versão do app)          | [acesso](../modulos/acesso-e-usuarios.md)                |
 
 Restrições que valem para todas: R-SEG-02 (só pedidos locais) e R-SEG-03 (só JSON).
+
+## Testes
+
+- `apps/server/src/common/validation/messages.spec.ts` — mensagens de validação em português, com o caminho do campo.
+- `apps/server/src/common/filters/all-exceptions.filter.spec.ts` — formato dos erros, mensagens do framework traduzidas, 500 sem detalhes.

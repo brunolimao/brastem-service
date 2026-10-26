@@ -77,3 +77,5 @@ Só o administrador.
 
 - `apps/server/test/empresa.e2e-spec.ts` — dados da empresa e permissões (R-CFG-01, R-CFG-02).
 - `apps/server/test/backup.e2e-spec.ts` — backup, Google (com um Google falso), restauração (R-CFG-03 a R-CFG-06).
+- `apps/client/src/components/domain/backup.spec.tsx` — cartões de backup e Google Drive, lista e confirmação de restauração (R-CFG-03 a R-CFG-06).
+- `apps/client/src/components/domain/usuario-e-empresa.spec.tsx` — dados da empresa começam vazios e saem com máscara (R-CFG-01).

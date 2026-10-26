@@ -93,7 +93,8 @@ describe('ClienteFormulario: atalhos de OS salvam antes de sair', () => {
     const aoSalvar = montar()
     fireEvent.change(screen.getByLabelText('Nome'), { target: { value: '' } })
     fireEvent.click(screen.getByRole('button', { name: /Gerar OS/ }))
-    await new Promise((resolver) => setTimeout(resolver, 50))
+    // Espera a validação terminar (a mensagem aparece) em vez de esperar um tempo fixo.
+    expect(await screen.findByText('Informe o nome')).toBeInTheDocument()
     expect(aoSalvar).not.toHaveBeenCalled()
     expect(navegar).not.toHaveBeenCalled()
   })

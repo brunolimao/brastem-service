@@ -96,6 +96,7 @@ Todos os usuários geram, editam e imprimem OS. Só o administrador exclui.
 - `apps/server/test/regras.e2e-spec.ts` — busca _Todos_ e por data, reabrir, limpar garantia, exclusão recalcula garantia (R-OS-03, R-OS-04, R-OS-06, R-OS-09, R-GAR-02).
 - `apps/server/test/dominio.e2e-spec.ts` — OS fechada com parcelas, regras da OS, edição substituindo pagamentos (R-OS-01, R-OS-02, R-OS-05).
 - `apps/client/src/components/domain/print-os.spec.tsx` — conteúdo da impressão (R-IMP-01, R-IMP-02).
+- `apps/client/src/components/domain/ordem-servico-form.spec.tsx` — campos que aparecem por status, fechamento obrigatório, pagamentos, _Imprimir_ salvando antes (R-OS-02, R-OS-08).
 
 ## Limitações conhecidas
 

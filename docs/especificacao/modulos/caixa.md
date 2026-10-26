@@ -53,6 +53,7 @@ A API sem datas usa o dia de hoje; a tela sempre envia o período (mês atual po
 
 - `apps/server/test/dominio.e2e-spec.ts` — período inclusivo, despesa negativa e formas (R-CX-01 a R-CX-04).
 - `apps/client/src/libs/periodo.spec.ts` — períodos padrão e atalhos (R-CX-02).
+- `apps/client/src/components/domain/filtro-periodo.spec.tsx` — datas inclusivas, início depois do fim bloqueado, atalhos (R-CX-02).
 
 ## Limitações conhecidas
 

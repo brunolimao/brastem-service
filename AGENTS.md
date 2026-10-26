@@ -13,8 +13,16 @@ Todo texto de interface, mensagem de erro e validação é em **pt-BR**.
 
 ## Comandos (na raiz)
 
-`pnpm dev` · `pnpm build` · `pnpm test` · `pnpm typecheck` · `pnpm lint` · `pnpm lint:fix`
+`pnpm dev` · `pnpm build` · `pnpm test` · `pnpm test:cobertura` · `pnpm typecheck` · `pnpm lint` · `pnpm lint:fix`
 Antes de concluir qualquer tarefa: lint, typecheck e test devem passar.
+
+## Testes: obrigatórios em toda mudança
+
+**Nada é feito sem teste que cubra.** Correção de defeito começa por um teste que reproduz o defeito e falha;
+funcionalidade nova traz os testes do comportamento; regra alterada atualiza o teste da regra. Depois, prove que
+o teste pega o problema (desfaça a correção, veja falhar, restaure). Mudança visível na tela é conferida no app
+rodando; mudança no desktop/instalador passa pelo teste de fumaça (`pnpm --filter @brastem/desktop fumaca`).
+Como e onde testar cada camada: skill `testes`. A cobertura mínima de cada pacote é conferida no CI.
 
 ## Convenções
 
@@ -85,4 +93,4 @@ skill `especificacao` (modelo em `docs/especificacao/_modelo-modulo.md`). Cite o
 
 ## Skills do projeto (`.claude/skills`)
 
-`especificacao` · `novo-modulo-server` · `nova-tela-client` · `verificar`
+`testes` · `especificacao` · `novo-modulo-server` · `nova-tela-client` · `verificar`

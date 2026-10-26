@@ -9,13 +9,16 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
+    "test:cobertura": "vitest run --coverage",
     "start": "pnpm build && pnpm preparar && electron .",
     "dist": "pnpm build && pnpm preparar && electron-builder --win",
-    "preparar": "node scripts/preparar.mjs"
+    "preparar": "node scripts/preparar.mjs",
+    "fumaca": "node scripts/fumaca.mjs"
   },
   "devDependencies": {
     "@brastem/tsconfig": "workspace:*",
     "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "5.0.5",
     "electron": "^45.0.0",
     "electron-builder": "^26.18.0",
     "typescript": "^6.0.3",
