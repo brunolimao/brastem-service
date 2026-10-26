@@ -40,7 +40,8 @@ export function useAtualizarCliente(id: number) {
       clientesService.atualizar(id, dados),
     onSuccess: () => {
       toast.success('Cliente atualizado')
-      return queryClient.invalidateQueries({ queryKey: chavesClientes.todos })
+      // Remover um aparelho leva junto as OS e os pagamentos dele: caixa, relatórios e listas mudam.
+      return queryClient.invalidateQueries()
     },
   })
 }

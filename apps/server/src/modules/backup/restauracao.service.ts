@@ -13,7 +13,7 @@ import { BadRequestException, Inject, Injectable, Logger, NotFoundException } fr
 import { type ConfigType } from '@nestjs/config'
 import Database from 'better-sqlite3'
 import { appConfig } from '../../common/config/app.config.js'
-import { NOME_RESTAURACAO_PENDENTE } from '../../common/database/connection.js'
+import { NOME_RESTAURACAO_PENDENTE, situacaoDoSchema } from '../../common/database/connection.js'
 import { moverArquivo } from '../../common/utils/arquivos.js'
 import { GoogleDriveClient } from './google-drive.client.js'
 
@@ -100,6 +100,9 @@ export class RestauracaoService {
     const invalido = new BadRequestException(
       'Este arquivo não é um backup válido do Brastem-Service.',
     )
+    const maisNovo = new BadRequestException(
+      'Este backup foi feito por uma versão mais nova do Brastem-Service. Atualize o sistema antes de restaurá-lo.',
+    )
     let banco: Database.Database | undefined
     try {
       banco = new Database(caminho, { readonly: true, fileMustExist: true })
@@ -114,8 +117,9 @@ export class RestauracaoService {
         ).map((linha) => linha.name),
       )
       if (!TABELAS_OBRIGATORIAS.every((tabela) => tabelas.has(tabela))) throw invalido
+      if (situacaoDoSchema(banco).maisNovo) throw maisNovo
     } catch (erro) {
-      if (erro === invalido) throw erro
+      if (erro === invalido || erro === maisNovo) throw erro
       throw invalido
     } finally {
       banco?.close()

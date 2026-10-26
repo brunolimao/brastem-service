@@ -2,6 +2,7 @@ import { useForm } from '@tanstack/react-form'
 import { Link } from '@tanstack/react-router'
 import { FilePlus2, ListChecks, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { BotaoExcluir } from '@/components/domain/botao-excluir'
 import { CampoCheckbox } from '@/components/form/campo-checkbox'
 import { CampoOpcoes } from '@/components/form/campo-opcoes'
 import { CampoTextarea } from '@/components/form/campo-textarea'
@@ -273,15 +274,24 @@ export function ClienteFormulario({
                             </Button>
                           </>
                         )}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Remover aparelho ${indice + 1}`}
-                          onClick={() => lista.removeValue(indice)}
-                        >
-                          <Trash2 className="text-destructive" />
-                        </Button>
+                        {aparelho.id === undefined ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Remover aparelho ${indice + 1}`}
+                            onClick={() => lista.removeValue(indice)}
+                          >
+                            <Trash2 className="text-destructive" />
+                          </Button>
+                        ) : (
+                          // Aparelho já salvo: ao salvar o cliente, as OS e os pagamentos dele vão junto.
+                          <BotaoExcluir
+                            titulo={`Remover aparelho ${indice + 1}`}
+                            descricao="Ao salvar o cliente, este aparelho será excluído junto com todas as ordens de serviço e pagamentos dele. Isso não pode ser desfeito."
+                            aoConfirmar={() => lista.removeValue(indice)}
+                          />
+                        )}
                       </div>
                     </div>
                     <div className="grid gap-3 md:grid-cols-4">

@@ -1,9 +1,75 @@
-import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import Database from 'better-sqlite3'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { aplicarRestauracaoPendente, NOME_RESTAURACAO_PENDENTE } from './connection.js'
+import {
+  abrirSqlite,
+  aplicarRestauracaoPendente,
+  criarDb,
+  type Db,
+  MENSAGEM_BANCO_MAIS_NOVO,
+  migrarSchema,
+  NOME_RESTAURACAO_PENDENTE,
+  situacaoDoSchema,
+} from './connection.js'
+
+const MIGRACOES = fileURLToPath(new URL('./migrations', import.meta.url))
+
+/**
+ * Cópia das migrações do app com uma a mais que recria a tabela clientes, como o drizzle-kit faz ao
+ * mudar uma coluna (inclusive o `PRAGMA foreign_keys=OFF`, que não vale dentro da transação).
+ */
+function criarPastaComMigracaoQueRecriaClientes(base: string, sqlite: Database.Database) {
+  const pasta = join(base, 'migracoes')
+  cpSync(MIGRACOES, pasta, { recursive: true })
+  const { sql: ddl } = sqlite
+    .prepare("select sql from sqlite_master where type = 'table' and name = 'clientes'")
+    .get() as { sql: string }
+  const nova = ddl.replace(/^CREATE TABLE [`"]?clientes[`"]?/i, 'CREATE TABLE `__new_clientes`')
+  writeFileSync(
+    join(pasta, '9999_recria_clientes.sql'),
+    [
+      'PRAGMA foreign_keys=OFF;',
+      `${nova};`,
+      'INSERT INTO `__new_clientes` SELECT * FROM `clientes`;',
+      'DROP TABLE `clientes`;',
+      'ALTER TABLE `__new_clientes` RENAME TO `clientes`;',
+      'PRAGMA foreign_keys=ON;',
+    ].join('\n--> statement-breakpoint\n'),
+  )
+  const journal = JSON.parse(readFileSync(join(pasta, 'meta', '_journal.json'), 'utf8'))
+  journal.entries.push({
+    idx: journal.entries.length,
+    version: '6',
+    when: Date.now() + 1000,
+    tag: '9999_recria_clientes',
+    breakpoints: true,
+  })
+  writeFileSync(join(pasta, 'meta', '_journal.json'), JSON.stringify(journal))
+  return pasta
+}
+
+/** Cópia das migrações do app sem a última, como as de uma versão anterior. */
+function criarPastaSemAUltimaMigracao(base: string) {
+  const pasta = join(base, 'migracoes-anteriores')
+  cpSync(MIGRACOES, pasta, { recursive: true })
+  const journal = JSON.parse(readFileSync(join(pasta, 'meta', '_journal.json'), 'utf8'))
+  journal.entries.pop()
+  writeFileSync(join(pasta, 'meta', '_journal.json'), JSON.stringify(journal))
+  return pasta
+}
+
+const migrarSchemaDe = (db: Db, pasta: string) => migrarSchema(db, new Date(), pasta)
 
 const criarBanco = (caminho: string, valor: string) => {
   const banco = new Database(caminho)
@@ -71,5 +137,82 @@ describe('aplicarRestauracaoPendente', () => {
 
   it('ignora o banco em memória', () => {
     expect(aplicarRestauracaoPendente(':memory:')).toBe(false)
+  })
+})
+
+describe('migrarSchema', () => {
+  let pasta: string
+  let arquivo: string
+
+  beforeEach(() => {
+    pasta = mkdtempSync(join(tmpdir(), 'brastem-migracao-'))
+    arquivo = join(pasta, 'brastem.sqlite')
+  })
+
+  afterEach(() => {
+    rmSync(pasta, { recursive: true, force: true })
+  })
+
+  const abrir = () => {
+    const sqlite = abrirSqlite(arquivo)
+    return { sqlite, db: criarDb(sqlite) }
+  }
+
+  it('banco novo: migra sem criar cópia (não há o que guardar)', () => {
+    const { sqlite, db } = abrir()
+    migrarSchema(db)
+    expect(situacaoDoSchema(sqlite)).toMatchObject({ existente: true, pendentes: 0 })
+    expect(existsSync(join(pasta, 'backups'))).toBe(false)
+    sqlite.close()
+  })
+
+  it('banco existente com migração pendente: guarda uma cópia antes de migrar', () => {
+    const { sqlite, db } = abrir()
+    // Banco da versão anterior: todas as migrações menos a última.
+    migrarSchema(db, new Date(), criarPastaSemAUltimaMigracao(pasta))
+    sqlite
+      .prepare(
+        "insert into clientes (nome, recomendacao, criado_em) values ('Maria', 'porta', '2026-01-01T00:00:00Z')",
+      )
+      .run()
+    expect(situacaoDoSchema(sqlite).pendentes).toBe(1)
+
+    migrarSchema(db, new Date(2026, 9, 26, 9, 0, 0))
+
+    const copia = join(pasta, 'backups', 'antes-da-migracao-2026-10-26-090000.sqlite')
+    const antigo = new Database(copia, { readonly: true })
+    expect(antigo.prepare('select nome from clientes').get()).toEqual({ nome: 'Maria' })
+    antigo.close()
+    expect(situacaoDoSchema(sqlite).pendentes).toBe(0)
+    sqlite.close()
+  })
+
+  it('não apaga dados em cascata quando uma migração recria uma tabela', () => {
+    const { sqlite, db } = abrir()
+    migrarSchema(db)
+    sqlite
+      .prepare(
+        "insert into clientes (id, nome, recomendacao, criado_em) values (1, 'Maria', 'porta', '2026-01-01T00:00:00Z')",
+      )
+      .run()
+    sqlite
+      .prepare("insert into aparelhos (cliente_id, nome, ordem) values (1, 'Geladeira', 1)")
+      .run()
+
+    // O mesmo que o drizzle-kit gera para mudar uma coluna: recria a tabela clientes.
+    const pastaMigracoes = criarPastaComMigracaoQueRecriaClientes(pasta, sqlite)
+    migrarSchemaDe(db, pastaMigracoes)
+
+    expect(sqlite.prepare('select count(*) as n from aparelhos').get()).toEqual({ n: 1 })
+    expect(sqlite.pragma('foreign_keys', { simple: true })).toBe(1)
+    sqlite.close()
+  })
+
+  it('recusa um banco gravado por uma versão mais nova do app', () => {
+    const { sqlite, db } = abrir()
+    migrarSchema(db)
+    sqlite.prepare('update __drizzle_migrations set created_at = created_at + 1000000000').run()
+    expect(() => migrarSchema(db)).toThrow(MENSAGEM_BANCO_MAIS_NOVO)
+    sqlite.close()
   })
 })

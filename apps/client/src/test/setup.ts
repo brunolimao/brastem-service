@@ -14,3 +14,10 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: () => false,
   }),
 })
+
+// Nem ResizeObserver (usado pelos componentes do Radix, como checkbox e diálogos).
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}

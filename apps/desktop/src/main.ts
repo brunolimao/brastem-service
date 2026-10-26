@@ -115,15 +115,19 @@ function mostrarAtualizacao(estado: EstadoAtualizacao) {
   janela.webContents.executeJavaScript(scriptDoAviso(estado)).catch(() => undefined)
 }
 
-/** Tela de espera: o servidor pode levar alguns segundos (ou mais, logo após instalar uma atualização). */
-const TELA_DE_ESPERA = `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html><meta charset="utf-8"><title>Brastem-Service</title>
+/** Página simples (sem servidor) para a janela: espera ao abrir ou aviso de falha. O texto é fixo do app. */
+const paginaSimples = (texto: string, girando: boolean) =>
+  `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html><meta charset="utf-8"><title>Brastem-Service</title>
 <style>
   html,body{height:100%;margin:0;background:#0b1220;color:#fff;font:500 15px system-ui,sans-serif}
-  body{display:grid;place-items:center;text-align:center}
+  body{display:grid;place-items:center;text-align:center;padding:0 24px}
   .anel{width:36px;height:36px;margin:0 auto 16px;border:4px solid rgba(255,255,255,.2);border-top-color:#FF6347;border-radius:50%;animation:g 1s linear infinite}
   @keyframes g{to{transform:rotate(360deg)}}
 </style>
-<div><div class="anel"></div>Iniciando o Brastem-Service…</div>`)}`
+<div>${girando ? '<div class="anel"></div>' : ''}${texto}</div>`)}`
+
+/** Tela de espera: o servidor pode levar alguns segundos (ou mais, logo após instalar uma atualização). */
+const TELA_DE_ESPERA = paginaSimples('Iniciando o Brastem-Service…', true)
 
 /** Origem do app depois que o servidor sobe; a janela não navega para fora dela. */
 let origemDoApp: string | undefined
@@ -167,12 +171,40 @@ function carregarApp(endereco: string) {
   void janela?.loadURL(endereco)
 }
 
-function mostrarErroDeInicio(erro: unknown) {
+/**
+ * O servidor não subiu. A causa pode ser um defeito desta versão, e a correção vem por atualização:
+ * por isso o atualizador já está ligado e o usuário pode procurar uma versão nova daqui mesmo.
+ */
+async function falhaAoIniciar(erro: unknown) {
   const detalhe = erro instanceof Error ? erro.message : String(erro)
-  dialog.showErrorBox(
-    'O Brastem-Service não conseguiu iniciar',
-    `${detalhe}\n\nOs registros ficam em:\n${join(pastaDeDados(), 'logs')}`,
-  )
+  void janela?.loadURL(paginaSimples('O Brastem-Service não conseguiu iniciar.', false))
+  const { response } = await dialog.showMessageBox({
+    type: 'error',
+    title: 'O Brastem-Service não conseguiu iniciar',
+    message: 'O Brastem-Service não conseguiu iniciar.',
+    detail: `${detalhe}\n\nOs registros ficam em:\n${join(pastaDeDados(), 'logs')}`,
+    buttons: app.isPackaged ? ['Procurar atualização', 'Fechar'] : ['Fechar'],
+    defaultId: 0,
+    cancelId: app.isPackaged ? 1 : 0,
+  })
+  if (!app.isPackaged || response !== 0) return app.quit()
+
+  void janela?.loadURL(paginaSimples('Procurando uma versão corrigida…', true))
+  const resultado = (await atualizador?.verificar()) ?? 'erro'
+  // Achou: o download segue com o aviso na janela e, no fim, a pergunta de reiniciar instala a correção.
+  if (resultado === 'atualizacao-encontrada') return
+
+  const { response: escolha } = await dialog.showMessageBox({
+    type: 'warning',
+    message:
+      resultado === 'erro'
+        ? 'Não foi possível procurar atualizações. Confira a internet e tente de novo.'
+        : 'Ainda não há uma versão mais nova disponível.',
+    buttons: ['Abrir página de downloads', 'Fechar'],
+    cancelId: 1,
+  })
+  if (escolha === 0) await shell.openExternal(PAGINA_DE_DOWNLOADS)
+  app.quit()
 }
 
 // Uma única janela por vez: abrir de novo só traz a existente para frente.
@@ -196,7 +228,7 @@ if (!app.requestSingleInstanceLock()) {
         app.quit()
       })
       abrirJanela()
-      carregarApp(await iniciarServidor())
+      // Antes do servidor: se esta versão não conseguir iniciar, ainda dá para receber a correção.
       atualizador = iniciarAtualizador({
         empacotado: app.isPackaged,
         autoUpdater: criarAtualizador(
@@ -220,11 +252,9 @@ if (!app.requestSingleInstanceLock()) {
           return response === 0
         },
       })
+      carregarApp(await iniciarServidor())
     })
-    .catch((erro) => {
-      mostrarErroDeInicio(erro)
-      app.quit()
-    })
+    .catch((erro) => falhaAoIniciar(erro))
 
   // Fecha o servidor (e o banco) com calma antes de sair, para não deixar o arquivo SQLite no meio de uma escrita.
   app.on('before-quit', (evento) => {
