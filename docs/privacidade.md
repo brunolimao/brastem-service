@@ -13,7 +13,7 @@ não tem acesso** a esses dados.
 
 ## Integração opcional com o Google Drive
 
-Se, e somente se, o usuário conectar o Google Drive em *Configurações*, o aplicativo:
+Se, e somente se, o usuário conectar o Google Drive em _Configurações_, o aplicativo:
 
 - pede permissão para **criar e acessar apenas os arquivos que ele mesmo criou** (escopo `drive.file`) e para
   ler o **e-mail da conta** (escopo `userinfo.email`), usado apenas para mostrar qual conta está conectada;
@@ -29,7 +29,7 @@ incluindo os requisitos de Uso Limitado.
 
 ## Como desconectar e apagar
 
-Em *Configurações → Google Drive* o usuário pode desconectar a conta a qualquer momento. Os backups no Drive
+Em _Configurações → Google Drive_ o usuário pode desconectar a conta a qualquer momento. Os backups no Drive
 podem ser apagados pelo próprio usuário, na pasta Brastem-Service Backups. O acesso também pode ser revogado em
 <https://myaccount.google.com/permissions>.
 

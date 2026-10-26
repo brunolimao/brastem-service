@@ -102,7 +102,7 @@ export function AppSidebar() {
       </div>
       <Separator className="bg-sidebar-border" />
 
-      <nav className="flex flex-1 flex-col gap-1 p-3">
+      <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
         {itens
           .filter((item) => !item.somenteAdmin || usuario?.role === 'admin')
           .map((item, indice, visiveis) => {

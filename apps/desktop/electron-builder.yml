@@ -14,6 +14,9 @@ extraResources:
     # As node_modules do servidor entram pelo gancho afterPack (o electron-builder as descarta aqui).
   - from: .stage/client
     to: client
+  # Ícone da janela e da barra de tarefas (o do executável vem de win.icon).
+  - from: build/icon.png
+    to: icone.png
 asar: true
 afterPack: scripts/depois-de-empacotar.cjs
 # Os módulos nativos são recompilados em scripts/preparar.mjs, não aqui.

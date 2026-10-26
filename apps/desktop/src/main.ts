@@ -114,6 +114,7 @@ function abrirJanela(endereco: string) {
     autoHideMenuBar: true,
     backgroundColor: '#0b1220',
     title: 'Brastem-Service',
+    icon: app.isPackaged ? join(raiz, 'icone.png') : join(__dirname, '..', 'build', 'icon.png'),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
