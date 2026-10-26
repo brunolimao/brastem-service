@@ -76,6 +76,13 @@ Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad 
 - Rotas públicas dentro de controller com `@Roles` continuam públicas (`RolesGuard` respeita `@Public`). Testes de backup usam um Google falso em `test/google-falso.ts` (`vi.stubGlobal('fetch')`).
 - Cabeçalho de card com botão: use `CardAction` (o `CardHeader` do shadcn é uma grade; `flex-row` não funciona).
 
+## Especificação (`docs/especificacao`)
+
+O que o sistema faz e por quê: um arquivo por módulo (`modulos/`) e por tema técnico (`tecnico/`), regras
+numeradas (`R-OS-03`, `R-GAR-02`...), decisões em `historico/decisoes.md`. **Antes** de mudar regra, tela,
+permissão, rota ou banco, consulte o arquivo do assunto; **na mesma alteração**, atualize-o no padrão da
+skill `especificacao` (modelo em `docs/especificacao/_modelo-modulo.md`). Cite os códigos das regras nos testes.
+
 ## Skills do projeto (`.claude/skills`)
 
-`novo-modulo-server` · `nova-tela-client` · `verificar`
+`especificacao` · `novo-modulo-server` · `nova-tela-client` · `verificar`

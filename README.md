@@ -7,6 +7,8 @@ backup automático no Google Drive e atualização automática.
 
 > Todo texto da interface, das mensagens de erro e da validação é em português do Brasil.
 
+**Especificação** (o que cada parte faz, regras de negócio numeradas, permissões, decisões): [docs/especificacao](docs/especificacao/README.md).
+
 ## Como é por dentro
 
 | Pasta             | O que é                                                                                                 |
