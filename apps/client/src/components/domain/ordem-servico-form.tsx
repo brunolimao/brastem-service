@@ -1,11 +1,6 @@
-import { useForm } from '@tanstack/react-form'
 import { Printer } from 'lucide-react'
 import { PagamentosCampos } from '@/components/domain/pagamentos-campos'
-import { CampoCheckbox } from '@/components/form/campo-checkbox'
-import { CampoDinheiro } from '@/components/form/campo-dinheiro'
-import { CampoSelect } from '@/components/form/campo-select'
-import { CampoTextarea } from '@/components/form/campo-textarea'
-import { CampoTexto } from '@/components/form/campo-texto'
+import { useAppForm } from '@/components/form/form-hook'
 import { salvarSeAlterou } from '@/components/form/salvar-se-alterou'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
 import { Button } from '@/components/ui/button'
@@ -34,7 +29,7 @@ export function OrdemServicoFormulario({
   aoConcluir,
   aoImprimir,
 }: OrdemServicoFormProps) {
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: valoresIniciais,
     validators: { onChange: ordemServicoFormSchema },
     onSubmitMeta: {} as { depois?: () => void },
@@ -58,90 +53,80 @@ export function OrdemServicoFormulario({
           <CardTitle>Atendimento</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-4">
-          <form.Field name="abertura">
-            {(campo) => <CampoTexto campo={campo} rotulo="Data de abertura" type="date" />}
-          </form.Field>
-          <form.Field name="status">
-            {(campo) => <CampoSelect campo={campo} rotulo="Status" opcoes={OPCOES_STATUS} />}
-          </form.Field>
-          <form.Field name="valor">
-            {(campo) => <CampoDinheiro campo={campo} rotulo="Valor" />}
-          </form.Field>
-          <form.Field name="taxaDeslocamento">
-            {(campo) => <CampoDinheiro campo={campo} rotulo="Taxa de deslocamento" />}
-          </form.Field>
-          <form.Field name="isGarantia">
+          <form.AppField name="abertura">
+            {(campo) => <campo.CampoTexto rotulo="Data de abertura" type="date" />}
+          </form.AppField>
+          <form.AppField name="status">
+            {(campo) => <campo.CampoSelect rotulo="Status" opcoes={OPCOES_STATUS} />}
+          </form.AppField>
+          <form.AppField name="valor">
+            {(campo) => <campo.CampoDinheiro rotulo="Valor" />}
+          </form.AppField>
+          <form.AppField name="taxaDeslocamento">
+            {(campo) => <campo.CampoDinheiro rotulo="Taxa de deslocamento" />}
+          </form.AppField>
+          <form.AppField name="isGarantia">
             {(campo) => (
-              <CampoCheckbox
-                campo={campo}
-                rotulo="Atendimento em garantia"
-                className="md:col-span-4"
-              />
+              <campo.CampoCheckbox rotulo="Atendimento em garantia" className="md:col-span-4" />
             )}
-          </form.Field>
-          <form.Field name="relatado">
+          </form.AppField>
+          <form.AppField name="relatado">
             {(campo) => (
-              <CampoTextarea
-                campo={campo}
-                rotulo="Problema relatado"
-                className="md:col-span-2"
-                rows={3}
-              />
+              <campo.CampoTextarea rotulo="Problema relatado" className="md:col-span-2" rows={3} />
             )}
-          </form.Field>
-          <form.Field name="identificado">
+          </form.AppField>
+          <form.AppField name="identificado">
             {(campo) => (
-              <CampoTextarea
-                campo={campo}
+              <campo.CampoTextarea
                 rotulo="Problema identificado"
                 className="md:col-span-2"
                 rows={3}
               />
             )}
-          </form.Field>
+          </form.AppField>
 
           <form.Subscribe selector={(estado) => estado.values.status === 'FECHADO'}>
             {(fechada) =>
               fechada && (
                 <>
-                  <form.Field name="solucionado">
+                  <form.AppField name="solucionado">
                     {(campo) => (
-                      <CampoTextarea
-                        campo={campo}
+                      <campo.CampoTextarea
                         rotulo="Problema solucionado"
                         className="md:col-span-2"
                         rows={3}
                       />
                     )}
-                  </form.Field>
-                  <form.Field name="fechamento">
-                    {(campo) => <CampoTexto campo={campo} rotulo="Fechado em" type="date" />}
-                  </form.Field>
-                  <form.Field name="garantiaDias">
+                  </form.AppField>
+                  <form.AppField name="fechamento">
+                    {(campo) => <campo.CampoTexto rotulo="Fechado em" type="date" />}
+                  </form.AppField>
+                  <form.AppField name="garantiaDias">
                     {(campo) => (
-                      <CampoTexto
-                        campo={campo}
+                      <campo.CampoTexto
                         rotulo="Garantia (dias)"
                         inputMode="numeric"
                         formatar={(valor) => valor.replace(/\D/g, '')}
                       />
                     )}
-                  </form.Field>
+                  </form.AppField>
                 </>
               )
             }
           </form.Subscribe>
 
-          <form.Field name="observacao">
+          <form.AppField name="observacao">
             {(campo) => (
-              <CampoTextarea campo={campo} rotulo="Observação" className="md:col-span-4" rows={2} />
+              <campo.CampoTextarea rotulo="Observação" className="md:col-span-4" rows={2} />
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
       <form.Subscribe selector={(estado) => mostrarPagamentos(estado.values)}>
-        {(visivel) => visivel && <PagamentosCampos form={form} />}
+        {(visivel) =>
+          visivel && <PagamentosCampos form={form} fields={{ pagamentos: 'pagamentos' }} />
+        }
       </form.Subscribe>
 
       <BarraAcoes>
@@ -158,13 +143,9 @@ export function OrdemServicoFormulario({
             <Printer /> Imprimir
           </Button>
         )}
-        <form.Subscribe selector={(estado) => estado.isSubmitting}>
-          {(enviando) => (
-            <Button type="submit" disabled={enviando}>
-              {enviando ? 'Salvando...' : 'Salvar'}
-            </Button>
-          )}
-        </form.Subscribe>
+        <form.AppForm>
+          <form.BotaoSalvar />
+        </form.AppForm>
       </BarraAcoes>
     </form>
   )

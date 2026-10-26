@@ -1,15 +1,15 @@
-import type { AnyFieldApi } from '@tanstack/react-form'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/libs/utils'
+import { useFieldContext } from './contexto'
 
 interface CampoCheckboxProps {
-  campo: AnyFieldApi
   rotulo: string
   className?: string
 }
 
-export function CampoCheckbox({ campo, rotulo, className }: CampoCheckboxProps) {
+export function CampoCheckbox({ rotulo, className }: CampoCheckboxProps) {
+  const campo = useFieldContext<boolean>()
   const id = `campo-${campo.name}`
   return (
     <div className={cn('flex items-center gap-2', className)}>

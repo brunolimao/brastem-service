@@ -1,5 +1,3 @@
-import type { AnyFieldApi } from '@tanstack/react-form'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -7,29 +5,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { cn } from '@/libs/utils'
+import { useFieldContext } from './contexto'
 import { erroDoCampo } from './form-errors'
+import { ariaDoErro, MolduraCampo } from './moldura-campo'
 
 interface CampoSelectProps {
-  campo: AnyFieldApi
   rotulo: string
   opcoes: readonly { valor: string; rotulo: string }[]
   className?: string
 }
 
-export function CampoSelect({ campo, rotulo, opcoes, className }: CampoSelectProps) {
+export function CampoSelect({ rotulo, opcoes, className }: CampoSelectProps) {
+  const campo = useFieldContext<string>()
   const erro = erroDoCampo(campo)
   const id = `campo-${campo.name}`
 
   return (
-    <div className={cn('grid gap-2', className)}>
-      <Label htmlFor={id}>{rotulo}</Label>
+    <MolduraCampo id={id} rotulo={rotulo} erro={erro} className={className}>
       <Select
         value={campo.state.value ?? ''}
         onValueChange={(valor) => campo.handleChange(valor)}
         name={campo.name}
       >
-        <SelectTrigger id={id} className="w-full" aria-invalid={erro ? true : undefined}>
+        <SelectTrigger id={id} className="w-full" {...ariaDoErro(id, erro)}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -40,11 +38,6 @@ export function CampoSelect({ campo, rotulo, opcoes, className }: CampoSelectPro
           ))}
         </SelectContent>
       </Select>
-      {erro && (
-        <p role="alert" className="text-destructive text-sm">
-          {erro}
-        </p>
-      )}
-    </div>
+    </MolduraCampo>
   )
 }

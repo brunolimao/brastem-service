@@ -1,10 +1,6 @@
 import type { TipoTransacao } from '@brastem/shared'
-import { useForm } from '@tanstack/react-form'
 import { PagamentosCampos } from '@/components/domain/pagamentos-campos'
-import { CampoDinheiro } from '@/components/form/campo-dinheiro'
-import { CampoSelect } from '@/components/form/campo-select'
-import { CampoTextarea } from '@/components/form/campo-textarea'
-import { CampoTexto } from '@/components/form/campo-texto'
+import { useAppForm } from '@/components/form/form-hook'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,7 +19,7 @@ interface TransacaoFormProps {
 
 /** Receita e despesa são o mesmo formulário; só mudam as categorias e o sinal no caixa. */
 export function TransacaoFormulario({ tipo, aoSalvar, aoCancelar }: TransacaoFormProps) {
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: transacaoVazia(tipo),
     validators: { onChange: transacaoFormSchema },
     onSubmit: async ({ value }) => {
@@ -45,32 +41,29 @@ export function TransacaoFormulario({ tipo, aoSalvar, aoCancelar }: TransacaoFor
           <CardTitle>{tipo === 'receita' ? 'Dados da receita' : 'Dados da despesa'}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-4">
-          <form.Field name="descricao">
+          <form.AppField name="descricao">
+            {(campo) => <campo.CampoTexto rotulo="Descrição" className="md:col-span-2" autoFocus />}
+          </form.AppField>
+          <form.AppField name="valor">
+            {(campo) => <campo.CampoDinheiro rotulo="Valor" />}
+          </form.AppField>
+          <form.AppField name="data">
+            {(campo) => <campo.CampoTexto rotulo="Data" type="date" />}
+          </form.AppField>
+          <form.AppField name="categoria">
+            {(campo) => <campo.CampoSelect rotulo="Categoria" opcoes={opcoesCategoria(tipo)} />}
+          </form.AppField>
+          <form.AppField name="observacao">
             {(campo) => (
-              <CampoTexto campo={campo} rotulo="Descrição" className="md:col-span-2" autoFocus />
+              <campo.CampoTextarea rotulo="Observação" className="md:col-span-4" rows={2} />
             )}
-          </form.Field>
-          <form.Field name="valor">
-            {(campo) => <CampoDinheiro campo={campo} rotulo="Valor" />}
-          </form.Field>
-          <form.Field name="data">
-            {(campo) => <CampoTexto campo={campo} rotulo="Data" type="date" />}
-          </form.Field>
-          <form.Field name="categoria">
-            {(campo) => (
-              <CampoSelect campo={campo} rotulo="Categoria" opcoes={opcoesCategoria(tipo)} />
-            )}
-          </form.Field>
-          <form.Field name="observacao">
-            {(campo) => (
-              <CampoTextarea campo={campo} rotulo="Observação" className="md:col-span-4" rows={2} />
-            )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
       <PagamentosCampos
         form={form}
+        fields={{ pagamentos: 'pagamentos' }}
         dica="Sem pagamentos, o valor entra à vista, em dinheiro, na data informada."
       />
 
@@ -78,13 +71,9 @@ export function TransacaoFormulario({ tipo, aoSalvar, aoCancelar }: TransacaoFor
         <Button type="button" variant="outline" onClick={aoCancelar}>
           Voltar
         </Button>
-        <form.Subscribe selector={(estado) => estado.isSubmitting}>
-          {(enviando) => (
-            <Button type="submit" disabled={enviando}>
-              {enviando ? 'Salvando...' : 'Salvar'}
-            </Button>
-          )}
-        </form.Subscribe>
+        <form.AppForm>
+          <form.BotaoSalvar />
+        </form.AppForm>
       </BarraAcoes>
     </form>
   )

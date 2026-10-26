@@ -1,9 +1,7 @@
 import { ROLES } from '@brastem/shared'
-import { useForm } from '@tanstack/react-form'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
-import { CampoSelect } from '@/components/form/campo-select'
-import { CampoTexto } from '@/components/form/campo-texto'
+import { useAppForm } from '@/components/form/form-hook'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -23,7 +21,7 @@ export function CriarUsuarioDialog() {
   const [aberto, setAberto] = useState(false)
   const criar = useCriarUsuario()
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: { usuario: '', senha: '', role: 'usuario' as (typeof ROLES)[number] },
     validators: { onChange: criarUsuarioSchema },
     onSubmit: async ({ value, formApi }) => {
@@ -53,30 +51,21 @@ export function CriarUsuarioDialog() {
             form.handleSubmit().catch(() => undefined)
           }}
         >
-          <form.Field name="usuario">
-            {(campo) => <CampoTexto campo={campo} rotulo="Usuário" autoComplete="off" />}
-          </form.Field>
-          <form.Field name="senha">
+          <form.AppField name="usuario">
+            {(campo) => <campo.CampoTexto rotulo="Usuário" autoComplete="off" />}
+          </form.AppField>
+          <form.AppField name="senha">
             {(campo) => (
-              <CampoTexto
-                campo={campo}
-                rotulo="Senha"
-                type="password"
-                autoComplete="new-password"
-              />
+              <campo.CampoTexto rotulo="Senha" type="password" autoComplete="new-password" />
             )}
-          </form.Field>
-          <form.Field name="role">
-            {(campo) => <CampoSelect campo={campo} rotulo="Função" opcoes={opcoesRole} />}
-          </form.Field>
+          </form.AppField>
+          <form.AppField name="role">
+            {(campo) => <campo.CampoSelect rotulo="Função" opcoes={opcoesRole} />}
+          </form.AppField>
           <DialogFooter>
-            <form.Subscribe selector={(estado) => estado.isSubmitting}>
-              {(enviando) => (
-                <Button type="submit" disabled={enviando}>
-                  {enviando ? 'Salvando...' : 'Cadastrar'}
-                </Button>
-              )}
-            </form.Subscribe>
+            <form.AppForm>
+              <form.BotaoSalvar texto="Cadastrar" />
+            </form.AppForm>
           </DialogFooter>
         </form>
       </DialogContent>

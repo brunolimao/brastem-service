@@ -1,8 +1,7 @@
-import { useForm } from '@tanstack/react-form'
 import { CheckCircle2, ExternalLink, Unplug } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { CampoTexto } from '@/components/form/campo-texto'
+import { useAppForm } from '@/components/form/form-hook'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,7 +25,7 @@ const ESPERA_MAXIMA_MS = 5 * 60 * 1000
 
 function FormularioCredenciais({ aoSalvar }: { aoSalvar: () => void }) {
   const salvar = useSalvarCredenciaisGoogle()
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: { clientId: '', clientSecret: '' },
     validators: { onChange: credenciaisGoogleSchema },
     onSubmit: async ({ value }) => {
@@ -49,28 +48,21 @@ function FormularioCredenciais({ aoSalvar }: { aoSalvar: () => void }) {
         Cloud (grátis, é feito uma vez). O passo a passo está no arquivo{' '}
         <code className="rounded bg-muted px-1 py-0.5">docs/backup-google-drive.md</code>.
       </p>
-      <form.Field name="clientId">
+      <form.AppField name="clientId">
+        {(campo) => <campo.CampoTexto rotulo="ID do cliente (Client ID)" autoComplete="off" />}
+      </form.AppField>
+      <form.AppField name="clientSecret">
         {(campo) => (
-          <CampoTexto campo={campo} rotulo="ID do cliente (Client ID)" autoComplete="off" />
-        )}
-      </form.Field>
-      <form.Field name="clientSecret">
-        {(campo) => (
-          <CampoTexto
-            campo={campo}
+          <campo.CampoTexto
             rotulo="Chave secreta do cliente (Client Secret)"
             type="password"
             autoComplete="off"
           />
         )}
-      </form.Field>
-      <form.Subscribe selector={(estado) => estado.isSubmitting}>
-        {(enviando) => (
-          <Button type="submit" className="w-fit" disabled={enviando}>
-            {enviando ? 'Salvando...' : 'Salvar credenciais'}
-          </Button>
-        )}
-      </form.Subscribe>
+      </form.AppField>
+      <form.AppForm>
+        <form.BotaoSalvar texto="Salvar credenciais" className="w-fit" />
+      </form.AppForm>
     </form>
   )
 }

@@ -1,7 +1,5 @@
-import { useForm } from '@tanstack/react-form'
 import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
-import { CampoTexto } from '@/components/form/campo-texto'
-import { Button } from '@/components/ui/button'
+import { useAppForm } from '@/components/form/form-hook'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { usePrimeiroAcesso } from '@/hooks/use-auth'
 import { primeiroAcessoSchema } from '@/models/auth.model'
@@ -19,7 +17,7 @@ function PrimeiroAcessoPage() {
   const navigate = useNavigate()
   const configurar = usePrimeiroAcesso()
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: { usuario: 'admin', senha: '', confirmarSenha: '' },
     validators: { onChange: primeiroAcessoSchema },
     onSubmit: async ({ value }) => {
@@ -45,36 +43,26 @@ function PrimeiroAcessoPage() {
               form.handleSubmit().catch(() => undefined)
             }}
           >
-            <form.Field name="usuario">
-              {(campo) => <CampoTexto campo={campo} rotulo="Usuário" autoComplete="username" />}
-            </form.Field>
-            <form.Field name="senha">
+            <form.AppField name="usuario">
+              {(campo) => <campo.CampoTexto rotulo="Usuário" autoComplete="username" />}
+            </form.AppField>
+            <form.AppField name="senha">
               {(campo) => (
-                <CampoTexto
-                  campo={campo}
-                  rotulo="Senha"
-                  type="password"
-                  autoComplete="new-password"
-                />
+                <campo.CampoTexto rotulo="Senha" type="password" autoComplete="new-password" />
               )}
-            </form.Field>
-            <form.Field name="confirmarSenha">
+            </form.AppField>
+            <form.AppField name="confirmarSenha">
               {(campo) => (
-                <CampoTexto
-                  campo={campo}
+                <campo.CampoTexto
                   rotulo="Repita a senha"
                   type="password"
                   autoComplete="new-password"
                 />
               )}
-            </form.Field>
-            <form.Subscribe selector={(estado) => estado.isSubmitting}>
-              {(enviando) => (
-                <Button type="submit" disabled={enviando}>
-                  {enviando ? 'Criando...' : 'Criar administrador'}
-                </Button>
-              )}
-            </form.Subscribe>
+            </form.AppField>
+            <form.AppForm>
+              <form.BotaoSalvar texto="Criar administrador" textoEnviando="Criando..." />
+            </form.AppForm>
           </form>
           <p className="mt-4 text-center text-muted-foreground text-sm">
             Já usava o sistema antigo?{' '}

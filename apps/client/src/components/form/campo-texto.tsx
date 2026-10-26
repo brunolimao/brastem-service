@@ -1,43 +1,36 @@
-import type { AnyFieldApi } from '@tanstack/react-form'
 import type { ComponentProps } from 'react'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { cn } from '@/libs/utils'
+import { useFieldContext } from './contexto'
 import { erroDoCampo } from './form-errors'
+import { ariaDoErro, MolduraCampo } from './moldura-campo'
 
 interface CampoTextoProps
   extends Omit<ComponentProps<typeof Input>, 'value' | 'onChange' | 'onBlur' | 'name' | 'id'> {
-  campo: AnyFieldApi
   rotulo: string
   /** Transforma o que foi digitado antes de guardar (ex.: máscaras). */
   formatar?: (valor: string) => string
 }
 
-export function CampoTexto({ campo, rotulo, formatar, className, ...props }: CampoTextoProps) {
+/** Uso: `<form.AppField name="nome">{(campo) => <campo.CampoTexto rotulo="Nome" />}</form.AppField>` */
+export function CampoTexto({ rotulo, formatar, className, ...props }: CampoTextoProps) {
+  const campo = useFieldContext<string>()
   const erro = erroDoCampo(campo)
   const id = `campo-${campo.name}`
 
   return (
-    <div className={cn('grid gap-2', className)}>
-      <Label htmlFor={id}>{rotulo}</Label>
+    <MolduraCampo id={id} rotulo={rotulo} erro={erro} className={className}>
       <Input
         {...props}
         id={id}
         name={campo.name}
         value={campo.state.value ?? ''}
-        aria-invalid={erro ? true : undefined}
-        aria-describedby={erro ? `${id}-erro` : undefined}
+        {...ariaDoErro(id, erro)}
         onBlur={campo.handleBlur}
         onChange={(evento) => {
           const valor = evento.target.value
           campo.handleChange(formatar ? formatar(valor) : valor)
         }}
       />
-      {erro && (
-        <p id={`${id}-erro`} role="alert" className="text-destructive text-sm">
-          {erro}
-        </p>
-      )}
-    </div>
+    </MolduraCampo>
   )
 }

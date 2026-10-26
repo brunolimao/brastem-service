@@ -1,8 +1,6 @@
-import { useForm } from '@tanstack/react-form'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { z } from 'zod'
-import { CampoTexto } from '@/components/form/campo-texto'
-import { Button } from '@/components/ui/button'
+import { useAppForm } from '@/components/form/form-hook'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useLogin } from '@/hooks/use-auth'
 import { carregarSessao, useSessionStore } from '@/hooks/use-session-store'
@@ -29,7 +27,7 @@ function LoginPage() {
   const router = useRouter()
   const login = useLogin()
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: { usuario: '', senha: '' },
     validators: { onChange: loginSchema },
     onSubmit: async ({ value }) => {
@@ -53,28 +51,17 @@ function LoginPage() {
               form.handleSubmit().catch(() => undefined)
             }}
           >
-            <form.Field name="usuario">
+            <form.AppField name="usuario">
+              {(campo) => <campo.CampoTexto rotulo="Usuário" autoComplete="username" autoFocus />}
+            </form.AppField>
+            <form.AppField name="senha">
               {(campo) => (
-                <CampoTexto campo={campo} rotulo="Usuário" autoComplete="username" autoFocus />
+                <campo.CampoTexto rotulo="Senha" type="password" autoComplete="current-password" />
               )}
-            </form.Field>
-            <form.Field name="senha">
-              {(campo) => (
-                <CampoTexto
-                  campo={campo}
-                  rotulo="Senha"
-                  type="password"
-                  autoComplete="current-password"
-                />
-              )}
-            </form.Field>
-            <form.Subscribe selector={(estado) => estado.isSubmitting}>
-              {(enviando) => (
-                <Button type="submit" disabled={enviando}>
-                  {enviando ? 'Entrando...' : 'Entrar'}
-                </Button>
-              )}
-            </form.Subscribe>
+            </form.AppField>
+            <form.AppForm>
+              <form.BotaoSalvar texto="Entrar" textoEnviando="Entrando..." />
+            </form.AppForm>
           </form>
         </CardContent>
       </Card>

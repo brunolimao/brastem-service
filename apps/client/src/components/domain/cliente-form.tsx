@@ -1,12 +1,8 @@
-import { useForm } from '@tanstack/react-form'
 import { useNavigate } from '@tanstack/react-router'
 import { FilePlus2, ListChecks, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { BotaoExcluir } from '@/components/domain/botao-excluir'
-import { CampoCheckbox } from '@/components/form/campo-checkbox'
-import { CampoOpcoes } from '@/components/form/campo-opcoes'
-import { CampoTextarea } from '@/components/form/campo-textarea'
-import { CampoTexto } from '@/components/form/campo-texto'
+import { useAppForm } from '@/components/form/form-hook'
 import { salvarSeAlterou } from '@/components/form/salvar-se-alterou'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
 import { Button } from '@/components/ui/button'
@@ -37,7 +33,7 @@ export function ClienteFormulario({
   aoCancelar,
 }: ClienteFormProps) {
   const navigate = useNavigate()
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: valoresIniciais,
     validators: { onChange: clienteFormSchema },
     onSubmitMeta: {} as { depois?: () => void },
@@ -79,53 +75,46 @@ export function ClienteFormulario({
           <CardTitle>Dados do cliente</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
-          <form.Field name="nome">
+          <form.AppField name="nome">
+            {(campo) => <campo.CampoTexto rotulo="Nome" className="md:col-span-2" autoFocus />}
+          </form.AppField>
+          <form.AppField name="cpf">
+            {(campo) => <campo.CampoTexto rotulo="CPF/CNPJ" formatar={mascararCpfCnpj} />}
+          </form.AppField>
+          <form.AppField name="email">
+            {(campo) => <campo.CampoTexto rotulo="E-mail" type="email" />}
+          </form.AppField>
+          <form.AppField name="recomendacao">
             {(campo) => (
-              <CampoTexto campo={campo} rotulo="Nome" className="md:col-span-2" autoFocus />
-            )}
-          </form.Field>
-          <form.Field name="cpf">
-            {(campo) => <CampoTexto campo={campo} rotulo="CPF/CNPJ" formatar={mascararCpfCnpj} />}
-          </form.Field>
-          <form.Field name="email">
-            {(campo) => <CampoTexto campo={campo} rotulo="E-mail" type="email" />}
-          </form.Field>
-          <form.Field name="recomendacao">
-            {(campo) => (
-              <CampoOpcoes
-                campo={campo}
+              <campo.CampoOpcoes
                 rotulo="Como conheceu"
                 opcoes={OPCOES_RECOMENDACAO}
                 className="md:col-span-2"
               />
             )}
-          </form.Field>
-          <form.Field name="negativado">
-            {(campo) => <CampoCheckbox campo={campo} rotulo="Cliente negativado" />}
-          </form.Field>
+          </form.AppField>
+          <form.AppField name="negativado">
+            {(campo) => <campo.CampoCheckbox rotulo="Cliente negativado" />}
+          </form.AppField>
           <form.Subscribe selector={(estado) => estado.values.negativado}>
             {(negativado) =>
               negativado && (
-                <form.Field name="motivo">
-                  {(campo) => <CampoTexto campo={campo} rotulo="Motivo" />}
-                </form.Field>
+                <form.AppField name="motivo">
+                  {(campo) => <campo.CampoTexto rotulo="Motivo" />}
+                </form.AppField>
               )
             }
           </form.Subscribe>
           {clienteId !== undefined && (
-            <form.Field name="dataCadastro">
-              {(campo) => <CampoTexto campo={campo} rotulo="Data de cadastro" type="date" />}
-            </form.Field>
+            <form.AppField name="dataCadastro">
+              {(campo) => <campo.CampoTexto rotulo="Data de cadastro" type="date" />}
+            </form.AppField>
           )}
-          <form.Field name="referencia">
+          <form.AppField name="referencia">
             {(campo) => (
-              <CampoTextarea
-                campo={campo}
-                rotulo="Referência / observação"
-                className="md:col-span-2"
-              />
+              <campo.CampoTextarea rotulo="Referência / observação" className="md:col-span-2" />
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -134,10 +123,9 @@ export function ClienteFormulario({
           <CardTitle>Endereço</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-6">
-          <form.Field name="cep">
+          <form.AppField name="cep">
             {(campo) => (
-              <CampoTexto
-                campo={campo}
+              <campo.CampoTexto
                 rotulo="CEP"
                 className="md:col-span-2"
                 inputMode="numeric"
@@ -148,32 +136,31 @@ export function ClienteFormulario({
                 }}
               />
             )}
-          </form.Field>
-          <form.Field name="endereco">
-            {(campo) => <CampoTexto campo={campo} rotulo="Endereço" className="md:col-span-3" />}
-          </form.Field>
-          <form.Field name="numero">
-            {(campo) => <CampoTexto campo={campo} rotulo="Número" />}
-          </form.Field>
-          <form.Field name="complemento">
-            {(campo) => <CampoTexto campo={campo} rotulo="Complemento" className="md:col-span-2" />}
-          </form.Field>
-          <form.Field name="bairro">
-            {(campo) => <CampoTexto campo={campo} rotulo="Bairro" className="md:col-span-2" />}
-          </form.Field>
-          <form.Field name="cidade">
-            {(campo) => <CampoTexto campo={campo} rotulo="Cidade" className="md:col-span-1" />}
-          </form.Field>
-          <form.Field name="uf">
+          </form.AppField>
+          <form.AppField name="endereco">
+            {(campo) => <campo.CampoTexto rotulo="Endereço" className="md:col-span-3" />}
+          </form.AppField>
+          <form.AppField name="numero">
+            {(campo) => <campo.CampoTexto rotulo="Número" />}
+          </form.AppField>
+          <form.AppField name="complemento">
+            {(campo) => <campo.CampoTexto rotulo="Complemento" className="md:col-span-2" />}
+          </form.AppField>
+          <form.AppField name="bairro">
+            {(campo) => <campo.CampoTexto rotulo="Bairro" className="md:col-span-2" />}
+          </form.AppField>
+          <form.AppField name="cidade">
+            {(campo) => <campo.CampoTexto rotulo="Cidade" className="md:col-span-1" />}
+          </form.AppField>
+          <form.AppField name="uf">
             {(campo) => (
-              <CampoTexto
-                campo={campo}
+              <campo.CampoTexto
                 rotulo="UF"
                 maxLength={2}
                 formatar={(valor) => valor.toUpperCase()}
               />
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -181,7 +168,7 @@ export function ClienteFormulario({
         <CardHeader>
           <CardTitle>Telefones</CardTitle>
           <CardAction>
-            <form.Field name="telefones" mode="array">
+            <form.AppField name="telefones" mode="array">
               {(campo) => (
                 <Button
                   type="button"
@@ -192,11 +179,11 @@ export function ClienteFormulario({
                   <Plus /> Adicionar telefone
                 </Button>
               )}
-            </form.Field>
+            </form.AppField>
           </CardAction>
         </CardHeader>
         <CardContent className="grid gap-3">
-          <form.Field name="telefones" mode="array">
+          <form.AppField name="telefones" mode="array">
             {(lista) =>
               lista.state.value.length === 0 ? (
                 <p className="text-muted-foreground text-sm">Nenhum telefone cadastrado.</p>
@@ -206,19 +193,18 @@ export function ClienteFormulario({
                     key={telefone.chave}
                     className="grid grid-cols-[1fr_1.5fr_auto] items-start gap-3"
                   >
-                    <form.Field name={`telefones[${indice}].nome`}>
-                      {(campo) => <CampoTexto campo={campo} rotulo="Nome do contato" />}
-                    </form.Field>
-                    <form.Field name={`telefones[${indice}].telefone`}>
+                    <form.AppField name={`telefones[${indice}].nome`}>
+                      {(campo) => <campo.CampoTexto rotulo="Nome do contato" />}
+                    </form.AppField>
+                    <form.AppField name={`telefones[${indice}].telefone`}>
                       {(campo) => (
-                        <CampoTexto
-                          campo={campo}
+                        <campo.CampoTexto
                           rotulo="Telefone"
                           inputMode="tel"
                           formatar={mascararTelefone}
                         />
                       )}
-                    </form.Field>
+                    </form.AppField>
                     <Button
                       type="button"
                       variant="ghost"
@@ -233,7 +219,7 @@ export function ClienteFormulario({
                 ))
               )
             }
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -241,7 +227,7 @@ export function ClienteFormulario({
         <CardHeader>
           <CardTitle>Aparelhos</CardTitle>
           <CardAction>
-            <form.Field name="aparelhos" mode="array">
+            <form.AppField name="aparelhos" mode="array">
               {(campo) => (
                 <Button
                   type="button"
@@ -252,11 +238,11 @@ export function ClienteFormulario({
                   <Plus /> Adicionar aparelho
                 </Button>
               )}
-            </form.Field>
+            </form.AppField>
           </CardAction>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <form.Field name="aparelhos" mode="array">
+          <form.AppField name="aparelhos" mode="array">
             {(lista) =>
               lista.state.value.length === 0 ? (
                 <p className="text-muted-foreground text-sm">Nenhum aparelho cadastrado.</p>
@@ -321,22 +307,22 @@ export function ClienteFormulario({
                       </div>
                     </div>
                     <div className="grid gap-3 md:grid-cols-4">
-                      <form.Field name={`aparelhos[${indice}].nome`}>
-                        {(campo) => <CampoTexto campo={campo} rotulo="Aparelho" />}
-                      </form.Field>
-                      <form.Field name={`aparelhos[${indice}].marca`}>
-                        {(campo) => <CampoTexto campo={campo} rotulo="Marca" />}
-                      </form.Field>
-                      <form.Field name={`aparelhos[${indice}].modelo`}>
-                        {(campo) => <CampoTexto campo={campo} rotulo="Modelo" />}
-                      </form.Field>
-                      <form.Field name={`aparelhos[${indice}].pnc`}>
-                        {(campo) => <CampoTexto campo={campo} rotulo="PNC" />}
-                      </form.Field>
+                      <form.AppField name={`aparelhos[${indice}].nome`}>
+                        {(campo) => <campo.CampoTexto rotulo="Aparelho" />}
+                      </form.AppField>
+                      <form.AppField name={`aparelhos[${indice}].marca`}>
+                        {(campo) => <campo.CampoTexto rotulo="Marca" />}
+                      </form.AppField>
+                      <form.AppField name={`aparelhos[${indice}].modelo`}>
+                        {(campo) => <campo.CampoTexto rotulo="Modelo" />}
+                      </form.AppField>
+                      <form.AppField name={`aparelhos[${indice}].pnc`}>
+                        {(campo) => <campo.CampoTexto rotulo="PNC" />}
+                      </form.AppField>
                     </div>
-                    <form.Field name={`aparelhos[${indice}].observacao`}>
-                      {(campo) => <CampoTextarea campo={campo} rotulo="Observação" rows={2} />}
-                    </form.Field>
+                    <form.AppField name={`aparelhos[${indice}].observacao`}>
+                      {(campo) => <campo.CampoTextarea rotulo="Observação" rows={2} />}
+                    </form.AppField>
                     {aparelho.garantiaAte && (
                       <p className="text-muted-foreground text-sm">
                         Garantia do serviço até {formatarData(aparelho.garantiaAte)}
@@ -346,7 +332,7 @@ export function ClienteFormulario({
                 ))
               )
             }
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -354,13 +340,9 @@ export function ClienteFormulario({
         <Button type="button" variant="outline" onClick={aoCancelar}>
           Voltar
         </Button>
-        <form.Subscribe selector={(estado) => estado.isSubmitting}>
-          {(enviando) => (
-            <Button type="submit" disabled={enviando}>
-              {enviando ? 'Salvando...' : 'Salvar'}
-            </Button>
-          )}
-        </form.Subscribe>
+        <form.AppForm>
+          <form.BotaoSalvar />
+        </form.AppForm>
       </BarraAcoes>
     </form>
   )
