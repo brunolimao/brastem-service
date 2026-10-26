@@ -215,6 +215,16 @@ describe('regras de negócio (e2e)', () => {
       .expect(201)
   })
 
+  it('a data de cadastro do cliente pode ser corrigida (como no sistema antigo)', async () => {
+    const res = await admin
+      .patch(`/api/clientes/${clienteId}`)
+      .send({ dataCadastro: '2024-02-14' })
+      .expect(200)
+    // Meio-dia UTC: continua sendo 14/02 em Brasília (e no relatório de clientes novos).
+    expect(res.body.criadoEm).toBe('2024-02-14T12:00:00.000Z')
+    await admin.patch(`/api/clientes/${clienteId}`).send({ dataCadastro: '2024-02-30' }).expect(400)
+  })
+
   it('busca de pagamentos em "Todos" filtra pelo texto', async () => {
     const todos = await admin.get('/api/pagamentos').expect(200)
     const pix = await admin.get('/api/pagamentos').query({ busca: 'pix' }).expect(200)

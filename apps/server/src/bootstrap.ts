@@ -27,6 +27,10 @@ export async function createApp(): Promise<INestApplication> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
     bodyParser: false,
+    // Por padrão o Nest encerra o processo (process.exit) se algo falha ao iniciar. No app desktop o
+    // processo é o próprio Electron: ele fechava sem aviso. Assim o erro volta para quem chamou, e o
+    // Electron mostra a tela de erro com "Procurar atualização".
+    abortOnError: false,
   })
   const config = app.get<ConfigType<typeof appConfig>>(appConfig.KEY)
 
