@@ -1,7 +1,8 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { app, BrowserWindow, dialog, Menu, type MenuItemConstructorOptions, shell } from 'electron'
-import { type Atualizador, iniciarAtualizador } from './atualizador'
+import { type Atualizador, type EstadoAtualizacao, iniciarAtualizador } from './atualizador'
+import { progressoDaBarra, scriptDoAviso } from './aviso-atualizacao'
 import { criarAtualizador } from './criar-atualizador'
 import { carregarOuCriarSegredo, escolherPorta, montarAmbiente } from './runtime'
 
@@ -102,15 +103,38 @@ async function verificarAtualizacaoAgora() {
   if (falhou && response === 0) void shell.openExternal(PAGINA_DE_DOWNLOADS)
 }
 
-function abrirJanela(endereco: string) {
-  const origem = new URL(endereco).origin
+/** Mostra o andamento da atualização na janela (canto da tela) e na barra de tarefas. */
+let estadoDaAtualizacao: EstadoAtualizacao = { tipo: 'nenhum' }
 
+function mostrarAtualizacao(estado: EstadoAtualizacao) {
+  estadoDaAtualizacao = estado
+  if (!janela || janela.isDestroyed()) return
+  const progresso = progressoDaBarra(estado)
+  if (progresso === 2) janela.setProgressBar(2, { mode: 'indeterminate' })
+  else janela.setProgressBar(progresso)
+  janela.webContents.executeJavaScript(scriptDoAviso(estado)).catch(() => undefined)
+}
+
+/** Tela de espera: o servidor pode levar alguns segundos (ou mais, logo após instalar uma atualização). */
+const TELA_DE_ESPERA = `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html><meta charset="utf-8"><title>Brastem-Service</title>
+<style>
+  html,body{height:100%;margin:0;background:#0b1220;color:#fff;font:500 15px system-ui,sans-serif}
+  body{display:grid;place-items:center;text-align:center}
+  .anel{width:36px;height:36px;margin:0 auto 16px;border:4px solid rgba(255,255,255,.2);border-top-color:#FF6347;border-radius:50%;animation:g 1s linear infinite}
+  @keyframes g{to{transform:rotate(360deg)}}
+</style>
+<div><div class="anel"></div>Iniciando o Brastem-Service…</div>`)}`
+
+/** Origem do app depois que o servidor sobe; a janela não navega para fora dela. */
+let origemDoApp: string | undefined
+
+/** Abre a janela já, com a tela de espera, e só depois carrega o app (ver `carregarApp`). */
+function abrirJanela() {
   janela = new BrowserWindow({
     width: 1280,
     height: 800,
     minWidth: 1000,
     minHeight: 650,
-    show: false,
     autoHideMenuBar: true,
     backgroundColor: '#0b1220',
     title: 'Brastem-Service',
@@ -123,7 +147,8 @@ function abrirJanela(endereco: string) {
     },
   })
 
-  janela.once('ready-to-show', () => janela?.show())
+  // A página recarrega ao navegar/reiniciar o front: refaz o aviso se ainda houver atualização em andamento.
+  janela.webContents.on('did-finish-load', () => mostrarAtualizacao(estadoDaAtualizacao))
 
   // A janela só navega dentro do próprio app; links externos abrem no navegador do sistema.
   janela.webContents.setWindowOpenHandler(({ url }) => {
@@ -131,10 +156,15 @@ function abrirJanela(endereco: string) {
     return { action: 'deny' }
   })
   janela.webContents.on('will-navigate', (evento, url) => {
-    if (new URL(url).origin !== origem) evento.preventDefault()
+    if (new URL(url).origin !== origemDoApp) evento.preventDefault()
   })
 
-  void janela.loadURL(endereco)
+  void janela.loadURL(TELA_DE_ESPERA)
+}
+
+function carregarApp(endereco: string) {
+  origemDoApp = new URL(endereco).origin
+  void janela?.loadURL(endereco)
 }
 
 function mostrarErroDeInicio(erro: unknown) {
@@ -165,7 +195,8 @@ if (!app.requestSingleInstanceLock()) {
         app.relaunch()
         app.quit()
       })
-      abrirJanela(await iniciarServidor())
+      abrirJanela()
+      carregarApp(await iniciarServidor())
       atualizador = iniciarAtualizador({
         empacotado: app.isPackaged,
         autoUpdater: criarAtualizador(
@@ -174,6 +205,7 @@ if (!app.requestSingleInstanceLock()) {
           (mensagem) => console.log(`[atualizador] ${mensagem}`),
         ),
         registrar: (mensagem) => console.log(`[atualizador] ${mensagem}`),
+        aoMudarEstado: mostrarAtualizacao,
         perguntarReiniciar: async (versao) => {
           const { response } = await dialog.showMessageBox({
             type: 'info',

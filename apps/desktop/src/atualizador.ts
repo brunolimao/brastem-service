@@ -2,6 +2,8 @@
 export interface AutoUpdaterMinimo {
   autoDownload: boolean
   autoInstallOnAppQuit: boolean
+  on(evento: 'checking-for-update', ouvinte: () => void): unknown
+  on(evento: 'download-progress', ouvinte: (progresso: { percent: number }) => void): unknown
   on(evento: 'update-downloaded', ouvinte: (info: { version: string }) => void): unknown
   on(evento: 'update-available', ouvinte: (info: { version: string }) => void): unknown
   on(evento: 'update-not-available', ouvinte: () => void): unknown
@@ -12,6 +14,13 @@ export interface AutoUpdaterMinimo {
   quitAndInstall(silencioso?: boolean, reabrir?: boolean): void
 }
 
+/** O que a janela mostra ao usuário durante a atualização. `nenhum` esconde o aviso. */
+export type EstadoAtualizacao =
+  | { tipo: 'nenhum' }
+  | { tipo: 'verificando' }
+  | { tipo: 'baixando'; versao: string; percentual: number }
+  | { tipo: 'pronta'; versao: string }
+
 export interface OpcoesAtualizador {
   /** Só o app instalado se atualiza; em desenvolvimento não há o que atualizar. */
   empacotado: boolean
@@ -19,6 +28,8 @@ export interface OpcoesAtualizador {
   /** Pergunta ao usuário; devolve true se ele quer reiniciar agora. */
   perguntarReiniciar: (versao: string) => Promise<boolean>
   registrar: (mensagem: string) => void
+  /** Avisa a cada mudança de etapa, para a janela mostrar "procurando / baixando". */
+  aoMudarEstado?: (estado: EstadoAtualizacao) => void
   /** Agenda `fn` a cada `ms` e devolve como cancelar (injetável para os testes). */
   repetir?: (fn: () => void, ms: number) => () => void
 }
@@ -43,6 +54,7 @@ export function iniciarAtualizador({
   autoUpdater,
   perguntarReiniciar,
   registrar,
+  aoMudarEstado = () => undefined,
   repetir = (fn, ms) => {
     const id = setInterval(fn, ms)
     id.unref()
@@ -56,13 +68,27 @@ export function iniciarAtualizador({
   autoUpdater.autoDownload = true
   autoUpdater.autoInstallOnAppQuit = true
 
-  autoUpdater.on('update-available', (info) =>
-    registrar(`Atualização ${info.version} encontrada; baixando.`),
+  let versaoNova = ''
+  autoUpdater.on('checking-for-update', () => aoMudarEstado({ tipo: 'verificando' }))
+  autoUpdater.on('update-available', (info) => {
+    versaoNova = info.version
+    registrar(`Atualização ${info.version} encontrada; baixando.`)
+    aoMudarEstado({ tipo: 'baixando', versao: info.version, percentual: 0 })
+  })
+  autoUpdater.on('download-progress', ({ percent }) =>
+    aoMudarEstado({ tipo: 'baixando', versao: versaoNova, percentual: Math.round(percent) }),
   )
-  autoUpdater.on('update-not-available', () => registrar('O app já está na versão mais recente.'))
-  autoUpdater.on('error', (erro) => registrar(`Falha ao verificar atualização: ${erro.message}`))
+  autoUpdater.on('update-not-available', () => {
+    registrar('O app já está na versão mais recente.')
+    aoMudarEstado({ tipo: 'nenhum' })
+  })
+  autoUpdater.on('error', (erro) => {
+    registrar(`Falha ao verificar atualização: ${erro.message}`)
+    aoMudarEstado({ tipo: 'nenhum' })
+  })
   autoUpdater.on('update-downloaded', (info) => {
     registrar(`Atualização ${info.version} baixada.`)
+    aoMudarEstado({ tipo: 'pronta', versao: info.version })
     void perguntarReiniciar(info.version).then((reiniciar) => {
       // Silenciosa e reabrindo o app: o usuário volta direto ao trabalho.
       if (reiniciar) autoUpdater.quitAndInstall(true, true)

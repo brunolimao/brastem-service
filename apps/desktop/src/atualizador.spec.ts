@@ -92,4 +92,29 @@ describe('atualizador', () => {
     atualizador.parar()
     expect(cancelar).toHaveBeenCalledOnce()
   })
+
+  it('avisa cada etapa: procurando, baixando com progresso, pronta, e some se não há nada novo', () => {
+    const { falso, eventos } = criarAutoUpdaterFalso()
+    const aoMudarEstado = vi.fn()
+    iniciarAtualizador({
+      empacotado: true,
+      autoUpdater: falso,
+      perguntarReiniciar: async () => false,
+      registrar: vi.fn(),
+      aoMudarEstado,
+      repetir: () => () => undefined,
+    })
+    eventos.emit('checking-for-update')
+    eventos.emit('update-available', { version: '2.1.0' })
+    eventos.emit('download-progress', { percent: 41.6 })
+    eventos.emit('update-downloaded', { version: '2.1.0' })
+    eventos.emit('update-not-available')
+    expect(aoMudarEstado.mock.calls.map(([estado]) => estado)).toEqual([
+      { tipo: 'verificando' },
+      { tipo: 'baixando', versao: '2.1.0', percentual: 0 },
+      { tipo: 'baixando', versao: '2.1.0', percentual: 42 },
+      { tipo: 'pronta', versao: '2.1.0' },
+      { tipo: 'nenhum' },
+    ])
+  })
 })
