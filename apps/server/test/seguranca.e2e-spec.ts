@@ -21,6 +21,12 @@ describe('acesso só pelo próprio computador (e2e)', () => {
     await app.close()
   })
 
+  it('a versão do sistema é pública (aparece no menu e serve para o suporte)', async () => {
+    const res = await request(app.getHttpServer()).get('/api/sistema').expect(200)
+    // Fora do app desktop o Electron não informa a versão.
+    expect(res.body).toEqual({ versao: 'desenvolvimento' })
+  })
+
   it('DNS rebinding: Host que não é o computador local é recusado', async () => {
     await request(app.getHttpServer())
       .post('/api/auth/setup')

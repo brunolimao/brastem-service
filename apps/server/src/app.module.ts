@@ -17,6 +17,7 @@ import { ImportacaoModule } from './modules/importacao/importacao.module.js'
 import { OrdensServicoModule } from './modules/ordens-servico/ordens-servico.module.js'
 import { PagamentosModule } from './modules/pagamentos/pagamentos.module.js'
 import { RelatoriosModule } from './modules/relatorios/relatorios.module.js'
+import { SistemaModule } from './modules/sistema/sistema.module.js'
 import { TransacoesModule } from './modules/transacoes/transacoes.module.js'
 import { UsuariosModule } from './modules/usuarios/usuarios.module.js'
 
@@ -43,6 +44,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module.js'
     ImportacaoModule,
     BackupModule,
     EmpresaModule,
+    SistemaModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })

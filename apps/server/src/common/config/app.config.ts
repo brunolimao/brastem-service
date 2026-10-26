@@ -7,6 +7,7 @@ export const appConfig = registerAs('app', () => {
 
   return {
     nodeEnv,
+    versao: process.env.APP_VERSION || 'desenvolvimento',
     isProduction: nodeEnv === 'production',
     isTest: nodeEnv === 'test',
     port: Number(process.env.PORT ?? 3333),

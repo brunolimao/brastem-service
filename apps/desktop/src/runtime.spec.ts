@@ -60,6 +60,7 @@ describe('ambiente do servidor embutido', () => {
       pastaInterface: 'C:/client',
       segredo: 'x'.repeat(48),
       porta: 47831,
+      versao: '2.1.0',
     })
     expect(ambiente).toMatchObject({
       NODE_ENV: 'production',
@@ -68,6 +69,7 @@ describe('ambiente do servidor embutido', () => {
       DATA_DIR: 'C:/dados',
       CLIENT_DIR: 'C:/client',
       SWAGGER_ENABLED: 'false',
+      APP_VERSION: '2.1.0',
     })
     expect(ambiente.JWT_SECRET).toHaveLength(48)
   })

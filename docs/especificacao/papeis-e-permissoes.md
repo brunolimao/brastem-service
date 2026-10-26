@@ -14,7 +14,8 @@
 ## Regras
 
 - **R-PERM-01**: toda rota da API exige estar logado, exceto: primeiro acesso, login, renovação e saída da
-  sessão, importação do sistema antigo (só antes do primeiro usuário) e o retorno da autorização do Google.
+  sessão, importação do sistema antigo (só antes do primeiro usuário), o retorno da autorização do Google e a
+  versão do sistema.
 - **R-PERM-02**: o papel vale como está **agora** no banco: se um usuário for excluído ou desativado, perde o
   acesso na hora, sem esperar a sessão vencer.
 - **R-PERM-03**: as telas restritas redirecionam o usuário comum para o Início; o servidor responde 403 se

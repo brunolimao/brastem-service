@@ -61,7 +61,9 @@ Todos os usuários cadastram e editam. Só o administrador exclui um cliente.
 ## Regras
 
 - **R-CLI-01**: a busca procura no campo escolhido; em _Todos os campos_ procura em código, nome, e-mail,
-  CPF/CNPJ, endereço, CEP e telefones. A busca é por "contém" e compara o texto como está gravado (com máscara).
+  CPF/CNPJ, endereço, CEP e telefones. A busca é por "contém". Em telefone, CPF/CNPJ e CEP, um texto que é só
+  número (com ou sem pontuação) também é comparado só pelos dígitos: "31999991111" encontra "(31) 99999-1111" e
+  "12345678901" encontra "123.456.789-01". Texto com letras ("Rua 7") busca como está.
 - **R-CLI-02**: o CEP com 8 dígitos consulta o ViaCEP e preenche endereço, bairro, cidade e UF; se o CEP não
   existir, avisa e não apaga o que já estava digitado.
 - **R-CLI-03**: o motivo só é guardado quando o cliente está marcado como negativado.
@@ -104,10 +106,10 @@ Todos os usuários cadastram e editam. Só o administrador exclui um cliente.
 ## Testes
 
 - `apps/server/test/dominio.e2e-spec.ts` — cadastro, busca por telefone, edição das listas, exclusão em cascata (R-CLI-01, R-CLI-05, R-CLI-06).
-- `apps/server/test/regras.e2e-spec.ts` — data de cadastro corrigível e data inválida (R-CLI-04).
+- `apps/server/test/regras.e2e-spec.ts` — busca só pelos dígitos (R-CLI-01); data de cadastro corrigível e data inválida (R-CLI-04).
+- `apps/server/src/common/utils/utils.spec.ts` — o que conta como "texto que é só número" (R-CLI-01).
 - `apps/client/src/components/domain/cliente-form.spec.tsx` — confirmação ao remover aparelho e atalhos que salvam antes (R-APA-02, R-CLI-07).
 
 ## Limitações conhecidas
 
-- A busca por CPF ou telefone compara com a máscara: "12345678901" não encontra "123.456.789-01".
 - A busca por código é "contém" (buscar "1" também traz 10, 21...), diferente das OS, onde é exata.

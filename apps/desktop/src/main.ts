@@ -47,6 +47,7 @@ async function iniciarServidor(): Promise<string> {
       pastaInterface: join(raiz, 'client'),
       segredo: carregarOuCriarSegredo(pastaDados),
       porta,
+      versao: app.getVersion(),
     }),
   )
 

@@ -25,4 +25,6 @@ export const envValidationSchema = Joi.object({
     .default('info'),
   COOKIE_SECURE: Joi.boolean().default(false),
   SWAGGER_ENABLED: Joi.boolean().default(true),
+  // Versão do app desktop (o Electron informa); fora dele, "desenvolvimento".
+  APP_VERSION: Joi.string().optional(),
 })

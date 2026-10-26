@@ -54,6 +54,8 @@ export interface OpcoesAmbiente {
   pastaInterface: string
   segredo: string
   porta: number
+  /** Versão do app instalado, mostrada no menu (ex.: "2.1.0"). */
+  versao: string
 }
 
 /** Variáveis de ambiente do servidor embutido. Só escuta em 127.0.0.1, nunca na rede. */
@@ -62,6 +64,7 @@ export function montarAmbiente({
   pastaInterface,
   segredo,
   porta,
+  versao,
 }: OpcoesAmbiente): Record<string, string> {
   return {
     NODE_ENV: 'production',
@@ -73,5 +76,6 @@ export function montarAmbiente({
     LOG_LEVEL: 'info',
     SWAGGER_ENABLED: 'false',
     COOKIE_SECURE: 'false',
+    APP_VERSION: versao,
   }
 }

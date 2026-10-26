@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { and, count, desc, eq, exists, notInArray, or, type SQL, sql } from 'drizzle-orm'
 import { type Db, type DbLike, DRIZZLE, schema } from '../../common/database/index.js'
-import { contem, limites, type Pagina } from '../../common/utils/pagination.js'
+import { contem, contemNumero, limites, type Pagina } from '../../common/utils/pagination.js'
 import type {
   AparelhoDto,
   ClientesQueryDto,
@@ -21,24 +21,27 @@ export class ClientesService {
     let where: SQL | undefined
 
     if (termo) {
-      const campos = {
-        id: sql`cast(${clientes.id} as text)`,
-        nome: clientes.nome,
-        email: clientes.email,
-        cpf: clientes.cpf,
-        endereco: clientes.endereco,
-        cep: clientes.cep,
+      // Telefone, CPF/CNPJ e CEP são gravados com máscara: buscam também só pelos dígitos (contemNumero).
+      const filtros = {
+        id: contem(sql`cast(${clientes.id} as text)`, termo),
+        nome: contem(clientes.nome, termo),
+        email: contem(clientes.email, termo),
+        cpf: contemNumero(clientes.cpf, termo),
+        endereco: contem(clientes.endereco, termo),
+        cep: contemNumero(clientes.cep, termo),
       }
       const porTelefone = exists(
         this.db
           .select({ um: sql`1` })
           .from(telefones)
-          .where(and(eq(telefones.clienteId, clientes.id), contem(telefones.telefone, termo))),
+          .where(
+            and(eq(telefones.clienteId, clientes.id), contemNumero(telefones.telefone, termo)),
+          ),
       )
 
       if (query.campo === 'telefone') where = porTelefone
-      else if (query.campo) where = contem(campos[query.campo], termo)
-      else where = or(...Object.values(campos).map((campo) => contem(campo, termo)), porTelefone)
+      else if (query.campo) where = filtros[query.campo]
+      else where = or(...Object.values(filtros), porTelefone)
     }
 
     const total = this.db.select({ total: count() }).from(clientes).where(where).get()?.total ?? 0

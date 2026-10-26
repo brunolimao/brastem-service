@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { somarDias, somarMeses } from './dates.js'
 import { dividirEmParcelas, reaisParaCentavos } from './money.js'
+import { digitosDaBusca } from './pagination.js'
 
 describe('dividirEmParcelas', () => {
   it('divide igualmente quando é exato', () => {
@@ -43,5 +44,21 @@ describe('datas', () => {
 
   it('soma dias', () => {
     expect(somarDias('2026-10-01', 90)).toBe('2026-12-30')
+  })
+})
+
+describe('digitosDaBusca (R-CLI-01)', () => {
+  it.each([
+    ['31999991111', '31999991111'],
+    ['(31) 99999-1111', '31999991111'],
+    ['123.456.789-01', '12345678901'],
+    ['31.910-520', '31910520'],
+    ['12.345.678/0001-90', '12345678000190'],
+  ])('%s parece número: compara por %s', (busca, digitos) => {
+    expect(digitosDaBusca(busca)).toBe(digitos)
+  })
+
+  it.each(['Rua 7', 'Maria', 'apto 101', '---', ''])('%j não é tratado como número', (busca) => {
+    expect(digitosDaBusca(busca)).toBeNull()
   })
 })

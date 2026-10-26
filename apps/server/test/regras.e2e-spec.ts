@@ -254,6 +254,36 @@ describe('regras de negócio (e2e)', () => {
     expect(usuarios.total).toBeGreaterThan(1)
   })
 
+  it('busca telefone, CPF e CEP só pelos dígitos, com ou sem a máscara (R-CLI-01)', async () => {
+    const criado = (
+      await admin
+        .post('/api/clientes')
+        .send({
+          nome: 'Joana Dígitos',
+          cpf: '987.654.321-00',
+          cep: '31910-520',
+          endereco: 'Rua 7',
+          telefones: [{ telefone: '(31) 98765-4321' }],
+          aparelhos: [{ nome: 'Fogão' }],
+        })
+        .expect(201)
+    ).body as { id: number }
+    const ids = async (busca: string, campo?: string) =>
+      (
+        (await admin.get('/api/clientes').query({ busca, campo }).expect(200)).body.items as {
+          id: number
+        }[]
+      ).map((c) => c.id)
+
+    expect(await ids('31987654321', 'telefone')).toEqual([criado.id])
+    expect(await ids('987654321')).toEqual([criado.id])
+    expect(await ids('(31) 98765')).toEqual([criado.id])
+    expect(await ids('98765432100', 'cpf')).toEqual([criado.id])
+    expect(await ids('31910520', 'cep')).toEqual([criado.id])
+    // Texto que não é número continua buscando como antes (sem casar "7" com qualquer telefone).
+    expect(await ids('Rua 7')).toEqual([criado.id])
+  })
+
   it('busca de pagamentos em "Todos" filtra pelo texto', async () => {
     const todos = await admin.get('/api/pagamentos').expect(200)
     const pix = await admin.get('/api/pagamentos').query({ busca: 'pix' }).expect(200)

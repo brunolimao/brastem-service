@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useLogout } from '@/hooks/use-auth'
 import { useSessionStore } from '@/hooks/use-session-store'
+import { useVersao } from '@/hooks/use-sistema'
 import { ROTULO_ROLE } from '@/models/usuario.model'
 import { ThemeToggle } from './theme-toggle'
 
@@ -91,6 +92,7 @@ export function AppSidebar() {
   const usuario = useSessionStore((estado) => estado.usuario)
   const logout = useLogout()
   const navigate = useNavigate()
+  const { data: versao } = useVersao()
 
   const sair = () => logout.mutate(undefined, { onSettled: () => navigate({ to: '/login' }) })
 
@@ -139,6 +141,11 @@ export function AppSidebar() {
           <p className="text-sidebar-foreground/70 text-xs">
             {usuario ? ROTULO_ROLE[usuario.role] : ''}
           </p>
+          {versao && (
+            <p className="text-sidebar-foreground/50 text-xs">
+              {versao === 'desenvolvimento' ? 'Desenvolvimento' : `Versão ${versao}`}
+            </p>
+          )}
         </div>
         <div className="flex items-center">
           <ThemeToggle />

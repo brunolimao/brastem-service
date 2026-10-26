@@ -18,7 +18,8 @@ Todos fazem login. Só o administrador cadastra e exclui usuários.
   importação do sistema antigo.
 - _**Login**_: usuário e senha.
 - _**Usuários**_ (menu › Administração): lista paginada (código, usuário, função, data de cadastro), cadastrar e excluir.
-- Rodapé do menu: nome e função de quem está logado, troca de tema (claro/escuro) e _Sair_.
+- Rodapé do menu: nome e função de quem está logado, a versão do app ("Versão 2.1.0"; "Desenvolvimento" fora
+  do app instalado), troca de tema (claro/escuro) e _Sair_.
 
 ## Campos
 
