@@ -33,6 +33,10 @@
 - **R-ATU-08**: Pastas criptografadas (EFS): o download vai para a primeira pasta onde o Windows deixa renomear
   arquivos; nesses computadores a atualização baixa o instalador inteiro.
 - **R-ATU-09**: Banco na atualização: a versão nova aplica as migrações do banco ao abrir, com backup antes (R-DAD-08).
+- **R-ATU-10**: Janela nunca em branco: se o carregamento do sistema na janela falhar (na primeira abertura de
+  um executável novo, logo após instalar ou atualizar, o serviço de rede do Chromium cai e reinicia), a janela
+  tenta de novo até 6 vezes (esperas de 0,5 s a 5 s) e, se não conseguir, mostra "Não foi possível abrir o
+  Brastem-Service" com _Tentar de novo_. Se o serviço de rede cair com o app aberto, a janela recarrega.
 
 ## Publicação de uma versão (para o desenvolvedor)
 
@@ -53,6 +57,7 @@ Como testar uma atualização sem publicar: ver "App desktop" no [AGENTS.md](../
 
 ## Testes
 
+- `apps/desktop/src/carregamento.spec.ts` — novas tentativas e desistência (R-ATU-10).
 - `apps/desktop/src/atualizador.spec.ts` — procura, aviso de cada etapa, instalação ao aceitar (R-ATU-02 a R-ATU-04).
 - `apps/desktop/src/aviso-atualizacao.spec.ts`, `cache-atualizacao.spec.ts`, `criar-atualizador.spec.ts` (R-ATU-03, R-ATU-08).
 - `apps/server/test/inicio.e2e-spec.ts` — falha ao iniciar volta para o app, sem fechá-lo (R-ATU-06).

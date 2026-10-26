@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url'
 import { app, BrowserWindow, dialog, Menu, type MenuItemConstructorOptions, shell } from 'electron'
 import { type Atualizador, type EstadoAtualizacao, iniciarAtualizador } from './atualizador'
 import { progressoDaBarra, scriptDoAviso } from './aviso-atualizacao'
+import { carregarComNovasTentativas } from './carregamento'
 import { criarAtualizador } from './criar-atualizador'
 import { pedeDepuracao } from './depuracao'
 import { podeAbrirFora } from './links-externos'
@@ -122,15 +123,20 @@ function mostrarAtualizacao(estado: EstadoAtualizacao) {
 }
 
 /** Página simples (sem servidor) para a janela: espera ao abrir ou aviso de falha. O texto é fixo do app. */
-const paginaSimples = (texto: string, girando: boolean) =>
+const paginaSimples = (
+  texto: string,
+  girando: boolean,
+  link?: { rotulo: string; endereco: string },
+) =>
   `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html><meta charset="utf-8"><title>Brastem-Service</title>
 <style>
   html,body{height:100%;margin:0;background:#0b1220;color:#fff;font:500 15px system-ui,sans-serif}
   body{display:grid;place-items:center;text-align:center;padding:0 24px}
   .anel{width:36px;height:36px;margin:0 auto 16px;border:4px solid rgba(255,255,255,.2);border-top-color:#FF6347;border-radius:50%;animation:g 1s linear infinite}
   @keyframes g{to{transform:rotate(360deg)}}
+  a{display:inline-block;margin-top:16px;padding:8px 16px;border-radius:6px;background:#FF6347;color:#fff;text-decoration:none}
 </style>
-<div>${girando ? '<div class="anel"></div>' : ''}${texto}</div>`)}`
+<div>${girando ? '<div class="anel"></div>' : ''}${texto}${link ? `<br><a href="${link.endereco}">${link.rotulo}</a>` : ''}</div>`)}`
 
 /** Tela de espera: o servidor pode levar alguns segundos (ou mais, logo após instalar uma atualização). */
 const TELA_DE_ESPERA = paginaSimples('Iniciando o Brastem-Service…', true)
@@ -176,10 +182,30 @@ function abrirJanela() {
   void janela.loadURL(TELA_DE_ESPERA)
 }
 
-function carregarApp(endereco: string) {
+/**
+ * Carrega o app na janela, com novas tentativas (ver carregamento.ts). Se nada der certo, mostra uma
+ * mensagem com "Tentar de novo" em vez de deixar a janela em branco.
+ */
+async function carregarApp(endereco: string) {
   origemDoApp = new URL(endereco).origin
-  void janela?.loadURL(endereco)
+  enderecoDoApp = endereco
+  const alvo = janela
+  if (!alvo) return
+  const carregou = await carregarComNovasTentativas((url) => alvo.loadURL(url), endereco, {
+    registrar: (mensagem) => console.log(`[janela] ${mensagem}`),
+  })
+  if (!carregou && !alvo.isDestroyed()) {
+    void alvo.loadURL(
+      paginaSimples('Não foi possível abrir o Brastem-Service.', false, {
+        rotulo: 'Tentar de novo',
+        endereco,
+      }),
+    )
+  }
 }
+
+/** Endereço do app, depois que o servidor sobe. */
+let enderecoDoApp: string | undefined
 
 /**
  * O servidor não subiu. A causa pode ser um defeito desta versão, e a correção vem por atualização:
@@ -262,7 +288,7 @@ if (!app.requestSingleInstanceLock()) {
           return response === 0
         },
       })
-      carregarApp(await iniciarServidor())
+      await carregarApp(await iniciarServidor())
     })
     // Se até a tela de erro falhar, ao menos não fica um processo aberto sem janela.
     .catch((erro) => falhaAoIniciar(erro).catch(() => app.quit()))
@@ -277,6 +303,13 @@ if (!app.requestSingleInstanceLock()) {
       .close()
       .catch(() => undefined)
       .finally(() => app.quit())
+  })
+
+  // Se o serviço de rede cair com o app aberto, os pedidos ao servidor local passam a falhar: recarrega.
+  app.on('child-process-gone', (_evento, detalhes) => {
+    if (detalhes.type !== 'Utility' || detalhes.name !== 'Network Service') return
+    console.log(`[janela] serviço de rede caiu (${detalhes.reason}); recarregando`)
+    if (janela && !janela.isDestroyed() && enderecoDoApp) void carregarApp(enderecoDoApp)
   })
 
   app.on('window-all-closed', () => app.quit())
