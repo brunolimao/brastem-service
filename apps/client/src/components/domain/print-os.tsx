@@ -83,10 +83,15 @@ export function PrintOS({ detalhe, empresa }: { detalhe: OrdemServicoDetalhe; em
 
       <Secao titulo="Aparelho">
         <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+          <Dado rotulo="Código do aparelho" valor={String(aparelho.ordem)} />
           <Dado rotulo="Aparelho" valor={aparelho.nome} />
           <Dado rotulo="Marca" valor={aparelho.marca} />
           <Dado rotulo="Modelo" valor={aparelho.modelo} />
           <Dado rotulo="PNC" valor={aparelho.pnc} />
+          <Dado
+            rotulo="Garantia até"
+            valor={aparelho.garantiaAte && formatarData(aparelho.garantiaAte)}
+          />
           <Dado rotulo="Observação" valor={aparelho.observacao} className="col-span-2" />
         </div>
       </Secao>
@@ -142,6 +147,7 @@ export function PrintOS({ detalhe, empresa }: { detalhe: OrdemServicoDetalhe; em
                 <th className="font-normal">Solução</th>
                 <th className="font-normal">Garantia</th>
                 <th className="text-right font-normal">Valor</th>
+                <th className="text-right font-normal">Desloc.</th>
               </tr>
             </thead>
             <tbody>
@@ -154,9 +160,8 @@ export function PrintOS({ detalhe, empresa }: { detalhe: OrdemServicoDetalhe; em
                     <td>{formatarData(ordem.fechamento)}</td>
                     <td>{ordem.solucionado || '—'}</td>
                     <td>{ordem.garantiaDias ? `${ordem.garantiaDias} dias` : '—'}</td>
-                    <td className="text-right">
-                      {formatarMoeda(ordem.valor + ordem.taxaDeslocamento)}
-                    </td>
+                    <td className="text-right">{formatarMoeda(ordem.valor)}</td>
+                    <td className="text-right">{formatarMoeda(ordem.taxaDeslocamento)}</td>
                   </tr>
                 ))}
             </tbody>

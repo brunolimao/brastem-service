@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { useOrdensServico, useRemoverOrdemServico } from '@/hooks/use-ordens-servico'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
-import { numeroPositivo, textoDeBusca } from '@/libs/search-params'
+import { numeroPositivo, textoDeBusca, umDos } from '@/libs/search-params'
 import {
   CAMPOS_BUSCA_OS,
   type OrdemServicoListada,
@@ -20,7 +20,7 @@ import {
 export const Route = createFileRoute('/_app/ordens-servico/')({
   validateSearch: z.object({
     busca: textoDeBusca,
-    campo: z.string().optional().catch(undefined),
+    campo: umDos(CAMPOS_BUSCA_OS),
     page: numeroPositivo,
     clienteId: z.number().int().optional().catch(undefined),
     aparelhoId: z.number().int().optional().catch(undefined),

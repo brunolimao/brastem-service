@@ -16,6 +16,18 @@ export const PALETA_PADRAO = [
   '#ea7ccc',
 ]
 
+/**
+ * As maiores fatias e, se sobrar, uma "Outros" com a soma do resto. Mantém o total certo (antes as
+ * cidades além da 7ª sumiam do gráfico e do total) sem uma legenda gigante.
+ */
+export function agruparMenores(dados: FatiaGrafico[], maximo = 7): FatiaGrafico[] {
+  const ordenados = [...dados].sort((a, b) => b.value - a.value)
+  if (ordenados.length <= maximo) return ordenados
+  const principais = ordenados.slice(0, maximo - 1)
+  const resto = ordenados.slice(maximo - 1).reduce((soma, fatia) => soma + fatia.value, 0)
+  return [...principais, { name: 'Outros', value: resto }]
+}
+
 interface OpcaoPizza {
   dados: FatiaGrafico[]
   escuro: boolean

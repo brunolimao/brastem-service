@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { GraficoPizza } from './grafico-pizza'
-import { montarOpcaoPizza } from './opcao-pizza'
+import { agruparMenores, montarOpcaoPizza } from './opcao-pizza'
 
 // O echarts desenha em canvas, que o jsdom não tem; aqui só conferimos o que é entregue a ele.
 vi.mock('echarts-for-react/lib/core', () => ({
@@ -75,5 +75,27 @@ describe('GraficoPizza', () => {
     expect(screen.getByTestId('echarts')).toBeInTheDocument()
     expect(screen.getByText('Aberto: 3')).toBeInTheDocument()
     expect(screen.getByText('Fechado: 0')).toBeInTheDocument()
+  })
+})
+
+describe('agruparMenores', () => {
+  const cidades = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({ name: `Cidade ${i + 1}`, value: n - i }))
+
+  it('com até 7 itens, mostra todos (do maior para o menor)', () => {
+    expect(agruparMenores(cidades(3)).map((f) => f.name)).toEqual([
+      'Cidade 1',
+      'Cidade 2',
+      'Cidade 3',
+    ])
+  })
+
+  it('com mais, junta o resto em "Outros" sem perder nada do total', () => {
+    const dados = cidades(10)
+    const agrupado = agruparMenores(dados)
+    expect(agrupado).toHaveLength(7)
+    expect(agrupado.at(-1)).toEqual({ name: 'Outros', value: 4 + 3 + 2 + 1 })
+    const total = (lista: { value: number }[]) => lista.reduce((s, f) => s + f.value, 0)
+    expect(total(agrupado)).toBe(total(dados))
   })
 })

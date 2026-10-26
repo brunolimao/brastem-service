@@ -1,10 +1,12 @@
 import { useForm } from '@tanstack/react-form'
+import { Printer } from 'lucide-react'
 import { PagamentosCampos } from '@/components/domain/pagamentos-campos'
 import { CampoCheckbox } from '@/components/form/campo-checkbox'
 import { CampoDinheiro } from '@/components/form/campo-dinheiro'
 import { CampoSelect } from '@/components/form/campo-select'
 import { CampoTextarea } from '@/components/form/campo-textarea'
 import { CampoTexto } from '@/components/form/campo-texto'
+import { salvarSeAlterou } from '@/components/form/salvar-se-alterou'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,18 +21,26 @@ interface OrdemServicoFormProps {
   valoresIniciais: OrdemServicoForm
   aoSalvar: (valores: OrdemServicoForm) => Promise<unknown>
   aoCancelar: () => void
+  /** Depois de salvar pelo botão Salvar (ex.: voltar para a lista). */
+  aoConcluir?: () => void
+  /** Só na edição: mostra o botão Imprimir, que salva antes o que foi alterado. */
+  aoImprimir?: () => void
 }
 
 export function OrdemServicoFormulario({
   valoresIniciais,
   aoSalvar,
   aoCancelar,
+  aoConcluir,
+  aoImprimir,
 }: OrdemServicoFormProps) {
   const form = useForm({
     defaultValues: valoresIniciais,
     validators: { onChange: ordemServicoFormSchema },
-    onSubmit: async ({ value }) => {
+    onSubmitMeta: {} as { depois?: () => void },
+    onSubmit: async ({ value, meta }) => {
       await aoSalvar(value)
+      ;(meta.depois ?? aoConcluir)?.()
     },
   })
 
@@ -138,6 +148,16 @@ export function OrdemServicoFormulario({
         <Button type="button" variant="outline" onClick={aoCancelar}>
           Voltar
         </Button>
+        {aoImprimir && (
+          <Button
+            type="button"
+            variant="outline"
+            // Como no sistema antigo: imprime o que está na tela, então salva antes se algo mudou.
+            onClick={() => salvarSeAlterou(form, aoImprimir)}
+          >
+            <Printer /> Imprimir
+          </Button>
+        )}
         <form.Subscribe selector={(estado) => estado.isSubmitting}>
           {(enviando) => (
             <Button type="submit" disabled={enviando}>

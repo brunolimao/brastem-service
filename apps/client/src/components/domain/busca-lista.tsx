@@ -10,17 +10,32 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-interface BuscaListaProps {
-  campos: readonly { valor: string; rotulo: string }[]
-  campo: string | undefined
+interface BuscaListaProps<C extends string> {
+  campos: readonly { valor: C; rotulo: string }[]
+  campo: C | undefined
   busca: string | undefined
   placeholder?: string
-  aoBuscar: (busca: { campo: string; busca: string }) => void
+  aoBuscar: (busca: { campo: C; busca: string }) => void
 }
 
-/** Campo + texto de busca das listagens. Os valores ficam na URL (search params) via `aoBuscar`. */
-export function BuscaLista({ campos, campo, busca, placeholder, aoBuscar }: BuscaListaProps) {
-  const [campoAtual, setCampoAtual] = useState(campo ?? 'todos')
+/**
+ * Campo + texto de busca das listagens. Os valores ficam na URL (search params) via `aoBuscar`.
+ * A `key` recomeça o formulário quando a URL muda por fora (voltar do navegador, "Ver todas"):
+ * sem ela, a caixa continuava mostrando o texto antigo.
+ */
+export const BuscaLista = <C extends string>(props: BuscaListaProps<C>) => (
+  <FormularioBusca key={`${props.campo ?? ''}|${props.busca ?? ''}`} {...props} />
+)
+
+function FormularioBusca<C extends string>({
+  campos,
+  campo,
+  busca,
+  placeholder,
+  aoBuscar,
+}: BuscaListaProps<C>) {
+  // Sem campo na URL, o primeiro da lista (sempre "Todos").
+  const [campoAtual, setCampoAtual] = useState<C | undefined>(campo ?? campos[0]?.valor)
   const [texto, setTexto] = useState(busca ?? '')
 
   return (
@@ -28,10 +43,10 @@ export function BuscaLista({ campos, campo, busca, placeholder, aoBuscar }: Busc
       className="flex flex-wrap items-center gap-2"
       onSubmit={(evento) => {
         evento.preventDefault()
-        aoBuscar({ campo: campoAtual, busca: texto.trim() })
+        if (campoAtual) aoBuscar({ campo: campoAtual, busca: texto.trim() })
       }}
     >
-      <Select value={campoAtual} onValueChange={setCampoAtual}>
+      <Select value={campoAtual} onValueChange={(valor) => setCampoAtual(valor as C)}>
         <SelectTrigger className="w-48" aria-label="Buscar em">
           <SelectValue />
         </SelectTrigger>

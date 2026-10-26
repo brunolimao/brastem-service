@@ -96,11 +96,13 @@ export class ClientesService {
   atualizar(id: number, dto: UpdateClienteDto) {
     this.db.transaction((tx) => {
       this.buscarPorId(id, tx)
-      const { telefones: listaTelefones, aparelhos: listaAparelhos, ...dados } = dto
+      const { telefones: listaTelefones, aparelhos: listaAparelhos, dataCadastro, ...dados } = dto
 
-      const campos = Object.fromEntries(
+      const campos: Record<string, unknown> = Object.fromEntries(
         Object.entries(dados).filter(([, valor]) => valor !== undefined),
       )
+      // Meio-dia em UTC (9h em Brasília): o dia não muda com o fuso, como acontecia com meia-noite.
+      if (dataCadastro) campos.criadoEm = `${dataCadastro}T12:00:00.000Z`
       if (Object.keys(campos).length > 0) {
         tx.update(clientes).set(campos).where(eq(clientes.id, id)).run()
       }

@@ -51,6 +51,28 @@ describe('DataTable', () => {
     expect(aoMudarPagina).toHaveBeenCalledWith(1)
   })
 
+  it('volta para a última página quando a atual deixou de existir (ex.: após excluir)', () => {
+    const aoMudarPagina = vi.fn()
+    const { rerender } = render(
+      <DataTable
+        colunas={colunas}
+        dados={[]}
+        carregando
+        paginacao={{ page: 3, pageSize: 10, total: 20, aoMudarPagina }}
+      />,
+    )
+    // Enquanto carrega não decide nada (o total ainda pode ser o antigo).
+    expect(aoMudarPagina).not.toHaveBeenCalled()
+    rerender(
+      <DataTable
+        colunas={colunas}
+        dados={[]}
+        paginacao={{ page: 3, pageSize: 10, total: 20, aoMudarPagina }}
+      />,
+    )
+    expect(aoMudarPagina).toHaveBeenCalledWith(2)
+  })
+
   it('desabilita a navegação nas pontas', () => {
     render(
       <DataTable

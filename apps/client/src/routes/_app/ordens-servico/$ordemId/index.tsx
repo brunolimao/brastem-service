@@ -1,9 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Printer } from 'lucide-react'
 import { OrdemServicoFormulario } from '@/components/domain/ordem-servico-form'
 import { ResumoOrdem } from '@/components/domain/resumo-ordem'
 import { PageHeader } from '@/components/layout/page-header'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtualizarOrdemServico, useOrdemServico } from '@/hooks/use-ordens-servico'
@@ -27,26 +25,21 @@ function EditarOrdemServicoPage() {
 
   return (
     <>
-      <PageHeader
-        titulo={`Ordem de serviço ${data.ordemServico.id}`}
-        acoes={
-          <Button asChild variant="outline">
-            <Link to="/ordens-servico/$ordemId/imprimir" params={{ ordemId: String(ordemId) }}>
-              <Printer /> Imprimir
-            </Link>
-          </Button>
-        }
-      />
+      <PageHeader titulo={`Ordem de serviço ${data.ordemServico.id}`} />
       <ResumoOrdem cliente={data.cliente} aparelho={data.aparelho} telefones={data.telefones} />
       {/* A `key` refaz o formulário com os dados novos depois de salvar. */}
       <OrdemServicoFormulario
         key={`${data.ordemServico.id}-${data.pagamentos.map((p) => p.id).join(',')}`}
         valoresIniciais={ordemServicoParaForm(data)}
         aoCancelar={voltar}
-        aoSalvar={async (valores) => {
-          await atualizar.mutateAsync(formParaPayloadOrdemServico(valores))
-          await voltar()
-        }}
+        aoSalvar={(valores) => atualizar.mutateAsync(formParaPayloadOrdemServico(valores))}
+        aoConcluir={voltar}
+        aoImprimir={() =>
+          navigate({
+            to: '/ordens-servico/$ordemId/imprimir',
+            params: { ordemId: String(ordemId) },
+          })
+        }
       />
 
       {data.ultimasOrdens.length > 1 && (

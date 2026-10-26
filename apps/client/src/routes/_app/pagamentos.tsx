@@ -1,4 +1,4 @@
-import { TIPOS_PAGAMENTO } from '@brastem/shared'
+import { TIPOS_PAGAMENTO, type TipoPagamento } from '@brastem/shared'
 import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 import { type Coluna, DataTable } from '@/components/data-table/data-table'
@@ -17,22 +17,9 @@ import { usePagamentos } from '@/hooks/use-financeiro'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
 import { resolverPeriodo } from '@/libs/periodo'
-import { buscaDePeriodo, numeroPositivo, textoDeBusca } from '@/libs/search-params'
+import { buscaDePeriodo, numeroPositivo, textoDeBusca, umDos } from '@/libs/search-params'
 import { cn } from '@/libs/utils'
 import { type PagamentoListado, ROTULO_TIPO_PAGAMENTO } from '@/models/pagamento.model'
-
-export const Route = createFileRoute('/_app/pagamentos')({
-  validateSearch: buscaDePeriodo.extend({
-    busca: textoDeBusca,
-    campo: z.string().optional().catch(undefined),
-    tipo: z.string().optional().catch(undefined),
-    page: numeroPositivo,
-  }),
-  beforeLoad: () => {
-    if (useSessionStore.getState().usuario?.role !== 'admin') throw redirect({ to: '/' })
-  },
-  component: PagamentosPage,
-})
 
 const CAMPOS = [
   { valor: 'todos', rotulo: 'Todos' },
@@ -40,6 +27,19 @@ const CAMPOS = [
   { valor: 'valor', rotulo: 'Valor' },
   { valor: 'observacao', rotulo: 'Observação' },
 ] as const
+
+export const Route = createFileRoute('/_app/pagamentos')({
+  validateSearch: buscaDePeriodo.extend({
+    busca: textoDeBusca,
+    campo: umDos(CAMPOS),
+    tipo: z.enum(TIPOS_PAGAMENTO).optional().catch(undefined),
+    page: numeroPositivo,
+  }),
+  beforeLoad: () => {
+    if (useSessionStore.getState().usuario?.role !== 'admin') throw redirect({ to: '/' })
+  },
+  component: PagamentosPage,
+})
 
 const colunas: Coluna<PagamentoListado>[] = [
   { accessorKey: 'id', header: 'Código' },
@@ -132,7 +132,7 @@ function PagamentosPage() {
             navigate({
               search: (anterior) => ({
                 ...anterior,
-                tipo: valor === 'todos' ? undefined : valor,
+                tipo: valor === 'todos' ? undefined : (valor as TipoPagamento),
                 page: undefined,
               }),
             })

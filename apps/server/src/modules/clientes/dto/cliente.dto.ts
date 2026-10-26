@@ -14,7 +14,7 @@ import {
   ValidateNested,
 } from 'class-validator'
 import { PaginacaoQueryDto } from '../../../common/utils/pagination.js'
-import { Opcional, OptionalText } from '../../../common/validation/decorators.js'
+import { DataIso, Opcional, OptionalText } from '../../../common/validation/decorators.js'
 
 export class TelefoneDto {
   @ApiPropertyOptional({ description: 'Presente ao editar um telefone já existente' })
@@ -127,7 +127,13 @@ export class CreateClienteDto {
 // devolvia 500 em colunas NOT NULL). Campos que aceitam null de propósito usam @IsOptional() na base.
 export class UpdateClienteDto extends PartialType(CreateClienteDto, {
   skipNullProperties: false,
-}) {}
+}) {
+  /** Como no sistema antigo, a data de cadastro pode ser corrigida (ela conta no relatório). */
+  @ApiPropertyOptional({ example: '2024-02-14', description: 'Data de cadastro (yyyy-MM-dd)' })
+  @Opcional()
+  @DataIso()
+  dataCadastro?: string
+}
 
 export const CAMPOS_BUSCA_CLIENTE = [
   'id',

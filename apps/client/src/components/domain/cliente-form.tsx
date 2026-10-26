@@ -1,5 +1,5 @@
 import { useForm } from '@tanstack/react-form'
-import { Link } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { FilePlus2, ListChecks, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { BotaoExcluir } from '@/components/domain/botao-excluir'
@@ -7,6 +7,7 @@ import { CampoCheckbox } from '@/components/form/campo-checkbox'
 import { CampoOpcoes } from '@/components/form/campo-opcoes'
 import { CampoTextarea } from '@/components/form/campo-textarea'
 import { CampoTexto } from '@/components/form/campo-texto'
+import { salvarSeAlterou } from '@/components/form/salvar-se-alterou'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -35,11 +36,14 @@ export function ClienteFormulario({
   clienteId,
   aoCancelar,
 }: ClienteFormProps) {
+  const navigate = useNavigate()
   const form = useForm({
     defaultValues: valoresIniciais,
     validators: { onChange: clienteFormSchema },
-    onSubmit: async ({ value }) => {
+    onSubmitMeta: {} as { depois?: () => void },
+    onSubmit: async ({ value, meta }) => {
       await aoSalvar(value)
+      meta.depois?.()
     },
   })
 
@@ -108,6 +112,11 @@ export function ClienteFormulario({
               )
             }
           </form.Subscribe>
+          {clienteId !== undefined && (
+            <form.Field name="dataCadastro">
+              {(campo) => <CampoTexto campo={campo} rotulo="Data de cadastro" type="date" />}
+            </form.Field>
+          )}
           <form.Field name="referencia">
             {(campo) => (
               <CampoTextarea
@@ -258,19 +267,36 @@ export function ClienteFormulario({
                       <h3 className="font-medium text-sm">Aparelho {indice + 1}</h3>
                       <div className="flex items-center gap-2">
                         {clienteId !== undefined && aparelho.id !== undefined && (
+                          // Como no sistema antigo: salvam antes o que foi alterado, senão se perderia.
                           <>
-                            <Button asChild variant="outline" size="sm">
-                              <Link to="/ordens-servico" search={{ aparelhoId: aparelho.id }}>
-                                <ListChecks /> Ver OS
-                              </Link>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                salvarSeAlterou(form, () =>
+                                  navigate({
+                                    to: '/ordens-servico',
+                                    search: { aparelhoId: aparelho.id },
+                                  }),
+                                )
+                              }
+                            >
+                              <ListChecks /> Ver OS
                             </Button>
-                            <Button asChild size="sm">
-                              <Link
-                                to="/ordens-servico/nova"
-                                search={{ clienteId, aparelhoId: aparelho.id }}
-                              >
-                                <FilePlus2 /> Gerar OS
-                              </Link>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() =>
+                                salvarSeAlterou(form, () =>
+                                  navigate({
+                                    to: '/ordens-servico/nova',
+                                    search: { clienteId, aparelhoId: aparelho.id },
+                                  }),
+                                )
+                              }
+                            >
+                              <FilePlus2 /> Gerar OS
                             </Button>
                           </>
                         )}

@@ -4,7 +4,7 @@ import { type ConfigType } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { hash, verify } from '@node-rs/argon2'
 import { addDays } from 'date-fns'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, lt } from 'drizzle-orm'
 import type { AccessPayload } from '../../common/auth/auth.types.js'
 import { appConfig } from '../../common/config/app.config.js'
 import { type Db, DRIZZLE, schema } from '../../common/database/index.js'
@@ -98,6 +98,9 @@ export class AuthService {
   private async createSession(user: { id: number; usuario: string; role: AccessPayload['role'] }) {
     const payload: AccessPayload = { sub: user.id, usuario: user.usuario, role: user.role }
     const accessToken = await this.jwt.signAsync(payload)
+
+    // Faxina a cada login/renovação: tokens vencidos não servem mais para nada (nem para detectar reuso).
+    this.db.delete(refreshTokens).where(lt(refreshTokens.expiraEm, new Date().toISOString())).run()
 
     const id = randomUUID()
     const secret = randomBytes(32).toString('base64url')

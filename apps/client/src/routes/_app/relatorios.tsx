@@ -1,6 +1,7 @@
 import { RECOMENDACOES, STATUS_OS } from '@brastem/shared'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { GraficoPizza } from '@/components/charts/grafico-pizza'
+import { agruparMenores } from '@/components/charts/opcao-pizza'
 import { FiltroPeriodo } from '@/components/domain/filtro-periodo'
 import { PageHeader } from '@/components/layout/page-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -112,8 +113,8 @@ function RelatoriosPage() {
                 value: data.recomendacaoClientes[item],
               }))}
             />
-            <GraficoPizza titulo="Clientes novos por cidade" dados={data.cidades.slice(0, 7)} />
-            <GraficoPizza titulo="Clientes novos por bairro" dados={data.bairros.slice(0, 7)} />
+            <GraficoPizza titulo="Clientes novos por cidade" dados={agruparMenores(data.cidades)} />
+            <GraficoPizza titulo="Clientes novos por bairro" dados={agruparMenores(data.bairros)} />
           </div>
         </>
       )}

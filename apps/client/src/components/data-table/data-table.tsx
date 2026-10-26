@@ -1,4 +1,5 @@
 import { type ColumnDef, type RowData, tableFeatures, useTable } from '@tanstack/react-table'
+import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -42,6 +43,12 @@ export function DataTable<TData extends RowData>({
 }: DataTableProps<TData>) {
   const table = useTable({ features, columns: colunas, data: dados })
   const totalPaginas = paginacao ? Math.max(1, Math.ceil(paginacao.total / paginacao.pageSize)) : 1
+  const paginaAlemDoFim = !carregando && paginacao !== undefined && paginacao.page > totalPaginas
+
+  // Excluir o último item da última página deixava a tela em "Página 3 de 2", vazia: volta uma.
+  useEffect(() => {
+    if (paginaAlemDoFim) paginacao?.aoMudarPagina(totalPaginas)
+  }, [paginaAlemDoFim, paginacao, totalPaginas])
 
   return (
     <div className="grid gap-3">

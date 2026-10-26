@@ -92,6 +92,23 @@ describe('PrintOS', () => {
     expect(within(anteriores as HTMLElement).queryByText('42')).not.toBeInTheDocument()
   })
 
+  it('mostra o código do aparelho e até quando vai a garantia dele (como a impressão antiga)', () => {
+    render(
+      <PrintOS
+        detalhe={{
+          ...detalhe,
+          aparelho: { ...detalhe.aparelho, ordem: 2, garantiaAte: '2026-12-30' },
+        }}
+        empresa={empresaVazia}
+      />,
+    )
+    const aparelho = screen.getByRole('heading', { name: 'Aparelho' }).closest('section')
+    expect(
+      within(aparelho as HTMLElement).getByText(/Código do aparelho/).parentElement?.textContent,
+    ).toBe('Código do aparelho: 2')
+    expect(within(aparelho as HTMLElement).getByText(/30\/12\/2026/)).toBeInTheDocument()
+  })
+
   it('formata os pagamentos em reais e parcelas', () => {
     render(<PrintOS detalhe={detalhe} empresa={empresaVazia} />)
     const pagamentos = screen.getByRole('heading', { name: 'Pagamentos' }).closest('section')

@@ -122,9 +122,16 @@ export class BackupService {
    * senão, faz um novo se o último já passou do intervalo. Assim um PC desligado na hora marcada não pula o dia.
    */
   async executarSeNecessario(): Promise<void> {
+    // Um backup manual em andamento já cuida do envio: rodar junto subiria o arquivo duas vezes.
+    if (this.emAndamento) return
     const salvo = this.ler()
     if (salvo.pendenteDrive) {
-      await this.enviarPendente()
+      this.emAndamento = true
+      try {
+        await this.enviarPendente()
+      } finally {
+        this.emAndamento = false
+      }
       return
     }
     const ultimo = salvo.ultimoBackup ? Date.parse(salvo.ultimoBackup.criadoEm) : 0

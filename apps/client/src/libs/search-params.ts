@@ -20,3 +20,13 @@ export const dataIso = z
   .catch(undefined)
 
 export const buscaDePeriodo = z.object({ inicio: dataIso, fim: dataIso })
+
+/**
+ * Um dos valores de uma lista fixa (ex.: campo de busca). Qualquer outra coisa digitada na URL vira
+ * "sem filtro" em vez de ir para o server e voltar como erro 400.
+ */
+export const umDos = <const T extends readonly { valor: string }[]>(opcoes: T) =>
+  z
+    .enum(opcoes.map((opcao) => opcao.valor) as [T[number]['valor'], ...T[number]['valor'][]])
+    .optional()
+    .catch(undefined)

@@ -1,4 +1,5 @@
 import { RECOMENDACOES, type Recomendacao } from '@brastem/shared'
+import { format, parseISO } from 'date-fns'
 import { z } from 'zod'
 
 export const ROTULO_RECOMENDACAO: Record<Recomendacao, string> = {
@@ -109,6 +110,8 @@ export const clienteFormSchema = z.object({
   negativado: z.boolean(),
   motivo: z.string(),
   referencia: z.string(),
+  /** Só na edição (yyyy-MM-dd); no cadastro fica vazio e o server usa a data de hoje. */
+  dataCadastro: z.string(),
   telefones: z.array(telefoneFormSchema),
   aparelhos: z.array(aparelhoFormSchema),
 })
@@ -147,6 +150,7 @@ export const clienteVazio = (): ClienteForm => ({
   negativado: false,
   motivo: '',
   referencia: '',
+  dataCadastro: '',
   telefones: [telefoneVazio()],
   aparelhos: [aparelhoVazio()],
 })
@@ -166,6 +170,8 @@ export const clienteParaForm = (cliente: ClienteDetalhe): ClienteForm => ({
   negativado: cliente.negativado,
   motivo: cliente.motivo,
   referencia: cliente.referencia,
+  // criadoEm é UTC: a data mostrada é a do relógio local (a mesma do relatório).
+  dataCadastro: format(parseISO(cliente.criadoEm), 'yyyy-MM-dd'),
   telefones: cliente.telefones.map((t) => ({
     chave: crypto.randomUUID(),
     id: t.id,
@@ -189,6 +195,7 @@ export function formParaPayloadCliente(form: ClienteForm) {
   return {
     ...form,
     motivo: form.negativado ? form.motivo : '',
+    dataCadastro: form.dataCadastro || undefined,
     telefones: form.telefones.map(({ chave: _chave, ...telefone }) => telefone),
     aparelhos: form.aparelhos.map(
       ({ chave: _chave, garantiaAte: _garantia, ...aparelho }) => aparelho,

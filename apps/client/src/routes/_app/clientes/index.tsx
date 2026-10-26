@@ -9,13 +9,13 @@ import { Button } from '@/components/ui/button'
 import { useClientes, useRemoverCliente } from '@/hooks/use-clientes'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { mascararCpfCnpj } from '@/libs/masks'
-import { numeroPositivo, textoDeBusca } from '@/libs/search-params'
+import { numeroPositivo, textoDeBusca, umDos } from '@/libs/search-params'
 import { CAMPOS_BUSCA_CLIENTE, type ClienteListado } from '@/models/cliente.model'
 
 export const Route = createFileRoute('/_app/clientes/')({
   validateSearch: z.object({
     busca: textoDeBusca,
-    campo: z.string().optional().catch(undefined),
+    campo: umDos(CAMPOS_BUSCA_CLIENTE),
     page: numeroPositivo,
   }),
   component: ClientesPage,
