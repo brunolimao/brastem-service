@@ -101,7 +101,7 @@ describe('ordem de serviço', () => {
     ).toBe(true)
   })
 
-  it('manda dinheiro em centavos, descarta pagamentos zerados e omite o que está vazio', () => {
+  it('manda dinheiro em centavos, descarta pagamentos zerados e manda null no que foi esvaziado', () => {
     const payload = formParaPayloadOrdemServico({
       ...ordemServicoVazia(),
       valor: '1.250,50',
@@ -119,7 +119,11 @@ describe('ordem de serviço', () => {
       ],
     })
     expect(payload).toMatchObject({ valor: 125050, taxaDeslocamento: 5000, garantiaDias: 90 })
-    expect(payload.fechamento).toBeUndefined()
+    // null (e não undefined): o server só limpa o que vier como null.
+    expect(payload.fechamento).toBeNull()
+    expect(
+      formParaPayloadOrdemServico({ ...ordemServicoVazia(), garantiaDias: '' }).garantiaDias,
+    ).toBeNull()
     expect(payload.pagamentos).toEqual([
       { valor: 130050, tipo: 'credito', parcelas: 3, data: '2026-10-25', observacao: '' },
     ])
@@ -191,6 +195,21 @@ describe('lançamentos (receita/despesa)', () => {
     expect(
       transacaoFormSchema.safeParse({ ...base, descricao: 'Compressor', valor: '100' }).success,
     ).toBe(true)
+  })
+
+  it('com pagamentos, a soma deles precisa fechar com o valor', () => {
+    const base = { ...transacaoVazia('receita'), descricao: 'Venda', valor: '100,00' }
+    const comPagamentos = (...valores: string[]) =>
+      transacaoFormSchema.safeParse({
+        ...base,
+        pagamentos: valores.map((valor) => ({ ...pagamentoVazio(), valor })),
+      })
+
+    expect(comPagamentos('50,00').success).toBe(false)
+    expect(comPagamentos('50,00').error?.issues[0]?.message).toMatch(/R\$\s50,00/)
+    expect(comPagamentos('50,00', '50,00').success).toBe(true)
+    // Linha vazia de pagamento é ignorada (não vai para o server).
+    expect(comPagamentos('100', '').success).toBe(true)
   })
 
   it('manda centavos e só envia pagamentos quando houver', () => {

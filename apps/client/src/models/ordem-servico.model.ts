@@ -141,7 +141,7 @@ export const ordemServicoParaForm = (detalhe: OrdemServicoDetalhe): OrdemServico
   }
 }
 
-/** Corpo enviado à API (dinheiro em centavos; campos opcionais vazios são omitidos). */
+/** Corpo enviado à API (dinheiro em centavos; datas e garantia vazias vão como null). */
 export function formParaPayloadOrdemServico(form: OrdemServicoForm) {
   return {
     status: form.status,
@@ -151,10 +151,11 @@ export function formParaPayloadOrdemServico(form: OrdemServicoForm) {
     identificado: form.identificado,
     solucionado: form.solucionado,
     observacao: form.observacao,
-    garantiaDias: form.garantiaDias ? Number(form.garantiaDias) : undefined,
+    // Vazio vai como null: o server limpa o campo (undefined seria "não mexer").
+    garantiaDias: form.garantiaDias ? Number(form.garantiaDias) : null,
     isGarantia: form.isGarantia,
     abertura: form.abertura,
-    fechamento: form.fechamento || undefined,
+    fechamento: form.fechamento || null,
     pagamentos: formParaPagamentos(form.pagamentos as PagamentoForm[]),
   }
 }

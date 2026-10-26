@@ -52,7 +52,10 @@ export class RelatoriosService {
         bairro: clientes.bairro,
       })
       .from(clientes)
-      .where(sql`substr(${clientes.criadoEm}, 1, 10) between ${periodo.inicio} and ${periodo.fim}`)
+      // criado_em é UTC; o dia que conta é o do relógio da loja (22h de 31/10 ainda é outubro).
+      .where(
+        sql`date(${clientes.criadoEm}, 'localtime') between ${periodo.inicio} and ${periodo.fim}`,
+      )
       .all()
 
     const faturaveis = ordens.filter((os) => !os.isGarantia)

@@ -1,6 +1,6 @@
 import { CATEGORIAS_DESPESA, CATEGORIAS_RECEITA, type TipoTransacao } from '@brastem/shared'
 import { z } from 'zod'
-import { hojeIso, reaisParaCentavos } from '@/libs/formatters'
+import { formatarMoeda, hojeIso, reaisParaCentavos } from '@/libs/formatters'
 import { dinheiroTexto, formParaPagamentos, pagamentoFormSchema } from './pagamento.model'
 
 export const ROTULO_CATEGORIA: Record<string, string> = {
@@ -21,14 +21,28 @@ export const CATEGORIAS: Record<TipoTransacao, readonly string[]> = {
 export const opcoesCategoria = (tipo: TipoTransacao) =>
   CATEGORIAS[tipo].map((valor) => ({ valor, rotulo: ROTULO_CATEGORIA[valor] ?? valor }))
 
-export const transacaoFormSchema = z.object({
-  descricao: z.string().min(1, 'Informe a descrição'),
-  valor: dinheiroTexto.refine((valor) => reaisParaCentavos(valor) > 0, 'Informe o valor'),
-  categoria: z.string().min(1, 'Escolha a categoria'),
-  data: z.string().min(1, 'Informe a data'),
-  observacao: z.string(),
-  pagamentos: z.array(pagamentoFormSchema),
-})
+export const transacaoFormSchema = z
+  .object({
+    descricao: z.string().min(1, 'Informe a descrição'),
+    valor: dinheiroTexto.refine((valor) => reaisParaCentavos(valor) > 0, 'Informe o valor'),
+    categoria: z.string().min(1, 'Escolha a categoria'),
+    data: z.string().min(1, 'Informe a data'),
+    observacao: z.string(),
+    pagamentos: z.array(pagamentoFormSchema),
+  })
+  .superRefine((form, ctx) => {
+    // Sem pagamentos o server lança tudo em dinheiro; com eles, a soma precisa fechar com o valor.
+    const pagamentos = formParaPagamentos(form.pagamentos)
+    if (pagamentos.length === 0) return
+    const soma = pagamentos.reduce((total, pagamento) => total + pagamento.valor, 0)
+    if (soma !== reaisParaCentavos(form.valor)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['valor'],
+        message: `A soma dos pagamentos (${formatarMoeda(soma)}) é diferente do valor`,
+      })
+    }
+  })
 export type TransacaoForm = z.infer<typeof transacaoFormSchema>
 
 export const transacaoVazia = (tipo: TipoTransacao): TransacaoForm => ({

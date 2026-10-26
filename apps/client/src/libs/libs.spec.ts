@@ -48,7 +48,11 @@ describe('formatadores', () => {
     expect(reaisParaCentavos('150,50')).toBe(15050)
     expect(reaisParaCentavos('1.250,75')).toBe(125075)
     expect(reaisParaCentavos('abc')).toBe(0)
+    // Ponto sem vírgula é milhar, como se escreve no Brasil (antes "1.250" virava R$ 1,25).
+    expect(reaisParaCentavos('1.250')).toBe(125000)
+    expect(reaisParaCentavos('1.250.000')).toBe(125000000)
     expect(centavosParaReais(15050)).toBe('150,50')
+    expect(centavosParaReais(reaisParaCentavos('1.250'))).toBe('1.250,00')
   })
 
   it('formata datas no padrão brasileiro', () => {

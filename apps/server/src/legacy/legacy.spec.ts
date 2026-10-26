@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { abrirSqlite, criarDb, migrarSchema } from '../common/database/connection.js'
 import { schema } from '../common/database/index.js'
 import {
+  dataHoraParaIso,
   dataParaIso,
   dinheiroParaCentavos,
   recomendacaoLegado,
@@ -21,6 +22,13 @@ describe('conversores', () => {
     expect(dinheiroParaCentavos('1.250,75')).toBe(125075)
     expect(dinheiroParaCentavos('')).toBe(0)
     expect(dinheiroParaCentavos('abc')).toBe(0)
+  })
+
+  it('converte data e hora do horário de Brasília (como o sistema antigo gravava) para UTC', () => {
+    // 22h30 em Brasília já é dia 15 em UTC; o relatório volta para o dia local com 'localtime'.
+    expect(dataHoraParaIso('2024-02-14 22:30:00')).toBe('2024-02-15T01:30:00.000Z')
+    expect(dataHoraParaIso('2024-02-14 00:00:00')).toBe('2024-02-14T03:00:00.000Z')
+    expect(dataHoraParaIso('lixo')).toBe('1970-01-01T00:00:00.000Z')
   })
 
   it('converte datas dos dois formatos antigos e rejeita lixo', () => {

@@ -1,9 +1,8 @@
 import { TIPOS_PAGAMENTO, type TipoPagamento } from '@brastem/shared'
 import { ApiProperty, ApiPropertyOptional, IntersectionType } from '@nestjs/swagger'
-import { IsIn, IsInt, IsOptional, IsString, Matches, Max, Min } from 'class-validator'
-import { DATA_ISO_REGEX } from '../../../common/utils/dates.js'
+import { IsIn, IsInt, IsString, Max, Min } from 'class-validator'
 import { PaginacaoQueryDto, PeriodoQueryDto } from '../../../common/utils/pagination.js'
-import { OptionalText } from '../../../common/validation/decorators.js'
+import { DataIso, Opcional, OptionalText } from '../../../common/validation/decorators.js'
 
 export class PagamentoInputDto {
   @ApiProperty({ description: 'Valor em centavos', example: 15000 })
@@ -16,15 +15,14 @@ export class PagamentoInputDto {
   tipo!: TipoPagamento
 
   @ApiPropertyOptional({ description: 'Número de parcelas mensais; 0 = à vista', default: 0 })
-  @IsOptional()
+  @Opcional()
   @IsInt()
   @Min(0)
   @Max(12)
   parcelas?: number
 
   @ApiProperty({ description: 'Data do pagamento ou da primeira cobrança (yyyy-MM-dd)' })
-  @IsString()
-  @Matches(DATA_ISO_REGEX)
+  @DataIso()
   data!: string
 
   @ApiPropertyOptional()
@@ -36,17 +34,17 @@ export const CAMPOS_BUSCA_PAGAMENTO = ['id', 'valor', 'tipo', 'observacao'] as c
 
 export class PagamentosQueryDto extends IntersectionType(PaginacaoQueryDto, PeriodoQueryDto) {
   @ApiPropertyOptional({ enum: CAMPOS_BUSCA_PAGAMENTO })
-  @IsOptional()
+  @Opcional()
   @IsIn(CAMPOS_BUSCA_PAGAMENTO)
   campo?: (typeof CAMPOS_BUSCA_PAGAMENTO)[number]
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @Opcional()
   @IsString()
   busca?: string
 
   @ApiPropertyOptional({ enum: TIPOS_PAGAMENTO })
-  @IsOptional()
+  @Opcional()
   @IsIn(TIPOS_PAGAMENTO)
   tipo?: TipoPagamento
 }

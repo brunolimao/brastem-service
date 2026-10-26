@@ -15,7 +15,11 @@ export const inteiro = (valor: ValorLegado | undefined): number | null => {
   return Number.isNaN(n) ? null : n
 }
 
-/** "150", "150.5", "150,50" ou "1.250,75" -> centavos. Vazio ou inválido vira 0. */
+/**
+ * "150", "116.66666666666667", "150,50" ou "1.250,75" -> centavos. Vazio ou inválido vira 0.
+ * Diferente do que o usuário digita: o sistema antigo gravava números do JavaScript, em que o ponto é
+ * decimal (para ele "1.250" era 1,25 nas contas), então aqui ponto só é milhar se houver vírgula.
+ */
 export function dinheiroParaCentavos(valor: ValorLegado | undefined): number {
   const bruto = texto(valor)
   const normalizado = bruto.includes(',') ? bruto.replace(/\./g, '').replace(',', '.') : bruto
@@ -33,10 +37,13 @@ export function dataParaIso(valor: ValorLegado | undefined): string | null {
   return null
 }
 
-/** "2024-02-14 10:30:00" (horário local sem fuso) -> ISO; mantém a data e a hora como estavam. */
+/**
+ * "2024-02-14 10:30:00" -> ISO em UTC. O sistema antigo gravava no horário de Brasília
+ * (Sequelize com `timezone: '-03:00'`), então 22h de lá são 01h do dia seguinte em UTC.
+ */
 export function dataHoraParaIso(valor: ValorLegado | undefined): string {
   const match = texto(valor).match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})/)
-  return match ? `${match[1]}T${match[2]}.000Z` : new Date(0).toISOString()
+  return match ? new Date(`${match[1]}T${match[2]}-03:00`).toISOString() : new Date(0).toISOString()
 }
 
 export const simOuNao = (valor: ValorLegado | undefined) =>

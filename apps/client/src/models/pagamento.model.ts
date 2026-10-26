@@ -1,6 +1,6 @@
 import { TIPOS_PAGAMENTO, type TipoPagamento } from '@brastem/shared'
 import { z } from 'zod'
-import { centavosParaReais, hojeIso, reaisParaCentavos } from '@/libs/formatters'
+import { centavosParaReais, hojeIso, reaisParaCentavos, reaisValidos } from '@/libs/formatters'
 
 export const ROTULO_TIPO_PAGAMENTO: Record<TipoPagamento, string> = {
   dinheiro: 'Dinheiro',
@@ -23,15 +23,8 @@ export const OPCOES_PARCELAS = Array.from({ length: 13 }, (_, n) => ({
   rotulo: n === 0 ? 'À vista' : `${n}x`,
 }))
 
-/** Texto de dinheiro digitado: "150", "150,5", "1.250,75". Vazio é aceito (vira 0). */
-export const dinheiroTexto = z
-  .string()
-  .refine(
-    (valor) => valor === '' || /^\d{1,3}(\.\d{3})*(,\d{1,2})?$|^\d+([.,]\d{1,2})?$/.test(valor),
-    {
-      message: 'Valor inválido',
-    },
-  )
+/** Texto de dinheiro digitado: "150", "150,5", "1.250", "1.250,75". Vazio é aceito (vira 0). */
+export const dinheiroTexto = z.string().refine(reaisValidos, { message: 'Valor inválido' })
 
 export const pagamentoFormSchema = z.object({
   chave: z.string(),

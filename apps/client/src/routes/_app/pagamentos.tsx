@@ -16,7 +16,7 @@ import {
 import { usePagamentos } from '@/hooks/use-financeiro'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
-import { periodoPadrao } from '@/libs/periodo'
+import { resolverPeriodo } from '@/libs/periodo'
 import { buscaDePeriodo, numeroPositivo, textoDeBusca } from '@/libs/search-params'
 import { cn } from '@/libs/utils'
 import { type PagamentoListado, ROTULO_TIPO_PAGAMENTO } from '@/models/pagamento.model'
@@ -92,9 +92,9 @@ const SEM_DADOS: PagamentoListado[] = []
 function PagamentosPage() {
   const { busca, campo, tipo, inicio, fim, page } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isLoading } = usePagamentos({ busca, campo, tipo, inicio, fim, page })
-  const comPeriodo = inicio !== undefined || fim !== undefined
-  const padrao = periodoPadrao()
+  // Sem datas na URL vale o mês atual: o mesmo período que o filtro mostra (como no Caixa).
+  const periodo = resolverPeriodo(inicio, fim)
+  const { data, isLoading } = usePagamentos({ busca, campo, tipo, ...periodo, page })
 
   return (
     <>
@@ -103,23 +103,10 @@ function PagamentosPage() {
         descricao="Todos os pagamentos lançados, com as parcelas de cada um."
       />
       <FiltroPeriodo
-        key={`${inicio}-${fim}`}
-        periodo={{ inicio: inicio ?? padrao.inicio, fim: fim ?? padrao.fim }}
+        key={`${periodo.inicio}-${periodo.fim}`}
+        periodo={periodo}
         aoMudar={(novo) =>
           navigate({ search: (anterior) => ({ ...anterior, ...novo, page: undefined }) })
-        }
-        aoLimpar={
-          comPeriodo
-            ? () =>
-                navigate({
-                  search: (anterior) => ({
-                    ...anterior,
-                    inicio: undefined,
-                    fim: undefined,
-                    page: undefined,
-                  }),
-                })
-            : undefined
         }
       />
       <div className="flex flex-wrap items-center gap-2">

@@ -6,16 +6,13 @@ import {
   IsIn,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
-  Matches,
   MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator'
-import { DATA_ISO_REGEX } from '../../../common/utils/dates.js'
 import { PaginacaoQueryDto, PeriodoQueryDto } from '../../../common/utils/pagination.js'
-import { OptionalText } from '../../../common/validation/decorators.js'
+import { DataIso, Opcional, OptionalText } from '../../../common/validation/decorators.js'
 import { PagamentoInputDto } from '../../pagamentos/dto/pagamento.dto.js'
 
 export class CreateTransacaoDto {
@@ -32,8 +29,7 @@ export class CreateTransacaoDto {
   categoria!: string
 
   @ApiProperty({ example: '2026-10-25' })
-  @IsString()
-  @Matches(DATA_ISO_REGEX)
+  @DataIso()
   data!: string
 
   @ApiProperty()
@@ -57,7 +53,7 @@ export class CreateTransacaoDto {
     type: [PagamentoInputDto],
     description: 'Sem pagamentos, registra um pagamento à vista em dinheiro na data informada',
   })
-  @IsOptional()
+  @Opcional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => PagamentoInputDto)
@@ -66,7 +62,7 @@ export class CreateTransacaoDto {
 
 export class TransacoesQueryDto extends IntersectionType(PaginacaoQueryDto, PeriodoQueryDto) {
   @ApiPropertyOptional({ enum: TIPOS_TRANSACAO })
-  @IsOptional()
+  @Opcional()
   @IsIn(TIPOS_TRANSACAO)
   tipo?: TipoTransacao
 }

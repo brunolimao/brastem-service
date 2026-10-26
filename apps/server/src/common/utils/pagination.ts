@@ -1,18 +1,19 @@
 import { BadRequestException } from '@nestjs/common'
 import { Type } from 'class-transformer'
-import { IsInt, IsOptional, IsString, Matches, Max, Min } from 'class-validator'
+import { IsInt, Max, Min } from 'class-validator'
 import { type SQL, sql } from 'drizzle-orm'
 import type { SQLiteColumn } from 'drizzle-orm/sqlite-core'
-import { DATA_ISO_REGEX, hoje } from './dates.js'
+import { DataIso, Opcional } from '../validation/decorators.js'
+import { hoje } from './dates.js'
 
 export class PaginacaoQueryDto {
-  @IsOptional()
+  @Opcional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   page: number = 1
 
-  @IsOptional()
+  @Opcional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
@@ -21,14 +22,12 @@ export class PaginacaoQueryDto {
 }
 
 export class PeriodoQueryDto {
-  @IsOptional()
-  @IsString()
-  @Matches(DATA_ISO_REGEX)
+  @Opcional()
+  @DataIso()
   inicio?: string
 
-  @IsOptional()
-  @IsString()
-  @Matches(DATA_ISO_REGEX)
+  @Opcional()
+  @DataIso()
   fim?: string
 }
 

@@ -8,13 +8,11 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  Matches,
   Min,
   ValidateNested,
 } from 'class-validator'
-import { DATA_ISO_REGEX } from '../../../common/utils/dates.js'
 import { PaginacaoQueryDto } from '../../../common/utils/pagination.js'
-import { OptionalText } from '../../../common/validation/decorators.js'
+import { DataIso, Opcional, OptionalText } from '../../../common/validation/decorators.js'
 import { PagamentoInputDto } from '../../pagamentos/dto/pagamento.dto.js'
 
 class OrdemServicoBaseDto {
@@ -28,7 +26,7 @@ class OrdemServicoBaseDto {
   valor!: number
 
   @ApiPropertyOptional({ description: 'Taxa de deslocamento em centavos' })
-  @IsOptional()
+  @Opcional()
   @IsInt()
   @Min(0)
   taxaDeslocamento?: number
@@ -44,26 +42,24 @@ class OrdemServicoBaseDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  garantiaDias?: number
+  garantiaDias?: number | null
 
   @ApiPropertyOptional({ description: 'Atendimento em garantia (não entra no valor faturado)' })
-  @IsOptional()
+  @Opcional()
   @IsBoolean()
   isGarantia?: boolean
 
   @ApiProperty({ example: '2026-10-25' })
-  @IsString()
-  @Matches(DATA_ISO_REGEX)
+  @DataIso()
   abertura!: string
 
-  @ApiPropertyOptional({ description: 'Obrigatória quando o status é FECHADO' })
+  @ApiPropertyOptional({ description: 'Obrigatória quando o status é FECHADO; null limpa' })
   @IsOptional()
-  @IsString()
-  @Matches(DATA_ISO_REGEX)
-  fechamento?: string
+  @DataIso()
+  fechamento?: string | null
 
   @ApiPropertyOptional({ type: [PagamentoInputDto] })
-  @IsOptional()
+  @Opcional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => PagamentoInputDto)
@@ -81,29 +77,33 @@ export class CreateOrdemServicoDto extends OrdemServicoBaseDto {
 }
 
 /** Se `pagamentos` for enviado, substitui todos os pagamentos e parcelas da OS. */
-export class UpdateOrdemServicoDto extends PartialType(OrdemServicoBaseDto) {}
+// skipNullProperties: false = `null` também é validado (o PartialType normal o deixa passar e o banco
+// devolvia 500 em colunas NOT NULL). Campos que aceitam null de propósito usam @IsOptional() na base.
+export class UpdateOrdemServicoDto extends PartialType(OrdemServicoBaseDto, {
+  skipNullProperties: false,
+}) {}
 
 export const CAMPOS_BUSCA_OS = ['id', 'abertura', 'valor', 'status', 'solucionado'] as const
 
 export class OrdensServicoQueryDto extends PaginacaoQueryDto {
   @ApiPropertyOptional({ enum: CAMPOS_BUSCA_OS, description: 'Sem campo, lista tudo' })
-  @IsOptional()
+  @Opcional()
   @IsIn(CAMPOS_BUSCA_OS)
   campo?: (typeof CAMPOS_BUSCA_OS)[number]
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @Opcional()
   @IsString()
   busca?: string
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @Opcional()
   @Type(() => Number)
   @IsInt()
   clienteId?: number
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @Opcional()
   @Type(() => Number)
   @IsInt()
   aparelhoId?: number

@@ -37,7 +37,7 @@ export class AuthService {
 
   async setup(usuario: string, senha: string) {
     if (!this.needsSetup()) throw new ForbiddenException('O sistema já foi configurado')
-    await this.usuarios.create({ usuario, senha, role: 'admin' })
+    await this.usuarios.create({ usuario, senha, role: 'admin' }, { somenteSeVazio: true })
   }
 
   async login(usuario: string, senha: string): Promise<Session> {

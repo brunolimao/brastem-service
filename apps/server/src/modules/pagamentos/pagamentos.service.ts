@@ -1,12 +1,32 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { and, count, desc, eq, inArray, type SQL, sql } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, or, type SQL, sql } from 'drizzle-orm'
 import { type Db, type DbLike, DRIZZLE, schema } from '../../common/database/index.js'
 import { somarMeses } from '../../common/utils/dates.js'
 import { dividirEmParcelas, reaisParaCentavos } from '../../common/utils/money.js'
 import { contem, limites, type Pagina } from '../../common/utils/pagination.js'
-import { type PagamentoInputDto, type PagamentosQueryDto } from './dto/pagamento.dto.js'
+import {
+  CAMPOS_BUSCA_PAGAMENTO,
+  type PagamentoInputDto,
+  type PagamentosQueryDto,
+} from './dto/pagamento.dto.js'
 
 const { pagamentos, parcelas, ordensServico } = schema
+
+/** Condição de busca para um campo, ou null quando o texto não serve para ele (ex.: "abc" como valor). */
+function filtroDeBusca(campo: (typeof CAMPOS_BUSCA_PAGAMENTO)[number], busca: string): SQL | null {
+  switch (campo) {
+    case 'id':
+      return /^\d+$/.test(busca) ? eq(pagamentos.id, Number(busca)) : null
+    case 'tipo':
+      return contem(pagamentos.tipo, busca)
+    case 'observacao':
+      return contem(pagamentos.observacao, busca)
+    case 'valor': {
+      const centavos = reaisParaCentavos(busca)
+      return centavos === null ? null : sql`abs(${pagamentos.valor}) = ${Math.abs(centavos)}`
+    }
+  }
+}
 
 export type DonoPagamento = { ordemServicoId: number } | { transacaoId: number }
 
@@ -112,14 +132,11 @@ export class PagamentosService {
     if (query.tipo) filtros.push(eq(pagamentos.tipo, query.tipo))
 
     const busca = query.busca?.trim()
-    if (busca && query.campo) {
-      if (query.campo === 'id') filtros.push(sql`cast(${pagamentos.id} as text) = ${busca}`)
-      else if (query.campo === 'tipo') filtros.push(contem(pagamentos.tipo, busca))
-      else if (query.campo === 'observacao') filtros.push(contem(pagamentos.observacao, busca))
-      else {
-        const centavos = reaisParaCentavos(busca)
-        if (centavos !== null) filtros.push(sql`abs(${pagamentos.valor}) = ${Math.abs(centavos)}`)
-      }
+    if (busca) {
+      // Sem campo ("Todos"), vale qualquer um dos campos permitidos.
+      const campos = query.campo ? [query.campo] : CAMPOS_BUSCA_PAGAMENTO
+      const condicoes = campos.flatMap((campo) => filtroDeBusca(campo, busca) ?? [])
+      filtros.push(condicoes.length > 0 ? (or(...condicoes) as SQL) : sql`0`)
     }
 
     const where = filtros.length ? and(...filtros) : undefined

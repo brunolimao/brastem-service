@@ -6,10 +6,5 @@ export function dividirEmParcelas(totalCentavos: number, quantidade: number): nu
   return partes
 }
 
-/** "150,50" ou "150.50" -> 15050. Retorna null se não for um número. */
-export function reaisParaCentavos(texto: string): number | null {
-  const limpo = texto.trim()
-  const normalizado = limpo.includes(',') ? limpo.replace(/\./g, '').replace(',', '.') : limpo
-  const valor = Number(normalizado)
-  return normalizado === '' || Number.isNaN(valor) ? null : Math.round(valor * 100)
-}
+/** O mesmo conversor do front ("1.250,50" -> 125050; inválido -> null). */
+export { reaisParaCentavos } from '@brastem/shared'

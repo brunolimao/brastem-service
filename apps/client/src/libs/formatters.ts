@@ -1,3 +1,4 @@
+import { reaisParaCentavos as converterReais } from '@brastem/shared'
 import { format, formatDistanceToNow, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -6,13 +7,11 @@ const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL
 /** Dinheiro trafega em centavos (inteiro); só vira texto na tela. */
 export const formatarMoeda = (centavos: number) => moeda.format(centavos / 100)
 
-/** "150,50" ou "1.250,75" -> centavos. Texto vazio ou inválido vira 0. */
-export function reaisParaCentavos(texto: string): number {
-  const limpo = texto.trim()
-  const normalizado = limpo.includes(',') ? limpo.replace(/\./g, '').replace(',', '.') : limpo
-  const valor = Number(normalizado)
-  return normalizado === '' || Number.isNaN(valor) ? 0 : Math.round(valor * 100)
-}
+/** "150,50", "1.250" ou "1.250,75" -> centavos (o mesmo conversor do server). Vazio ou inválido vira 0. */
+export const reaisParaCentavos = (texto: string): number => converterReais(texto) ?? 0
+
+/** Se o texto é um valor em reais válido (vazio também é: vale zero). */
+export const reaisValidos = (texto: string) => texto.trim() === '' || converterReais(texto) !== null
 
 /** Centavos -> texto editável ("150,50"), sem símbolo da moeda. */
 export const centavosParaReais = (centavos: number) =>

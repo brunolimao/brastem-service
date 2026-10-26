@@ -12,6 +12,7 @@ const translators: Record<string, (field: string, original: string) => string> =
   isPositive: (f) => `O campo "${f}" deve ser um número positivo`,
   isEmail: (f) => `O campo "${f}" deve ser um e-mail válido`,
   isDateString: (f) => `O campo "${f}" deve ser uma data válida`,
+  isIso8601: (f) => `O campo "${f}" deve ser uma data válida`,
   isArray: (f) => `O campo "${f}" deve ser uma lista`,
   isIn: (f) => `O campo "${f}" possui um valor inválido`,
   isEnum: (f) => `O campo "${f}" possui um valor inválido`,

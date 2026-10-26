@@ -7,12 +7,10 @@ import { type Periodo, periodoDeHoje, periodoDoAno, periodoDoMes } from '@/libs/
 interface FiltroPeriodoProps {
   periodo: Periodo
   aoMudar: (periodo: Periodo) => void
-  /** Quando informado, mostra o botão que remove o filtro de período. */
-  aoLimpar?: () => void
 }
 
 /** De/até (as duas datas entram no resultado) com atalhos para hoje, mês e ano. */
-export function FiltroPeriodo({ periodo, aoMudar, aoLimpar }: FiltroPeriodoProps) {
+export function FiltroPeriodo({ periodo, aoMudar }: FiltroPeriodoProps) {
   const [inicio, setInicio] = useState(periodo.inicio)
   const [fim, setFim] = useState(periodo.fim)
 
@@ -65,11 +63,6 @@ export function FiltroPeriodo({ periodo, aoMudar, aoLimpar }: FiltroPeriodoProps
         <Button type="button" variant="outline" onClick={() => aplicar(periodoDoAno())}>
           Ano
         </Button>
-        {aoLimpar && (
-          <Button type="button" variant="ghost" onClick={aoLimpar}>
-            Todo o período
-          </Button>
-        )}
       </div>
     </form>
   )

@@ -8,6 +8,9 @@ import type { CreateTransacaoDto, TransacoesQueryDto } from './dto/transacao.dto
 
 const { transacoes } = schema
 
+const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+const reais = (centavos: number) => moeda.format(centavos / 100)
+
 const categoriasPorTipo: Record<string, readonly string[]> = {
   receita: CATEGORIAS_RECEITA,
   despesa: CATEGORIAS_DESPESA,
@@ -23,6 +26,13 @@ export class TransacoesService {
   criar(dto: CreateTransacaoDto) {
     if (!categoriasPorTipo[dto.tipo]?.includes(dto.categoria)) {
       throw new BadRequestException(`Categoria inválida para ${dto.tipo}`)
+    }
+    // O caixa soma os pagamentos: se não fecharem com o valor, a transação diria uma coisa e o caixa outra.
+    const somaPagamentos = dto.pagamentos?.reduce((soma, pagamento) => soma + pagamento.valor, 0)
+    if (dto.pagamentos?.length && somaPagamentos !== dto.valor) {
+      throw new BadRequestException(
+        `A soma dos pagamentos (${reais(somaPagamentos ?? 0)}) é diferente do valor (${reais(dto.valor)})`,
+      )
     }
 
     const id = this.db.transaction((tx) => {

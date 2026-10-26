@@ -1,17 +1,50 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { and, count, desc, eq, type SQL, sql } from 'drizzle-orm'
+import { and, count, desc, eq, or, type SQL, sql } from 'drizzle-orm'
 import { type Db, type DbLike, DRIZZLE, schema } from '../../common/database/index.js'
-import { hoje, somarDias } from '../../common/utils/dates.js'
+import { somarDias } from '../../common/utils/dates.js'
 import { reaisParaCentavos } from '../../common/utils/money.js'
 import { contem, limites, type Pagina } from '../../common/utils/pagination.js'
 import { PagamentosService } from '../pagamentos/pagamentos.service.js'
-import type {
-  CreateOrdemServicoDto,
-  OrdensServicoQueryDto,
-  UpdateOrdemServicoDto,
+import {
+  CAMPOS_BUSCA_OS,
+  type CreateOrdemServicoDto,
+  type OrdensServicoQueryDto,
+  type UpdateOrdemServicoDto,
 } from './dto/ordem-servico.dto.js'
 
 const { ordensServico, clientes, aparelhos, telefones } = schema
+
+/** Aceita a data como o usuário escreve ("25/10/2026", "10/2026") ou já em ISO ("2026-10"). */
+export function aberturaParaBusca(busca: string) {
+  const dia = busca.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (dia) return `${dia[3]}-${dia[2]}-${dia[1]}`
+  const mes = busca.match(/^(\d{2})\/(\d{4})$/)
+  if (mes) return `${mes[2]}-${mes[1]}`
+  return busca
+}
+
+/** Condição de busca para um campo, ou null quando o texto não serve para ele (ex.: "abc" como valor). */
+function filtroDeBusca(campo: (typeof CAMPOS_BUSCA_OS)[number], busca: string): SQL | null {
+  switch (campo) {
+    case 'id':
+      return /^\d+$/.test(busca) ? eq(ordensServico.id, Number(busca)) : null
+    case 'abertura':
+      return contem(ordensServico.abertura, aberturaParaBusca(busca))
+    case 'status':
+      return contem(ordensServico.status, busca)
+    case 'solucionado':
+      return contem(ordensServico.solucionado, busca)
+    case 'valor': {
+      const centavos = reaisParaCentavos(busca)
+      if (centavos === null) return null
+      // A lista mostra valor + taxa de deslocamento; acha por qualquer um dos dois.
+      return or(
+        eq(ordensServico.valor, centavos),
+        sql`${ordensServico.valor} + ${ordensServico.taxaDeslocamento} = ${centavos}`,
+      ) as SQL
+    }
+  }
+}
 
 @Injectable()
 export class OrdensServicoService {
@@ -26,15 +59,12 @@ export class OrdensServicoService {
     if (query.aparelhoId) filtros.push(eq(ordensServico.aparelhoId, query.aparelhoId))
 
     const busca = query.busca?.trim()
-    if (busca && query.campo) {
-      if (query.campo === 'id') filtros.push(sql`cast(${ordensServico.id} as text) = ${busca}`)
-      else if (query.campo === 'abertura') filtros.push(contem(ordensServico.abertura, busca))
-      else if (query.campo === 'status') filtros.push(contem(ordensServico.status, busca))
-      else if (query.campo === 'solucionado') filtros.push(contem(ordensServico.solucionado, busca))
-      else {
-        const centavos = reaisParaCentavos(busca)
-        if (centavos !== null) filtros.push(eq(ordensServico.valor, centavos))
-      }
+    if (busca) {
+      // Sem campo ("Todos"), vale qualquer um dos campos permitidos.
+      const campos = query.campo ? [query.campo] : CAMPOS_BUSCA_OS
+      const condicoes = campos.flatMap((campo) => filtroDeBusca(campo, busca) ?? [])
+      // Nenhum campo aceita o texto (ex.: "abc" buscado como valor): nenhum resultado.
+      filtros.push(condicoes.length > 0 ? (or(...condicoes) as SQL) : sql`0`)
     }
 
     const where = filtros.length ? and(...filtros) : undefined
@@ -119,9 +149,13 @@ export class OrdensServicoService {
       this.exigirFechamento(dto.status, dto.fechamento)
 
       const { pagamentos: itens, ...dados } = dto
-      const os = tx.insert(ordensServico).values(dados).returning({ id: ordensServico.id }).get()
+      const os = tx
+        .insert(ordensServico)
+        .values({ ...dados, ...camposDeFechamento(dto.status) })
+        .returning({ id: ordensServico.id })
+        .get()
 
-      this.aplicarGarantia(tx, dto.aparelhoId, dto.garantiaDias, dto.fechamento)
+      this.recalcularGarantia(tx, dto.aparelhoId)
       this.pagamentos.criar(tx, { ordemServicoId: os.id }, itens ?? [])
       return os.id
     })
@@ -134,23 +168,18 @@ export class OrdensServicoService {
       if (!atual) throw new NotFoundException('Ordem de serviço não encontrada')
 
       const { pagamentos: itens, ...dados } = dto
-      const campos = Object.fromEntries(
+      // `undefined` = não mexer; `null` = limpar (ex.: apagar a garantia).
+      const enviados = Object.fromEntries(
         Object.entries(dados).filter(([, valor]) => valor !== undefined),
-      )
+      ) as typeof dados
+      const final = { ...atual, ...enviados }
+      this.exigirFechamento(final.status, final.fechamento)
 
-      this.exigirFechamento(
-        dto.status ?? atual.status,
-        dto.fechamento ?? atual.fechamento ?? undefined,
-      )
-      if (Object.keys(campos).length > 0) {
-        tx.update(ordensServico).set(campos).where(eq(ordensServico.id, id)).run()
-      }
-      this.aplicarGarantia(
-        tx,
-        atual.aparelhoId,
-        dto.garantiaDias,
-        dto.fechamento ?? atual.fechamento ?? undefined,
-      )
+      tx.update(ordensServico)
+        .set({ ...enviados, ...camposDeFechamento(final.status) })
+        .where(eq(ordensServico.id, id))
+        .run()
+      this.recalcularGarantia(tx, atual.aparelhoId)
 
       if (itens) {
         this.pagamentos.removerDaOrdem(tx, id)
@@ -161,31 +190,46 @@ export class OrdensServicoService {
   }
 
   remover(id: number) {
-    const removida = this.db
-      .delete(ordensServico)
-      .where(eq(ordensServico.id, id))
-      .returning({ id: ordensServico.id })
-      .get()
-    if (!removida) throw new NotFoundException('Ordem de serviço não encontrada')
+    this.db.transaction((tx) => {
+      const removida = tx
+        .delete(ordensServico)
+        .where(eq(ordensServico.id, id))
+        .returning({ aparelhoId: ordensServico.aparelhoId })
+        .get()
+      if (!removida) throw new NotFoundException('Ordem de serviço não encontrada')
+      this.recalcularGarantia(tx, removida.aparelhoId)
+    })
   }
 
-  private exigirFechamento(status: string, fechamento: string | undefined) {
+  private exigirFechamento(status: string, fechamento: string | null | undefined) {
     if (status === 'FECHADO' && !fechamento) {
       throw new BadRequestException('Informe a data de fechamento para fechar a ordem de serviço')
     }
   }
 
-  /** A garantia do serviço estende a garantia do aparelho a partir do fechamento (ou de hoje). */
-  private aplicarGarantia(
-    db: DbLike,
-    aparelhoId: number,
-    garantiaDias: number | undefined,
-    fechamento: string | undefined,
-  ) {
-    if (!garantiaDias) return
+  /**
+   * A garantia do aparelho vai até o fim da garantia mais longa entre as OS fechadas dele
+   * (fechamento + dias). Recalcular, em vez de sobrescrever, evita que editar uma OS antiga encurte a
+   * garantia dada por uma mais nova, e faz apagar a garantia de uma OS valer de verdade.
+   */
+  private recalcularGarantia(db: DbLike, aparelhoId: number) {
+    const fins = db
+      .select({ fechamento: ordensServico.fechamento, dias: ordensServico.garantiaDias })
+      .from(ordensServico)
+      .where(and(eq(ordensServico.aparelhoId, aparelhoId), eq(ordensServico.status, 'FECHADO')))
+      .all()
+      .flatMap(({ fechamento, dias }) => (fechamento && dias ? [somarDias(fechamento, dias)] : []))
+      .sort()
     db.update(aparelhos)
-      .set({ garantiaAte: somarDias(fechamento ?? hoje(), garantiaDias) })
+      .set({ garantiaAte: fins.at(-1) ?? null })
       .where(eq(aparelhos.id, aparelhoId))
       .run()
   }
 }
+
+/**
+ * Fora de FECHADO não há fechamento, solução nem garantia (como no sistema antigo): reabrir uma OS
+ * limpa esses campos.
+ */
+const camposDeFechamento = (status: string) =>
+  status === 'FECHADO' ? {} : { fechamento: null, garantiaDias: null, solucionado: '' }

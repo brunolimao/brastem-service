@@ -8,18 +8,17 @@ import {
   IsIn,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   MaxLength,
   ValidateIf,
   ValidateNested,
 } from 'class-validator'
 import { PaginacaoQueryDto } from '../../../common/utils/pagination.js'
-import { OptionalText } from '../../../common/validation/decorators.js'
+import { Opcional, OptionalText } from '../../../common/validation/decorators.js'
 
 export class TelefoneDto {
   @ApiPropertyOptional({ description: 'Presente ao editar um telefone já existente' })
-  @IsOptional()
+  @Opcional()
   @IsInt()
   id?: number
 
@@ -36,7 +35,7 @@ export class TelefoneDto {
 
 export class AparelhoDto {
   @ApiPropertyOptional({ description: 'Presente ao editar um aparelho já existente' })
-  @IsOptional()
+  @Opcional()
   @IsInt()
   id?: number
 
@@ -88,7 +87,7 @@ export class CreateClienteDto {
   @ApiPropertyOptional() @OptionalText() cidade?: string
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @Opcional()
   @IsBoolean()
   negativado?: boolean
 
@@ -97,7 +96,7 @@ export class CreateClienteDto {
   motivo?: string
 
   @ApiPropertyOptional({ enum: RECOMENDACOES })
-  @IsOptional()
+  @Opcional()
   @IsIn(RECOMENDACOES)
   recomendacao?: Recomendacao
 
@@ -106,14 +105,14 @@ export class CreateClienteDto {
   referencia?: string
 
   @ApiPropertyOptional({ type: [TelefoneDto] })
-  @IsOptional()
+  @Opcional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TelefoneDto)
   telefones?: TelefoneDto[]
 
   @ApiPropertyOptional({ type: [AparelhoDto] })
-  @IsOptional()
+  @Opcional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AparelhoDto)
@@ -124,7 +123,11 @@ export class CreateClienteDto {
  * Na edição, `telefones` e `aparelhos` são a lista final: itens com `id` são atualizados,
  * itens sem `id` são criados e os que não vierem na lista são removidos.
  */
-export class UpdateClienteDto extends PartialType(CreateClienteDto) {}
+// skipNullProperties: false = `null` também é validado (o PartialType normal o deixa passar e o banco
+// devolvia 500 em colunas NOT NULL). Campos que aceitam null de propósito usam @IsOptional() na base.
+export class UpdateClienteDto extends PartialType(CreateClienteDto, {
+  skipNullProperties: false,
+}) {}
 
 export const CAMPOS_BUSCA_CLIENTE = [
   'id',
@@ -138,12 +141,12 @@ export const CAMPOS_BUSCA_CLIENTE = [
 
 export class ClientesQueryDto extends PaginacaoQueryDto {
   @ApiPropertyOptional({ enum: CAMPOS_BUSCA_CLIENTE, description: 'Sem campo, busca em todos' })
-  @IsOptional()
+  @Opcional()
   @IsIn(CAMPOS_BUSCA_CLIENTE)
   campo?: (typeof CAMPOS_BUSCA_CLIENTE)[number]
 
   @ApiPropertyOptional()
-  @IsOptional()
+  @Opcional()
   @IsString()
   busca?: string
 }
