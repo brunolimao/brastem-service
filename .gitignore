@@ -12,3 +12,6 @@ release
 data/
 coverage
 .claude/settings.local.json
+
+# Saídas de builds de teste do instalador (ex.: electron-builder -c.directories.output=release-teste)
+release-*/
