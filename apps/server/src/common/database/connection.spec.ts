@@ -208,6 +208,37 @@ describe('migrarSchema', () => {
     sqlite.close()
   })
 
+  it('0004: em banco existente, a garantia atual vira piso e é recalculada pelas OS', () => {
+    const { sqlite, db } = abrir()
+    migrarSchema(db, new Date(), criarPastaSemAUltimaMigracao(pasta))
+    sqlite.exec(`
+      insert into clientes (id, nome, recomendacao, criado_em) values (1, 'Maria', 'porta', '2024-01-01T00:00:00Z');
+      -- Como o sistema antigo gravou: "90 DIAS" somou 0 dias, garantia = fechamento.
+      insert into aparelhos (id, cliente_id, nome, ordem, garantia_ate) values (1, 1, 'Geladeira', 1, '2024-02-15');
+      -- Garantia que não tem OS que a explique.
+      insert into aparelhos (id, cliente_id, nome, ordem, garantia_ate) values (2, 1, 'Fogão', 2, '2026-12-31');
+      insert into aparelhos (id, cliente_id, nome, ordem) values (3, 1, 'Micro-ondas', 3);
+      insert into ordens_servico (cliente_id, aparelho_id, status, abertura, fechamento, garantia_dias, criado_em)
+        values (1, 1, 'FECHADO', '2024-02-15', '2024-02-15', 90, '2024-02-15T12:00:00Z'),
+               (1, 2, 'FECHADO', '2024-02-15', '2024-02-15', 30, '2024-02-15T12:00:00Z');
+    `)
+
+    migrarSchema(db)
+
+    expect(
+      sqlite
+        .prepare(
+          'select id, garantia_ate as ate, garantia_importada as piso from aparelhos order by id',
+        )
+        .all(),
+    ).toEqual([
+      { id: 1, ate: '2024-05-15', piso: '2024-02-15' },
+      { id: 2, ate: '2026-12-31', piso: '2026-12-31' },
+      { id: 3, ate: null, piso: null },
+    ])
+    sqlite.close()
+  })
+
   it('recusa um banco gravado por uma versão mais nova do app', () => {
     const { sqlite, db } = abrir()
     migrarSchema(db)

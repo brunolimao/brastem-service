@@ -4,6 +4,7 @@ import { app, BrowserWindow, dialog, Menu, type MenuItemConstructorOptions, shel
 import { type Atualizador, type EstadoAtualizacao, iniciarAtualizador } from './atualizador'
 import { progressoDaBarra, scriptDoAviso } from './aviso-atualizacao'
 import { criarAtualizador } from './criar-atualizador'
+import { pedeDepuracao } from './depuracao'
 import { podeAbrirFora } from './links-externos'
 import { carregarOuCriarSegredo, escolherPorta, montarAmbiente } from './runtime'
 
@@ -21,6 +22,9 @@ let servidor: ServidorEmbutido | undefined
 let janela: BrowserWindow | undefined
 let encerrando = false
 let atualizador: Atualizador | undefined
+
+// Instalado, o app não abre em modo de depuração remota (ver depuracao.ts). Em desenvolvimento pode.
+if (app.isPackaged && pedeDepuracao(process.argv)) app.exit(1)
 
 // Mesmo nome instalado ou não, para a pasta de dados (%APPDATA%\Brastem-Service) ser sempre a mesma.
 app.setName('Brastem-Service')

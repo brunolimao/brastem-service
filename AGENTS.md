@@ -64,6 +64,7 @@ Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad 
 
 - Em alguns perfis (ex.: empresa) `AppDataLocal` e `AppDataRoaming` são criptografadas e **`rename` falha com `EXDEV` dentro delas**, mesmo na mesma pasta. Por isso: no servidor, mover arquivo é sempre `moverArquivo` (`common/utils/arquivos.ts`: tenta `rename`, cai para copiar+apagar); no desktop, o cache do auto-update vai para a primeira pasta onde um rename de teste funciona (`cache-atualizacao.ts` + `criar-atualizador.ts`).
 - `criar-atualizador.ts` usa um adaptador próprio do electron-updater, que deixa o `httpExecutor` vazio: ele é atribuído à mão e a versão do pacote é **fixa** (sem ^). Há teste que quebra se isso mudar. Ao atualizar o electron-updater, rode o teste de atualização de verdade (abaixo).
+- O app instalado se recusa a abrir com opções de depuração (`--remote-debugging-port`, `--inspect`...; `src/depuracao.ts`) e os fuses desligam RunAsNode/NODE_OPTIONS. Para inspecionar a janela em testes, use `pnpm --filter @brastem/desktop start` (não empacotado) ou captura de tela.
 - Testar atualização sem publicar: compile duas versões com `electron-builder --publish never -c.extraMetadata.version=X` usando um `publish` genérico apontando para `http://127.0.0.1:PORTA/`, instale a menor (`Setup.exe /S /D=pasta`) e sirva a maior (`latest.yml` + `.exe`). O app reaberto pelo instalador **não herda** variáveis de ambiente de teste (usa a pasta de dados padrão). Desinstale com `Uninstall Brastem-Service.exe /S`.
 
 ## Backup (apps/server/src/modules/backup)

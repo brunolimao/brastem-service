@@ -111,6 +111,21 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSAO: ${{ needs.instalador.outputs.versao }}
         run: |
+          # Um rascunho que sobrou de uma tentativa anterior que falhou é descartado. Uma Release já
+          # publicada nunca é tocada: aí o comando de criar falha e a versão precisa de outra tag.
+          if [ "$(gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft 2>/dev/null)" = "true" ]; then
+            gh release delete "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --yes
+          fi
           gh release create "$GITHUB_REF_NAME" instalador/* \
             --repo "$GITHUB_REPOSITORY" --title "$VERSAO" --generate-notes --verify-tag --draft
           gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+
+      # Se algo falhou no meio, não deixa um rascunho pela metade para trás (rodar de novo funciona).
+      - name: Descartar rascunho incompleto
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft 2>/dev/null)" = "true" ]; then
+            gh release delete "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --yes
+          fi
