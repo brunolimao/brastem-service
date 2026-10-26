@@ -25,14 +25,26 @@ const preparar = (empacotado = true) => {
   const perguntarReiniciar = vi.fn(async () => true)
   const cancelar = vi.fn()
   const repetir = vi.fn(() => cancelar)
+  const aoMudarEstado = vi.fn()
   const atualizador = iniciarAtualizador({
     empacotado,
     autoUpdater: falso,
     perguntarReiniciar,
     registrar,
     repetir,
+    aoMudarEstado,
+    esperarAntesDeInstalar: async () => undefined,
   })
-  return { falso, eventos, registrar, perguntarReiniciar, repetir, cancelar, atualizador }
+  return {
+    falso,
+    eventos,
+    registrar,
+    perguntarReiniciar,
+    repetir,
+    cancelar,
+    atualizador,
+    aoMudarEstado,
+  }
 }
 
 describe('atualizador', () => {
@@ -52,10 +64,12 @@ describe('atualizador', () => {
   })
 
   it('quando a atualização baixa e o usuário aceita, instala em silêncio e reabre o app', async () => {
-    const { falso, eventos, perguntarReiniciar } = preparar()
+    const { falso, eventos, perguntarReiniciar, aoMudarEstado } = preparar()
     eventos.emit('update-downloaded', { version: '2.1.0' })
     await vi.waitFor(() => expect(falso.quitAndInstall).toHaveBeenCalledWith(true, true))
     expect(perguntarReiniciar).toHaveBeenCalledWith('2.1.0')
+    // Antes de fechar o app, o usuário vê que a instalação começou.
+    expect(aoMudarEstado).toHaveBeenCalledWith({ tipo: 'instalando', versao: '2.1.0' })
   })
 
   it('quando o usuário escolhe "depois", não reinicia (instala ao fechar)', async () => {

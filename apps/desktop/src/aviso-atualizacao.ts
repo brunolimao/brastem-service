@@ -11,6 +11,8 @@ export function textoDoAviso(estado: EstadoAtualizacao): string | null {
       return `Baixando a atualização ${estado.versao} (${estado.percentual}%)…`
     case 'pronta':
       return `Atualização ${estado.versao} pronta para instalar.`
+    case 'instalando':
+      return `Instalando a atualização ${estado.versao}… o app vai fechar e reabrir sozinho.`
     default:
       return null
   }
@@ -18,7 +20,7 @@ export function textoDoAviso(estado: EstadoAtualizacao): string | null {
 
 /** Progresso (0 a 1) para a barra de tarefas; `-1` apaga; `2` é "indeterminado". */
 export function progressoDaBarra(estado: EstadoAtualizacao): number {
-  if (estado.tipo === 'verificando') return 2
+  if (estado.tipo === 'verificando' || estado.tipo === 'instalando') return 2
   if (estado.tipo === 'baixando') return Math.max(0, Math.min(1, estado.percentual / 100))
   return -1
 }

@@ -20,6 +20,7 @@ export type EstadoAtualizacao =
   | { tipo: 'verificando' }
   | { tipo: 'baixando'; versao: string; percentual: number }
   | { tipo: 'pronta'; versao: string }
+  | { tipo: 'instalando'; versao: string }
 
 export interface OpcoesAtualizador {
   /** Só o app instalado se atualiza; em desenvolvimento não há o que atualizar. */
@@ -30,6 +31,8 @@ export interface OpcoesAtualizador {
   registrar: (mensagem: string) => void
   /** Avisa a cada mudança de etapa, para a janela mostrar "procurando / baixando". */
   aoMudarEstado?: (estado: EstadoAtualizacao) => void
+  /** Quanto esperar entre mostrar "instalando" e fechar o app, para o aviso ser visto. */
+  esperarAntesDeInstalar?: () => Promise<void>
   /** Agenda `fn` a cada `ms` e devolve como cancelar (injetável para os testes). */
   repetir?: (fn: () => void, ms: number) => () => void
 }
@@ -55,6 +58,7 @@ export function iniciarAtualizador({
   perguntarReiniciar,
   registrar,
   aoMudarEstado = () => undefined,
+  esperarAntesDeInstalar = () => new Promise((resolver) => setTimeout(resolver, 2500)),
   repetir = (fn, ms) => {
     const id = setInterval(fn, ms)
     id.unref()
@@ -89,9 +93,13 @@ export function iniciarAtualizador({
   autoUpdater.on('update-downloaded', (info) => {
     registrar(`Atualização ${info.version} baixada.`)
     aoMudarEstado({ tipo: 'pronta', versao: info.version })
-    void perguntarReiniciar(info.version).then((reiniciar) => {
+    void perguntarReiniciar(info.version).then(async (reiniciar) => {
+      if (!reiniciar) return
+      // O instalador roda em silêncio: avisa antes de fechar, para o usuário saber que algo está acontecendo.
+      aoMudarEstado({ tipo: 'instalando', versao: info.version })
+      await esperarAntesDeInstalar()
       // Silenciosa e reabrindo o app: o usuário volta direto ao trabalho.
-      if (reiniciar) autoUpdater.quitAndInstall(true, true)
+      autoUpdater.quitAndInstall(true, true)
     })
   })
 

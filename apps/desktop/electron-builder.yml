@@ -3,7 +3,7 @@ productName: Brastem-Service
 copyright: Brastem-Service
 directories:
   output: release
-  buildResources: build
+  buildResources: recursos
 files:
   - dist/**/*
   - package.json
@@ -15,7 +15,7 @@ extraResources:
   - from: .stage/client
     to: client
   # Ícone da janela e da barra de tarefas (o do executável vem de win.icon).
-  - from: build/icon.png
+  - from: recursos/icon.png
     to: icone.png
 asar: true
 afterPack: scripts/depois-de-empacotar.cjs
@@ -25,7 +25,7 @@ win:
   target:
     - target: nsis
       arch: [x64]
-  icon: build/icon.png
+  icon: recursos/icon.png
 nsis:
   oneClick: false
   perMachine: false
