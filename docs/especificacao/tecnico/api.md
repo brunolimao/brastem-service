@@ -3,7 +3,8 @@
 > Todas as rotas do servidor interno, com quem pode usar. O detalhe de cada uma está no módulo.
 
 Prefixo `/api`. Respostas e corpos em JSON; dinheiro em centavos; datas `aaaa-mm-dd`. Listagens devolvem
-`{ items, total, page, pageSize }` (20 por página, máximo 100). Erros devolvem `{ statusCode, message }` com
+`{ items, total, page, pageSize }` (20 por página, máximo 100); o caixa devolve `{ itens, quantidade, page, pageSize }`
+mais o saldo e as formas do período inteiro. Erros devolvem `{ statusCode, message }` com
 mensagens em português. Com o app em desenvolvimento, a documentação interativa (Swagger) fica em
 `http://localhost:3333/docs`.
 

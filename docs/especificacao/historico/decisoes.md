@@ -83,3 +83,10 @@
 - **Escolha**: `docs/especificacao/` com um arquivo por módulo e por tema técnico, todos no mesmo modelo,
   e regras com código (`R-XXX-NN`).
 - **Consequência**: mudanças citam as regras; o padrão está na skill `especificacao`.
+
+## D-14 · Toda tabela paginada, dentro do componente de tabela
+
+- **Contexto**: Caixa e Usuários mostravam tudo de uma vez; com anos de dados, o Caixa ficaria enorme.
+- **Escolha**: o `DataTable` sempre pagina: pelo servidor quando a tela passa `paginacao`; sozinho (20 por
+  página) quando não passa. Listas que crescem (clientes, OS, pagamentos, caixa, usuários) paginam no servidor.
+- **Consequência**: tabela nova já nasce paginada. No caixa, saldo e gráfico continuam do período inteiro (R-CX-05).

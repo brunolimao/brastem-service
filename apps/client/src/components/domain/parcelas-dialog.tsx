@@ -1,5 +1,6 @@
 import { ListOrdered } from 'lucide-react'
 import { useState } from 'react'
+import { type Coluna, DataTable } from '@/components/data-table/data-table'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -10,16 +11,19 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { useParcelas } from '@/hooks/use-financeiro'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
+import type { ParcelaApi } from '@/models/pagamento.model'
+
+const colunas: Coluna<ParcelaApi>[] = [
+  {
+    id: 'numero',
+    header: 'Parcela',
+    cell: ({ row }) => (row.original.numero === 0 ? 'À vista' : row.original.numero),
+  },
+  { id: 'data', header: 'Data', cell: ({ row }) => formatarData(row.original.data) },
+  { id: 'valor', header: 'Valor', cell: ({ row }) => formatarMoeda(row.original.valor) },
+]
 
 /** Botão que abre as parcelas de um pagamento (carrega só quando abre). */
 export function ParcelasDialog({ pagamentoId }: { pagamentoId: number }) {
@@ -41,24 +45,7 @@ export function ParcelasDialog({ pagamentoId }: { pagamentoId: number }) {
         {isLoading || !data ? (
           <Skeleton className="h-24 w-full" />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Parcela</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((parcela) => (
-                <TableRow key={parcela.id}>
-                  <TableCell>{parcela.numero === 0 ? 'À vista' : parcela.numero}</TableCell>
-                  <TableCell>{formatarData(parcela.data)}</TableCell>
-                  <TableCell className="text-right">{formatarMoeda(parcela.valor)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable colunas={colunas} dados={data} mensagemVazia="Nenhuma parcela" />
         )}
       </DialogContent>
     </Dialog>

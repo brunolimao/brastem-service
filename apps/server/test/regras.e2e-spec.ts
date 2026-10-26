@@ -225,6 +225,35 @@ describe('regras de negócio (e2e)', () => {
     await admin.patch(`/api/clientes/${clienteId}`).send({ dataCadastro: '2024-02-30' }).expect(400)
   })
 
+  it('caixa e usuários vêm paginados; o total do caixa vale para o período inteiro', async () => {
+    for (let dia = 1; dia <= 25; dia++) {
+      await admin
+        .post('/api/transacoes')
+        .send({
+          tipo: 'receita',
+          categoria: 'venda',
+          data: `2030-01-${String(dia).padStart(2, '0')}`,
+          descricao: `Venda ${dia}`,
+          valor: 100,
+        })
+        .expect(201)
+    }
+    const pagina = (
+      await admin
+        .get('/api/caixa')
+        .query({ inicio: '2030-01-01', fim: '2030-01-31', page: 3, pageSize: 10 })
+        .expect(200)
+    ).body
+    expect(pagina.itens).toHaveLength(5)
+    expect(pagina.itens[0].data).toBe('2030-01-21')
+    expect(pagina).toMatchObject({ quantidade: 25, total: 2500, page: 3, pageSize: 10 })
+    expect(pagina.formas.dinheiro).toBe(25)
+
+    const usuarios = (await admin.get('/api/usuarios').query({ pageSize: 1 }).expect(200)).body
+    expect(usuarios.items).toHaveLength(1)
+    expect(usuarios.total).toBeGreaterThan(1)
+  })
+
   it('busca de pagamentos em "Todos" filtra pelo texto', async () => {
     const todos = await admin.get('/api/pagamentos').expect(200)
     const pix = await admin.get('/api/pagamentos').query({ busca: 'pix' }).expect(200)

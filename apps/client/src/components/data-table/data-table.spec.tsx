@@ -73,6 +73,22 @@ describe('DataTable', () => {
     expect(aoMudarPagina).toHaveBeenCalledWith(2)
   })
 
+  it('sem paginação do servidor, a própria tabela pagina de 20 em 20', async () => {
+    const muitos = Array.from({ length: 45 }, (_, i) => ({ id: i + 1, nome: `Pessoa ${i + 1}` }))
+    render(<DataTable colunas={colunas} dados={muitos} />)
+
+    expect(screen.getByText('45 resultados')).toBeInTheDocument()
+    expect(screen.getByText('Página 1 de 3')).toBeInTheDocument()
+    expect(screen.getByText('Pessoa 20')).toBeInTheDocument()
+    expect(screen.queryByText('Pessoa 21')).toBeNull()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Próxima' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Próxima' }))
+    expect(screen.getByText('Página 3 de 3')).toBeInTheDocument()
+    expect(screen.getByText('Pessoa 45')).toBeInTheDocument()
+    expect(screen.queryByText('Pessoa 40')).toBeNull()
+  })
+
   it('desabilita a navegação nas pontas', () => {
     render(
       <DataTable

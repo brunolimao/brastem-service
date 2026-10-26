@@ -17,7 +17,7 @@ Todos fazem login. Só o administrador cadastra e exclui usuários.
 - _**Primeiro acesso**_: aparece só quando ainda não existe nenhum usuário. Cria o administrador ou leva à
   importação do sistema antigo.
 - _**Login**_: usuário e senha.
-- _**Usuários**_ (menu › Administração): lista (código, usuário, função, data de cadastro), cadastrar e excluir.
+- _**Usuários**_ (menu › Administração): lista paginada (código, usuário, função, data de cadastro), cadastrar e excluir.
 - Rodapé do menu: nome e função de quem está logado, troca de tema (claro/escuro) e _Sair_.
 
 ## Campos
@@ -55,15 +55,15 @@ Todos fazem login. Só o administrador cadastra e exclui usuários.
 
 ## API
 
-| Método e rota                                                         | Para quê                                        | Quem pode                |
-| --------------------------------------------------------------------- | ----------------------------------------------- | ------------------------ |
-| `GET /api/auth/setup`                                                 | informa se falta criar o primeiro administrador | público                  |
-| `POST /api/auth/setup`                                                | cria o primeiro administrador (R-ACE-01)        | público, só sem usuários |
-| `POST /api/auth/login`                                                | entra (R-ACE-02, R-ACE-03)                      | público                  |
-| `POST /api/auth/refresh`                                              | renova a sessão (R-ACE-04)                      | público (cookie)         |
-| `POST /api/auth/logout`                                               | sai (R-ACE-05)                                  | público (cookie)         |
-| `GET /api/auth/me`                                                    | dados de quem está logado                       | logado                   |
-| `GET /api/usuarios`, `POST /api/usuarios`, `DELETE /api/usuarios/:id` | usuários (R-USU-*)                              | administrador            |
+| Método e rota                                                                       | Para quê                                        | Quem pode                |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------ |
+| `GET /api/auth/setup`                                                               | informa se falta criar o primeiro administrador | público                  |
+| `POST /api/auth/setup`                                                              | cria o primeiro administrador (R-ACE-01)        | público, só sem usuários |
+| `POST /api/auth/login`                                                              | entra (R-ACE-02, R-ACE-03)                      | público                  |
+| `POST /api/auth/refresh`                                                            | renova a sessão (R-ACE-04)                      | público (cookie)         |
+| `POST /api/auth/logout`                                                             | sai (R-ACE-05)                                  | público (cookie)         |
+| `GET /api/auth/me`                                                                  | dados de quem está logado                       | logado                   |
+| `GET /api/usuarios?page&pageSize`, `POST /api/usuarios`, `DELETE /api/usuarios/:id` | usuários (R-USU-*)                              | administrador            |
 
 ## Onde está no código
 

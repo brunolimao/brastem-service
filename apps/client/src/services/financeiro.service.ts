@@ -16,7 +16,7 @@ export interface BuscaPagamentos {
 }
 
 export const financeiroService = {
-  caixa: (periodo: Periodo) => api<Caixa>('/caixa', { query: { ...periodo } }),
+  caixa: (periodo: Periodo, page?: number) => api<Caixa>('/caixa', { query: { ...periodo, page } }),
   relatorio: (periodo: Periodo) => api<Relatorio>('/relatorios', { query: { ...periodo } }),
   pagamentos: ({ campo, tipo, ...resto }: BuscaPagamentos) =>
     api<Pagina<PagamentoListado>>('/pagamentos', {

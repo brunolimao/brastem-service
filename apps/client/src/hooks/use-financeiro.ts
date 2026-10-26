@@ -3,10 +3,10 @@ import { toast } from 'sonner'
 import type { Periodo } from '@/libs/periodo'
 import { type BuscaPagamentos, financeiroService } from '@/services/financeiro.service'
 
-export const useCaixa = (periodo: Periodo) =>
+export const useCaixa = (periodo: Periodo, page?: number) =>
   useQuery({
-    queryKey: ['caixa', periodo],
-    queryFn: () => financeiroService.caixa(periodo),
+    queryKey: ['caixa', periodo, page],
+    queryFn: () => financeiroService.caixa(periodo, page),
     placeholderData: keepPreviousData,
   })
 

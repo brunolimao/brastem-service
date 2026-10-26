@@ -11,14 +11,14 @@ import { useCaixa, useRemoverTransacao } from '@/hooks/use-financeiro'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
 import { resolverPeriodo } from '@/libs/periodo'
-import { buscaDePeriodo } from '@/libs/search-params'
+import { buscaDePeriodo, numeroPositivo } from '@/libs/search-params'
 import { cn } from '@/libs/utils'
 import { type ItemCaixa, rotuloParcela } from '@/models/caixa.model'
 import { ROTULO_TIPO_PAGAMENTO } from '@/models/pagamento.model'
 import { ROTULO_CATEGORIA } from '@/models/transacao.model'
 
 export const Route = createFileRoute('/_app/caixa/')({
-  validateSearch: buscaDePeriodo,
+  validateSearch: buscaDePeriodo.extend({ page: numeroPositivo }),
   beforeLoad: () => {
     if (useSessionStore.getState().usuario?.role !== 'admin') throw redirect({ to: '/' })
   },
@@ -86,10 +86,10 @@ const colunas: Coluna<ItemCaixa>[] = [
 const SEM_DADOS: ItemCaixa[] = []
 
 function CaixaPage() {
-  const { inicio, fim } = Route.useSearch()
+  const { inicio, fim, page } = Route.useSearch()
   const periodo = resolverPeriodo(inicio, fim)
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isLoading } = useCaixa(periodo)
+  const { data, isLoading } = useCaixa(periodo, page)
 
   const formas = data
     ? Object.entries(data.formas).map(([tipo, quantidade]) => ({
@@ -126,7 +126,7 @@ function CaixaPage() {
       <FiltroPeriodo
         key={`${periodo.inicio}-${periodo.fim}`}
         periodo={periodo}
-        aoMudar={(novo) => navigate({ search: novo })}
+        aoMudar={(novo) => navigate({ search: { ...novo, page: undefined } })}
       />
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -144,7 +144,7 @@ function CaixaPage() {
               {data ? formatarMoeda(data.total) : '—'}
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
-              {data?.itens.length ?? 0} movimentações
+              {data?.quantidade ?? 0} movimentações
             </p>
           </CardContent>
         </Card>
@@ -156,6 +156,13 @@ function CaixaPage() {
         dados={data?.itens ?? SEM_DADOS}
         carregando={isLoading}
         mensagemVazia="Nenhuma movimentação neste período"
+        paginacao={{
+          page: page ?? 1,
+          pageSize: data?.pageSize ?? 20,
+          total: data?.quantidade ?? 0,
+          aoMudarPagina: (novaPagina) =>
+            navigate({ search: (anterior) => ({ ...anterior, page: novaPagina }) }),
+        }}
         classeDaLinha={(item) => (item.valor < 0 ? 'text-destructive' : undefined)}
       />
     </>

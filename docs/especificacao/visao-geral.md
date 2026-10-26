@@ -38,9 +38,11 @@ Ele substitui um sistema web antigo (Express + MySQL no Railway, front no Netlif
    períodos de busca incluem as duas pontas.
 4. **Nada se perde sem aviso**: exclusões que levam outros registros junto pedem confirmação e dizem o que
    vai junto; o banco tem backup automático antes de qualquer mudança de estrutura.
-5. **Erro é mensagem, não travamento**: dado inválido gera uma mensagem clara (erro 400), nunca uma falha
+5. **Toda tabela é paginada** (20 linhas por página, com o total de resultados), pelo servidor nas listas
+   que podem crescer e pela própria tabela nas pequenas.
+6. **Erro é mensagem, não travamento**: dado inválido gera uma mensagem clara (erro 400), nunca uma falha
    genérica do servidor.
-6. **Os dados são da loja**: nada é enviado ao desenvolvedor. Só o CEP vai ao ViaCEP (para preencher o endereço)
+7. **Os dados são da loja**: nada é enviado ao desenvolvedor. Só o CEP vai ao ViaCEP (para preencher o endereço)
    e, se conectado, o backup vai ao Drive da própria loja. Ver [tecnico/seguranca-e-privacidade.md](tecnico/seguranca-e-privacidade.md).
 
 ## Arquitetura em uma frase

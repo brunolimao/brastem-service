@@ -26,6 +26,8 @@ Só o administrador.
 - **R-CX-03**: o total é a soma dos valores; despesas entram negativas, então o total é receitas menos despesas.
 - **R-CX-04**: o gráfico conta quantas parcelas houve de cada forma de pagamento (quantidade, não valor),
   como no sistema antigo.
+- **R-CX-05**: a lista vem paginada (20 por página), mas o saldo, a quantidade de movimentações e o gráfico
+  valem sempre para o período inteiro, em qualquer página.
 
 ## Permissões
 
@@ -36,9 +38,9 @@ Só o administrador.
 
 ## API
 
-| Método e rota               | Para quê                                              | Quem pode     |
-| --------------------------- | ----------------------------------------------------- | ------------- |
-| `GET /api/caixa?inicio&fim` | itens, total e contagem por forma (R-CX-01 a R-CX-04) | administrador |
+| Método e rota                             | Para quê                                                                    | Quem pode     |
+| ----------------------------------------- | --------------------------------------------------------------------------- | ------------- |
+| `GET /api/caixa?inicio&fim&page&pageSize` | página de itens, total, quantidade e contagem por forma (R-CX-01 a R-CX-05) | administrador |
 
 A API sem datas usa o dia de hoje; a tela sempre envia o período (mês atual por padrão).
 
@@ -54,5 +56,4 @@ A API sem datas usa o dia de hoje; a tela sempre envia o período (mês atual po
 
 ## Limitações conhecidas
 
-- A lista não é paginada: um ano inteiro mostra todas as parcelas de uma vez.
 - O gráfico conta parcelas, não soma valores, e mistura receitas e despesas.

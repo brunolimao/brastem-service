@@ -8,6 +8,7 @@ import {
 import { hash } from '@node-rs/argon2'
 import { count, eq } from 'drizzle-orm'
 import { type Db, DRIZZLE, schema } from '../../common/database/index.js'
+import { limites, type Pagina, type PaginacaoQueryDto } from '../../common/utils/pagination.js'
 import type { CreateUsuarioDto, UsuarioResponseDto } from './dto/usuario.dto.js'
 
 const { usuarios } = schema
@@ -24,8 +25,15 @@ const publicColumns = {
 export class UsuariosService {
   constructor(@Inject(DRIZZLE) private readonly db: Db) {}
 
-  list(): UsuarioResponseDto[] {
-    return this.db.select(publicColumns).from(usuarios).orderBy(usuarios.id).all()
+  list(query: PaginacaoQueryDto): Pagina<UsuarioResponseDto> {
+    const items = this.db
+      .select(publicColumns)
+      .from(usuarios)
+      .orderBy(usuarios.id)
+      .limit(limites(query).limit)
+      .offset(limites(query).offset)
+      .all()
+    return { items, total: this.total(), page: query.page, pageSize: query.pageSize }
   }
 
   total(): number {

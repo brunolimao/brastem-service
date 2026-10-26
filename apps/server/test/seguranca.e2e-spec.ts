@@ -92,7 +92,7 @@ describe('acesso só pelo próprio computador (e2e)', () => {
       .expect(200)
     await temporario.get('/api/usuarios').expect(200)
 
-    const lista = (await admin.get('/api/usuarios').expect(200)).body as {
+    const lista = (await admin.get('/api/usuarios').expect(200)).body.items as {
       id: number
       usuario: string
     }[]

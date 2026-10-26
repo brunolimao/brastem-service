@@ -1,19 +1,35 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
 import { AlertTriangle, CheckCircle2, FileUp } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { type Coluna, DataTable } from '@/components/data-table/data-table'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { formatarMoeda } from '@/libs/formatters'
 import { ROTULO_TABELA } from '@/models/importacao.model'
+
+interface LinhaResumo {
+  tabela: string
+  lidos: number
+  importados: number
+  ignorados: number
+}
+
+const linhasDoResumo = (
+  tabelas: Record<string, { lidos: number; importados: number; ignorados: number }>,
+): LinhaResumo[] => Object.entries(tabelas).map(([tabela, resumo]) => ({ tabela, ...resumo }))
+
+const colunasResumo: Coluna<LinhaResumo>[] = [
+  {
+    id: 'tabela',
+    header: 'Dados',
+    cell: ({ row }) => ROTULO_TABELA[row.original.tabela] ?? row.original.tabela,
+  },
+  { id: 'lidos', header: 'No arquivo', cell: ({ row }) => row.original.lidos },
+  { id: 'importados', header: 'Importados', cell: ({ row }) => row.original.importados },
+  { id: 'ignorados', header: 'Ignorados', cell: ({ row }) => row.original.ignorados },
+]
+
 import { authService } from '@/services/auth.service'
 import { importacaoService } from '@/services/importacao.service'
 
@@ -31,6 +47,11 @@ function ImportarPage() {
   const [arquivo, setArquivo] = useState<File | null>(null)
   const importar = useMutation({ mutationFn: importacaoService.importarLegado })
   const resultado = importar.data
+  // Referência estável para a tabela (uma lista nova a cada render refaria os modelos dela).
+  const linhasResumo = useMemo(
+    () => (resultado ? linhasDoResumo(resultado.tabelas) : []),
+    [resultado],
+  )
 
   // Se o arquivo trouxe usuários, o sistema já pode ser usado; senão ainda falta criar o administrador.
   const proximo = async () => {
@@ -85,26 +106,7 @@ function ImportarPage() {
               <div className="flex items-center gap-2 font-medium text-green-600 dark:text-green-400">
                 <CheckCircle2 className="size-5" /> Importação concluída
               </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Dados</TableHead>
-                    <TableHead className="text-right">No arquivo</TableHead>
-                    <TableHead className="text-right">Importados</TableHead>
-                    <TableHead className="text-right">Ignorados</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Object.entries(resultado.tabelas).map(([tabela, resumo]) => (
-                    <TableRow key={tabela}>
-                      <TableCell>{ROTULO_TABELA[tabela] ?? tabela}</TableCell>
-                      <TableCell className="text-right">{resumo.lidos}</TableCell>
-                      <TableCell className="text-right">{resumo.importados}</TableCell>
-                      <TableCell className="text-right">{resumo.ignorados}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable colunas={colunasResumo} dados={linhasResumo} />
               <dl className="grid gap-1 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Valor das ordens de serviço</dt>

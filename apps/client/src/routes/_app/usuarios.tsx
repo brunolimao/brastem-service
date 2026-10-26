@@ -1,5 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Trash2 } from 'lucide-react'
+import { z } from 'zod'
 import { type Coluna, DataTable } from '@/components/data-table/data-table'
 import { CriarUsuarioDialog } from '@/components/domain/criar-usuario-dialog'
 import { PageHeader } from '@/components/layout/page-header'
@@ -19,9 +20,11 @@ import { Button } from '@/components/ui/button'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { useRemoverUsuario, useUsuarios } from '@/hooks/use-usuarios'
 import { formatarData } from '@/libs/formatters'
+import { numeroPositivo } from '@/libs/search-params'
 import { ROTULO_ROLE, type Usuario } from '@/models/usuario.model'
 
 export const Route = createFileRoute('/_app/usuarios')({
+  validateSearch: z.object({ page: numeroPositivo }),
   beforeLoad: () => {
     if (useSessionStore.getState().usuario?.role !== 'admin') throw redirect({ to: '/' })
   },
@@ -82,16 +85,28 @@ const colunas: Coluna<Usuario>[] = [
 ]
 
 function UsuariosPage() {
-  const { data, isLoading } = useUsuarios()
+  const { page } = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
+  const { data, isLoading } = useUsuarios(page)
 
   return (
     <>
       <PageHeader
         titulo="Usuários"
-        descricao={data ? `${data.length} usuários cadastrados` : undefined}
+        descricao={data ? `${data.total} usuários cadastrados` : undefined}
         acoes={<CriarUsuarioDialog />}
       />
-      <DataTable colunas={colunas} dados={data ?? SEM_DADOS} carregando={isLoading} />
+      <DataTable
+        colunas={colunas}
+        dados={data?.items ?? SEM_DADOS}
+        carregando={isLoading}
+        paginacao={{
+          page: page ?? 1,
+          pageSize: data?.pageSize ?? 20,
+          total: data?.total ?? 0,
+          aoMudarPagina: (novaPagina) => navigate({ search: { page: novaPagina } }),
+        }}
+      />
     </>
   )
 }

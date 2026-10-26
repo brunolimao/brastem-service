@@ -1,10 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { usuariosService } from '@/services/usuarios.service'
 
 const chave = ['usuarios'] as const
 
-export const useUsuarios = () => useQuery({ queryKey: chave, queryFn: usuariosService.listar })
+export const useUsuarios = (page?: number) =>
+  useQuery({
+    queryKey: [...chave, page],
+    queryFn: () => usuariosService.listar(page),
+    placeholderData: keepPreviousData,
+  })
 
 export function useCriarUsuario() {
   const queryClient = useQueryClient()

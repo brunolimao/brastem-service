@@ -23,7 +23,12 @@ export interface Caixa {
   periodo: Periodo
   total: number
   formas: Record<TipoPagamento, number>
+  /** Só a página pedida; `total` e `formas` valem para o período inteiro. */
   itens: ItemCaixa[]
+  /** Quantidade de movimentações no período. */
+  quantidade: number
+  page: number
+  pageSize: number
 }
 
 /** "À vista" ou "2/3". */

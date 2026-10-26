@@ -1,7 +1,18 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common'
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import type { AuthUser } from '../../common/auth/auth.types.js'
 import { CurrentUser, Roles } from '../../common/auth/decorators.js'
+import { PaginacaoQueryDto } from '../../common/utils/pagination.js'
 import { CreateUsuarioDto, UsuarioResponseDto } from './dto/usuario.dto.js'
 import { UsuariosService } from './usuarios.service.js'
 
@@ -12,10 +23,9 @@ export class UsuariosController {
   constructor(private readonly usuarios: UsuariosService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Lista os usuários' })
-  @ApiOkResponse({ type: [UsuarioResponseDto] })
-  list() {
-    return this.usuarios.list()
+  @ApiOperation({ summary: 'Lista os usuários (paginado)' })
+  list(@Query() query: PaginacaoQueryDto) {
+    return this.usuarios.list(query)
   }
 
   @Post()
