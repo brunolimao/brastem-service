@@ -29,6 +29,14 @@ export const AppLoggerModule = LoggerModule.forRootAsync({
         level: config.logLevel,
         transport: config.isTest ? undefined : { targets: [target] },
         redact: ['req.headers.cookie', 'res.headers["set-cookie"]', 'req.body.senha'],
+        // A query pode trazer segredo (o `code` do retorno do Google): o log guarda só o caminho.
+        serializers: {
+          req: (req: { url?: string; query?: unknown }) => ({
+            ...req,
+            url: req.url?.split('?')[0],
+            query: undefined,
+          }),
+        },
       },
     }
   },

@@ -13,14 +13,21 @@ import { Logger } from 'nestjs-pino'
 import { AppModule } from './app.module.js'
 import { ACCESS_COOKIE } from './common/auth/auth.types.js'
 import { appConfig } from './common/config/app.config.js'
+import { acessoLocal } from './common/http/acesso-local.js'
 import { createValidationPipe } from './common/validation/messages.js'
+import { UsuariosService } from './modules/usuarios/usuarios.service.js'
 
 /** Limite do arquivo .sql do sistema antigo (o real tem ~5 MB). */
 const LIMITE_IMPORTACAO = '200mb'
 
 /** Configura (sem escutar) a aplicação. Usado pelo main, pelo app desktop e pelos testes e2e. */
 export async function createApp(): Promise<INestApplication> {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true })
+  // Sem o bodyParser padrão: ele também aceita formulários (urlencoded), que um site consegue enviar
+  // para 127.0.0.1 sem o navegador pedir permissão. A API só fala JSON.
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+    bodyParser: false,
+  })
   const config = app.get<ConfigType<typeof appConfig>>(appConfig.KEY)
 
   app.useLogger(app.get(Logger))
@@ -49,9 +56,23 @@ export async function createApp(): Promise<INestApplication> {
         : false,
     }),
   )
+  app.use(acessoLocal)
   app.use(cookieParser())
-  // O arquivo importado chega como bytes crus, não como JSON.
-  app.use('/api/import/legacy', raw({ type: () => true, limit: LIMITE_IMPORTACAO }))
+  app.useBodyParser('json', { limit: '1mb' })
+  // O arquivo importado chega como bytes crus, não como JSON (só com o tipo que o front usa).
+  const usuarios = app.get(UsuariosService)
+  app.use(
+    '/api/import/legacy',
+    // Depois do primeiro usuário a importação é recusada: nem recebe o arquivo (até 200 MB).
+    (_req: Request, res: Response, next: NextFunction) => {
+      if (usuarios.total() === 0) return next()
+      res.status(403).json({
+        statusCode: 403,
+        message: 'A importação só pode ser feita no primeiro uso, antes de criar usuários.',
+      })
+    },
+    raw({ type: 'application/octet-stream', limit: LIMITE_IMPORTACAO }),
+  )
   app.setGlobalPrefix('api')
   app.useGlobalPipes(createValidationPipe())
   app.enableShutdownHooks()

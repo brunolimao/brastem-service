@@ -21,6 +21,15 @@ extraResources:
   - from: recursos/icon.png
     to: icone.png
 asar: true
+# Travas gravadas no executável: ninguém consegue rodá-lo como Node (ELECTRON_RUN_AS_NODE), injetar
+# opções (NODE_OPTIONS) nem depurá-lo (--inspect), e só carrega o app.asar conferido pela assinatura
+# de integridade que o electron-builder grava.
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
 afterPack: scripts/depois-de-empacotar.cjs
 # Os módulos nativos são recompilados em scripts/preparar.mjs, não aqui.
 npmRebuild: false
@@ -30,6 +39,8 @@ win:
       arch: [x64]
   icon: recursos/icon.png
 nsis:
+  # Sem espaços: é o mesmo nome que o latest.yml aponta e que vai para as Releases.
+  artifactName: ${productName}-Setup-${version}.${ext}
   # "Um clique": instala direto, sem assistente, mas mostra uma janela de progresso (também nas atualizações).
   oneClick: true
   perMachine: false

@@ -4,6 +4,7 @@ import { app, BrowserWindow, dialog, Menu, type MenuItemConstructorOptions, shel
 import { type Atualizador, type EstadoAtualizacao, iniciarAtualizador } from './atualizador'
 import { progressoDaBarra, scriptDoAviso } from './aviso-atualizacao'
 import { criarAtualizador } from './criar-atualizador'
+import { podeAbrirFora } from './links-externos'
 import { carregarOuCriarSegredo, escolherPorta, montarAmbiente } from './runtime'
 
 /** Mesmo nome emitido pelo servidor (RestauracaoService). */
@@ -156,9 +157,13 @@ function abrirJanela() {
 
   // A janela só navega dentro do próprio app; links externos abrem no navegador do sistema.
   janela.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https://')) void shell.openExternal(url)
+    if (podeAbrirFora(url)) void shell.openExternal(url)
     return { action: 'deny' }
   })
+  // O app não usa câmera, microfone, localização, notificações etc.: nega qualquer pedido.
+  janela.webContents.session.setPermissionRequestHandler((_conteudo, _permissao, responder) =>
+    responder(false),
+  )
   janela.webContents.on('will-navigate', (evento, url) => {
     if (new URL(url).origin !== origemDoApp) evento.preventDefault()
   })

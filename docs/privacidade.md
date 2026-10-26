@@ -21,7 +21,17 @@ Se, e somente se, o usuário conectar o Google Drive em _Configurações_, o apl
   do banco de dados, como backup.
 
 O aplicativo **não enxerga nenhum outro arquivo** do Drive. As chaves de acesso ficam guardadas apenas no
-computador do usuário. Nenhuma informação é enviada ao desenvolvedor nem a terceiros.
+computador do usuário. Os dados do Drive não são enviados ao desenvolvedor nem a terceiros.
+
+## Outras conexões com a internet
+
+Além do Google Drive (só se conectado), o aplicativo acessa a internet em dois casos:
+
+- **Busca de endereço pelo CEP:** ao digitar um CEP no cadastro de cliente, só o CEP é enviado ao serviço
+  público [ViaCEP](https://viacep.com.br), que devolve rua, bairro e cidade. Nenhum outro dado vai junto.
+- **Atualizações:** ao abrir e a cada 4 horas, o aplicativo consulta a página de versões do projeto no
+  GitHub para saber se há uma versão nova. Como em qualquer acesso a um site, o GitHub recebe o endereço
+  IP do computador; nenhum dado do sistema é enviado.
 
 O uso das informações recebidas das APIs do Google segue a
 [Política de Dados do Usuário dos Serviços de API do Google](https://developers.google.com/terms/api-services-user-data-policy),
