@@ -63,10 +63,10 @@ describe('atualizador', () => {
     expect(repetir).toHaveBeenCalledWith(expect.any(Function), 4 * 60 * 60 * 1000)
   })
 
-  it('quando a atualização baixa e o usuário aceita, instala em silêncio e reabre o app', async () => {
+  it('quando a atualização baixa e o usuário aceita, instala mostrando o progresso e reabre o app', async () => {
     const { falso, eventos, perguntarReiniciar, aoMudarEstado } = preparar()
     eventos.emit('update-downloaded', { version: '2.1.0' })
-    await vi.waitFor(() => expect(falso.quitAndInstall).toHaveBeenCalledWith(true, true))
+    await vi.waitFor(() => expect(falso.quitAndInstall).toHaveBeenCalledWith(false, true))
     expect(perguntarReiniciar).toHaveBeenCalledWith('2.1.0')
     // Antes de fechar o app, o usuário vê que a instalação começou.
     expect(aoMudarEstado).toHaveBeenCalledWith({ tipo: 'instalando', versao: '2.1.0' })

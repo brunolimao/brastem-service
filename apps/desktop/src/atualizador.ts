@@ -95,11 +95,11 @@ export function iniciarAtualizador({
     aoMudarEstado({ tipo: 'pronta', versao: info.version })
     void perguntarReiniciar(info.version).then(async (reiniciar) => {
       if (!reiniciar) return
-      // O instalador roda em silêncio: avisa antes de fechar, para o usuário saber que algo está acontecendo.
+      // Avisa antes de fechar; depois o instalador mostra a própria janela de progresso até o app reabrir.
       aoMudarEstado({ tipo: 'instalando', versao: info.version })
       await esperarAntesDeInstalar()
-      // Silenciosa e reabrindo o app: o usuário volta direto ao trabalho.
-      autoUpdater.quitAndInstall(true, true)
+      // Com janela de progresso (não silenciosa) e reabrindo o app sozinho.
+      autoUpdater.quitAndInstall(false, true)
     })
   })
 

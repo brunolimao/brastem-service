@@ -1,6 +1,9 @@
 appId: br.com.brastemservice.app
 productName: Brastem-Service
 copyright: Brastem-Service
+# O instalador "um clique" instala na pasta com o nome do pacote; este nome mantém a pasta de sempre (Programs\Brastem-Service).
+extraMetadata:
+  name: Brastem-Service
 directories:
   output: release
   buildResources: recursos
@@ -27,9 +30,9 @@ win:
       arch: [x64]
   icon: recursos/icon.png
 nsis:
-  oneClick: false
+  # "Um clique": instala direto, sem assistente, mas mostra uma janela de progresso (também nas atualizações).
+  oneClick: true
   perMachine: false
-  allowToChangeInstallationDirectory: true
   createDesktopShortcut: always
   createStartMenuShortcut: true
   shortcutName: Brastem-Service
