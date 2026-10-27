@@ -36,6 +36,15 @@ describe('api', () => {
     expect(init?.headers).toEqual({ 'content-type': 'application/json' })
   })
 
+  it('envia arquivo como bytes crus (application/octet-stream), não como JSON', async () => {
+    fetchMock.mockResolvedValueOnce(resposta(200, { reiniciando: true }))
+    const arquivo = new File(['dados'], 'backup.sqlite.gz')
+    await api('/backup/restaurar/arquivo', { method: 'POST', arquivo })
+    const [, opcoes] = fetchMock.mock.calls[0] ?? []
+    expect(opcoes?.body).toBe(arquivo)
+    expect(opcoes?.headers).toEqual({ 'content-type': 'application/octet-stream' })
+  })
+
   it('transforma erro da API em ApiError com todas as mensagens', async () => {
     fetchMock.mockResolvedValueOnce(
       resposta(400, { message: ['Campo A inválido', 'Campo B inválido'] }),

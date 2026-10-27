@@ -14,7 +14,7 @@ Política de privacidade publicada (exigida pelo Google): [docs/privacidade.md](
 - **R-SEG-02**: só atende pedidos endereçados ao próprio computador (cabeçalho `Host` = `127.0.0.1`,
   `localhost` ou `[::1]`) e, quando vierem de uma página, só da origem local. Isso impede que um site aberto
   no navegador mexa no app (por DNS rebinding ou formulário apontado para `127.0.0.1`).
-- **R-SEG-03**: a API só aceita JSON (e o arquivo da importação como `application/octet-stream`); formulários
+- **R-SEG-03**: a API só aceita JSON (e os arquivos da importação e da restauração de backup como `application/octet-stream`); formulários
   HTML comuns não chegam a ela.
 - **R-SEG-04**: política de conteúdo (CSP) estrita no app: scripts só do próprio app, nada em iframe, conexões
   só com o próprio app e o ViaCEP.

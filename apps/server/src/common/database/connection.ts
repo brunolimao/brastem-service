@@ -27,6 +27,23 @@ export const NOME_RESTAURACAO_PENDENTE = 'restauracao-pendente.sqlite'
  * trocar o arquivo com o servidor usando-o corromperia a conexão aberta.
  * O banco antigo não é apagado, vai para `backups/antes-da-restauracao-*.sqlite`.
  */
+/**
+ * Grava no próprio arquivo o que ficou só no -wal e apaga os auxiliares: a cópia guardada fica
+ * completa num arquivo só (restaurá-la depois lê só o .sqlite). Se o -wal estiver estragado, o SQLite
+ * o ignora; se nem abrir, os arquivos ficam como estão (a troca do banco não pode parar por isso).
+ */
+function incorporarWal(caminho: string) {
+  if (!existsSync(`${caminho}-wal`)) return
+  try {
+    const banco = new Database(caminho)
+    banco.pragma('wal_checkpoint(TRUNCATE)')
+    banco.close()
+  } catch {
+    return
+  }
+  for (const sufixo of ['-wal', '-shm']) rmSync(caminho + sufixo, { force: true })
+}
+
 export function aplicarRestauracaoPendente(arquivo: string, agora = new Date()): boolean {
   if (arquivo === ':memory:') return false
 
@@ -46,6 +63,7 @@ export function aplicarRestauracaoPendente(arquivo: string, agora = new Date()):
     for (const sufixo of ['-wal', '-shm']) {
       if (existsSync(arquivo + sufixo)) moverArquivo(arquivo + sufixo, antigo + sufixo)
     }
+    incorporarWal(antigo)
   }
 
   moverArquivo(pendente, arquivo)

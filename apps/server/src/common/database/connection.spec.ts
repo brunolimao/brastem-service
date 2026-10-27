@@ -116,16 +116,44 @@ describe('aplicarRestauracaoPendente', () => {
     expect(ler(guardado)).toBe('atual')
   })
 
-  it('leva junto o -wal do banco antigo e descarta o -wal velho no lugar do novo', () => {
-    criarBanco(banco, 'atual')
-    writeFileSync(`${banco}-wal`, 'dados do banco antigo')
+  it('guarda o banco antigo completo num arquivo só, com o que estava só no -wal (fechamento abrupto)', () => {
+    // Estado de um app fechado à força: a última alteração ainda está só no -wal.
+    const origem = join(pasta, 'origem.sqlite')
+    criarBanco(origem, 'antigo')
+    const aberto = new Database(origem)
+    aberto.pragma('journal_mode = WAL')
+    aberto.pragma('wal_autocheckpoint = 0')
+    aberto.prepare('update t set v = ?').run('alteração recente')
+    writeFileSync(banco, readFileSync(origem))
+    writeFileSync(`${banco}-wal`, readFileSync(`${origem}-wal`))
+    aberto.close()
     criarBanco(join(pasta, NOME_RESTAURACAO_PENDENTE), 'restaurado')
 
     aplicarRestauracaoPendente(banco, new Date(2026, 9, 25, 14, 30, 5))
 
+    expect(ler(banco)).toBe('restaurado')
     expect(existsSync(`${banco}-wal`)).toBe(false)
-    expect(readdirSync(join(pasta, 'backups'))).toContain(
-      'antes-da-restauracao-2026-10-25-143005.sqlite-wal',
+    // Restaurar a cópia depois (pela lista ou por arquivo) lê só o .sqlite: ela precisa estar completa.
+    const guardado = join(pasta, 'backups', 'antes-da-restauracao-2026-10-25-143005.sqlite')
+    const soOArquivo = join(pasta, 'so-o-arquivo.sqlite')
+    writeFileSync(soOArquivo, readFileSync(guardado))
+    expect(ler(soOArquivo)).toBe('alteração recente')
+    expect(readdirSync(join(pasta, 'backups'))).toEqual([
+      'antes-da-restauracao-2026-10-25-143005.sqlite',
+    ])
+  })
+
+  it('um -wal corrompido não impede a troca (o banco antigo fica como estava)', () => {
+    criarBanco(banco, 'atual')
+    writeFileSync(`${banco}-wal`, 'lixo que não é um wal')
+    criarBanco(join(pasta, NOME_RESTAURACAO_PENDENTE), 'restaurado')
+
+    expect(aplicarRestauracaoPendente(banco, new Date(2026, 9, 25, 14, 30, 5))).toBe(true)
+
+    expect(ler(banco)).toBe('restaurado')
+    expect(existsSync(`${banco}-wal`)).toBe(false)
+    expect(ler(join(pasta, 'backups', 'antes-da-restauracao-2026-10-25-143005.sqlite'))).toBe(
+      'atual',
     )
   })
 

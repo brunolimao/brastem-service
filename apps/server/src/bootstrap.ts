@@ -77,6 +77,11 @@ export async function createApp(): Promise<INestApplication> {
     },
     raw({ type: 'application/octet-stream', limit: LIMITE_IMPORTACAO }),
   )
+  // Backup escolhido pelo usuário para restaurar (só administrador: o guard confere na rota).
+  app.use(
+    '/api/backup/restaurar/arquivo',
+    raw({ type: 'application/octet-stream', limit: LIMITE_IMPORTACAO }),
+  )
   app.setGlobalPrefix('api')
   app.useGlobalPipes(createValidationPipe())
   app.enableShutdownHooks()

@@ -48,6 +48,8 @@ Só o administrador.
   guardados como backup antes da troca (ver R-BKP-*).
 - **R-CFG-06**: a lista de restauração mostra os backups do dia a dia e as cópias automáticas feitas antes de
   uma restauração ou de uma atualização do banco.
+- **R-CFG-07**: _Restaurar de um arquivo_ (no cartão _Restaurar um backup_) escolhe um backup no computador
+  (`.gz` ou `.sqlite`) e pede a mesma confirmação, mostrando o nome do arquivo (R-BKP-10).
 
 ## Permissões
 
@@ -58,15 +60,16 @@ Só o administrador.
 
 ## API
 
-| Método e rota                                                                                         | Para quê                         | Quem pode                        |
-| ----------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------- |
-| `GET /api/empresa`                                                                                    | dados da empresa (R-CFG-02)      | logado                           |
-| `PUT /api/empresa`                                                                                    | salva os dados da empresa        | administrador                    |
-| `GET /api/backup/estado`, `GET /api/backup/arquivos`                                                  | situação e lista de backups      | administrador                    |
-| `POST /api/backup/executar`                                                                           | backup agora (R-CFG-03)          | administrador                    |
-| `POST /api/backup/restaurar`                                                                          | prepara a restauração (R-CFG-05) | administrador                    |
-| `POST /api/backup/google/credenciais`, `GET /api/backup/google/conectar`, `DELETE /api/backup/google` | Google Drive                     | administrador                    |
-| `GET /api/backup/google/callback`                                                                     | retorno da autorização do Google | público (protegido pelo `state`) |
+| Método e rota                                                                                         | Para quê                          | Quem pode                        |
+| ----------------------------------------------------------------------------------------------------- | --------------------------------- | -------------------------------- |
+| `GET /api/empresa`                                                                                    | dados da empresa (R-CFG-02)       | logado                           |
+| `PUT /api/empresa`                                                                                    | salva os dados da empresa         | administrador                    |
+| `GET /api/backup/estado`, `GET /api/backup/arquivos`                                                  | situação e lista de backups       | administrador                    |
+| `POST /api/backup/executar`                                                                           | backup agora (R-CFG-03)           | administrador                    |
+| `POST /api/backup/restaurar`                                                                          | prepara a restauração (R-CFG-05)  | administrador                    |
+| `POST /api/backup/restaurar/arquivo` (corpo: o arquivo, `application/octet-stream`)                   | restaura de um arquivo (R-CFG-07) | administrador                    |
+| `POST /api/backup/google/credenciais`, `GET /api/backup/google/conectar`, `DELETE /api/backup/google` | Google Drive                      | administrador                    |
+| `GET /api/backup/google/callback`                                                                     | retorno da autorização do Google  | público (protegido pelo `state`) |
 
 ## Onde está no código
 
@@ -77,5 +80,5 @@ Só o administrador.
 
 - `apps/server/test/empresa.e2e-spec.ts` — dados da empresa e permissões (R-CFG-01, R-CFG-02).
 - `apps/server/test/backup.e2e-spec.ts` — backup, Google (com um Google falso), restauração (R-CFG-03 a R-CFG-06).
-- `apps/client/src/components/domain/backup.spec.tsx` — cartões de backup e Google Drive, lista e confirmação de restauração (R-CFG-03 a R-CFG-06).
+- `apps/client/src/components/domain/backup.spec.tsx` — cartões de backup e Google Drive, lista e confirmação de restauração, restaurar de um arquivo (R-CFG-03 a R-CFG-07).
 - `apps/client/src/components/domain/usuario-e-empresa.spec.tsx` — dados da empresa começam vazios e saem com máscara (R-CFG-01).

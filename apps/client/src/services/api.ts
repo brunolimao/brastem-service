@@ -15,6 +15,8 @@ export class ApiError extends Error {
 interface Opcoes {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: unknown
+  /** Arquivo enviado como bytes crus (application/octet-stream) em vez de JSON. */
+  arquivo?: Blob
   query?: Record<string, ValorQuery>
 }
 
@@ -58,13 +60,19 @@ async function lerErro(resposta: Response, sessaoExpirada = false) {
 
 const ROTAS_DE_AUTENTICACAO = ['/auth/login', '/auth/refresh', '/auth/setup']
 
-export async function api<T>(caminho: string, { method = 'GET', body, query }: Opcoes = {}) {
+export async function api<T>(
+  caminho: string,
+  { method = 'GET', body, arquivo, query }: Opcoes = {},
+) {
   const enviar = () =>
     fetch(`/api${caminho}${montarQuery(query)}`, {
       method,
       credentials: 'same-origin',
-      headers: body === undefined ? undefined : { 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      ...(arquivo
+        ? { headers: { 'content-type': 'application/octet-stream' }, body: arquivo }
+        : body === undefined
+          ? {}
+          : { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
     })
 
   const enviarOuFalhar = () =>

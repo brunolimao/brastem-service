@@ -25,11 +25,19 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
   Brastem-Service? não é de uma versão mais nova do app?) e deixado pronto como `restauracao-pendente.sqlite`.
   O banco em uso **não** é trocado na hora: o app reinicia sozinho e a troca acontece na abertura.
 - **R-BKP-07**: Nada se perde ao restaurar: o banco que estava em uso é guardado como
-  `backups/antes-da-restauracao-*.sqlite` e pode ser restaurado de volta.
+  `backups/antes-da-restauracao-*.sqlite` e pode ser restaurado de volta. A cópia fica completa num arquivo
+  só: o que estava apenas no `-wal` (app fechado à força) é gravado nela antes de guardar.
 - **R-BKP-08**: O que pode ser restaurado: backups do dia a dia (computador ou Drive) e as cópias automáticas
   `antes-da-restauracao-*` e `antes-da-migracao-*`. Só pelo nome do arquivo, nunca por caminho.
 - **R-BKP-09**: Pastas criptografadas (EFS): em perfis em que o Windows não deixa renomear arquivos, o app
   copia e apaga em vez de renomear.
+- **R-BKP-10**: Restaurar de um arquivo (só administrador): um backup guardado fora do app (pendrive, baixado
+  do Drive) pode ser enviado pela tela: o `.sqlite.gz` dos backups ou o `.sqlite` das cópias automáticas (o
+  formato é reconhecido pelo conteúdo, não pelo nome). Passa pelas mesmas conferências de R-BKP-06; arquivo
+  recusado não deixa nada pendente.
+- **R-BKP-11**: A conexão com o Google Drive sobrevive a atualizações e reinstalações: fica em
+  `dados/integracoes/google.json`, que o instalador não toca (nem ao desinstalar). Só deixa de estar conectado
+  ao clicar em _Desconectar_ ou se o Google revogar o acesso (aí o app avisa para conectar de novo).
 
 ## Onde está no código
 
@@ -40,7 +48,7 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
 
 ## Testes
 
-- `apps/server/test/backup.e2e-spec.ts` — backup, retenção, Drive (com Google falso), envio pendente, restauração e recusas (R-BKP-01 a R-BKP-08).
-- `apps/server/src/common/database/connection.spec.ts` — troca do banco na abertura (R-BKP-06, R-BKP-07).
+- `apps/server/test/backup.e2e-spec.ts` — backup, retenção, Drive (com Google falso), envio pendente, restauração e recusas, restauração de arquivo enviado, conexão que continua depois de reabrir o app (R-BKP-01 a R-BKP-08, R-BKP-10, R-BKP-11).
+- `apps/server/src/common/database/connection.spec.ts` — troca do banco na abertura, cópia antiga completa mesmo com `-wal` pendente (R-BKP-06, R-BKP-07).
 - `apps/server/src/common/utils/arquivos.spec.ts` — R-BKP-09.
 - `apps/server/src/modules/backup/backup.agendador.spec.ts` — 1 minuto depois de abrir e de hora em hora; falha não derruba o app (R-BKP-01).

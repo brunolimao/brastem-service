@@ -28,10 +28,13 @@ export function useExecutarBackup() {
   })
 }
 
+/** Restaura um backup da lista (computador ou Drive) ou um arquivo escolhido pelo usuário. */
 export function useRestaurarBackup() {
   return useMutation({
-    mutationFn: ({ origem, id }: { origem: 'local' | 'drive'; id: string }) =>
-      backupService.restaurar(origem, id),
+    mutationFn: (escolha: { origem: 'local' | 'drive'; id: string } | { arquivo: File }) =>
+      'arquivo' in escolha
+        ? backupService.restaurarArquivo(escolha.arquivo)
+        : backupService.restaurar(escolha.origem, escolha.id),
   })
 }
 

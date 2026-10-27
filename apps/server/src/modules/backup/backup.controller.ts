@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, Post, Query, Res } from '@nestjs/common'
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Delete, Get, HttpCode, Post, Query, Req, Res } from '@nestjs/common'
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
-import type { Response } from 'express'
+import type { Request, Response } from 'express'
 import { Public, Roles } from '../../common/auth/decorators.js'
 import { BackupService } from './backup.service.js'
 import { CredenciaisGoogleDto, RestaurarDto } from './dto/backup.dto.js'
@@ -59,6 +59,17 @@ export class BackupController {
   })
   restaurar(@Body() dto: RestaurarDto) {
     return this.restauracao.preparar(dto.origem, dto.id)
+  }
+
+  @Post('restaurar/arquivo')
+  @HttpCode(200)
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Prepara a restauração de um arquivo de backup enviado pelo usuário' })
+  @ApiConsumes('application/octet-stream')
+  @ApiBody({ schema: { type: 'string', format: 'binary' } })
+  restaurarDeArquivo(@Req() req: Request) {
+    // O corpo chega cru (Buffer): ver `express.raw` no bootstrap.
+    return this.restauracao.prepararDeArquivo(req.body)
   }
 
   @Post('google/credenciais')

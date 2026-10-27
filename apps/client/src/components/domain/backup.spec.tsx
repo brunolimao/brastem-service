@@ -12,7 +12,7 @@ vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn(), warning: v
 
 /** Servidor falso: responde por "MÉTODO /caminho" e guarda os pedidos feitos. */
 let respostas: Record<string, unknown>
-let pedidos: { rota: string; corpo: unknown }[]
+let pedidos: { rota: string; corpo: unknown; tipo: string | null }[]
 
 beforeEach(() => {
   respostas = {}
@@ -23,7 +23,9 @@ beforeEach(() => {
     'fetch',
     vi.fn(async (url: string, opcoes: RequestInit = {}) => {
       const rota = `${opcoes.method ?? 'GET'} ${url.replace(/^\/api/, '')}`
-      pedidos.push({ rota, corpo: opcoes.body ? JSON.parse(String(opcoes.body)) : undefined })
+      // JSON vira objeto; um arquivo (Blob) fica como veio.
+      const corpo = typeof opcoes.body === 'string' ? JSON.parse(opcoes.body) : opcoes.body
+      pedidos.push({ rota, corpo, tipo: new Headers(opcoes.headers).get('content-type') })
       const resposta = respostas[rota]
       return resposta === undefined
         ? new Response(null, { status: 204 })
@@ -236,4 +238,42 @@ describe('BackupLista (R-CFG-05, R-CFG-06)', () => {
       })
     },
   )
+
+  it('restaura de um arquivo escolhido no computador, depois de confirmar (R-BKP-10)', async () => {
+    respostas['GET /backup/arquivos'] = lista
+    respostas['POST /backup/restaurar/arquivo'] = { reiniciando: true }
+    renderizar(<BackupLista />)
+    await screen.findByText('novo.sqlite.gz')
+
+    const arquivo = new File(['backup'], 'brastem-2026-10-20-090000.sqlite.gz')
+    expect(screen.getByLabelText('Arquivo de backup')).toHaveAttribute('accept', '.gz,.sqlite')
+    fireEvent.change(screen.getByLabelText('Arquivo de backup'), { target: { files: [arquivo] } })
+
+    const dialogo = screen.getByRole('alertdialog')
+    expect(dialogo).toHaveTextContent('brastem-2026-10-20-090000.sqlite.gz')
+    expect(dialogo).toHaveTextContent('Tudo o que foi feito depois')
+    expect(rotasPedidas()).not.toContain('POST /backup/restaurar/arquivo')
+
+    fireEvent.click(within(dialogo).getByRole('button', { name: 'Restaurar' }))
+    expect(await screen.findByText(/está reiniciando/)).toBeInTheDocument()
+    const enviado = pedidos.find((p) => p.rota === 'POST /backup/restaurar/arquivo')
+    expect(enviado?.corpo).toBe(arquivo)
+    expect(enviado?.tipo).toBe('application/octet-stream')
+  })
+
+  it('cancelar a escolha do arquivo não envia nada', async () => {
+    respostas['GET /backup/arquivos'] = lista
+    renderizar(<BackupLista />)
+    await screen.findByText('novo.sqlite.gz')
+    fireEvent.change(screen.getByLabelText('Arquivo de backup'), {
+      target: { files: [new File(['x'], 'a.sqlite')] },
+    })
+    fireEvent.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancelar' }),
+    )
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+    expect(rotasPedidas()).not.toContain('POST /backup/restaurar/arquivo')
+    // Limpar o seletor (para o mesmo arquivo poder ser escolhido de novo) não dá para ver no jsdom,
+    // que não preenche o valor de campos de arquivo: isso foi conferido no app (Chromium).
+  })
 })

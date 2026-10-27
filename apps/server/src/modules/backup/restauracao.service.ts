@@ -26,6 +26,11 @@ const ID_DRIVE_VALIDO = /^[\w-]{10,120}$/
 
 export type OrigemRestauracao = 'local' | 'drive'
 
+interface ArquivoObtido {
+  caminho: string
+  gzip: boolean
+}
+
 @Injectable()
 export class RestauracaoService {
   private readonly logger = new Logger(RestauracaoService.name)
@@ -40,14 +45,35 @@ export class RestauracaoService {
    * O banco em uso não é tocado agora: ver `aplicarRestauracaoPendente`.
    * Devolve se o app vai reiniciar sozinho (app desktop) ou se o usuário precisa reabri-lo.
    */
-  async preparar(origem: OrigemRestauracao, id: string): Promise<{ reiniciando: boolean }> {
+  preparar(origem: OrigemRestauracao, id: string): Promise<{ reiniciando: boolean }> {
+    return this.prepararCom((temporario) => this.obterArquivo(origem, id, temporario))
+  }
+
+  /**
+   * O mesmo, com um arquivo escolhido pelo usuário (ex.: um backup guardado num pendrive ou baixado do
+   * Drive): o .sqlite.gz dos backups ou o .sqlite das cópias automáticas. Passa pelas mesmas conferências.
+   */
+  prepararDeArquivo(conteudo: unknown): Promise<{ reiniciando: boolean }> {
+    // Sem corpo cru (nada enviado, ou JSON em vez do arquivo) o Express entrega `{}`.
+    if (!Buffer.isBuffer(conteudo) || conteudo.length === 0) {
+      throw new BadRequestException('Escolha o arquivo do backup.')
+    }
+    return this.prepararCom((temporario) => {
+      writeFileSync(temporario, conteudo)
+      return { caminho: temporario, gzip: conteudo[0] === 0x1f && conteudo[1] === 0x8b }
+    })
+  }
+
+  private async prepararCom(
+    obter: (temporario: string) => Promise<ArquivoObtido> | ArquivoObtido,
+  ): Promise<{ reiniciando: boolean }> {
     const pasta = this.config.dataDir
     mkdirSync(pasta, { recursive: true })
 
     const extraido = join(pasta, `${NOME_RESTAURACAO_PENDENTE}.tmp`)
     const baixado = join(pasta, 'restauracao-baixada.tmp')
     try {
-      const compactado = await this.obterArquivo(origem, id, baixado)
+      const compactado = await obter(baixado)
       await this.extrair(compactado.caminho, extraido, compactado.gzip)
       this.validar(extraido)
       moverArquivo(extraido, join(pasta, NOME_RESTAURACAO_PENDENTE))
@@ -67,7 +93,7 @@ export class RestauracaoService {
     origem: OrigemRestauracao,
     id: string,
     temporario: string,
-  ): Promise<{ caminho: string; gzip: boolean }> {
+  ): Promise<ArquivoObtido> {
     if (origem === 'drive') {
       if (!ID_DRIVE_VALIDO.test(id)) throw new BadRequestException('Backup do Drive inválido.')
       writeFileSync(temporario, await this.drive.baixar(id))

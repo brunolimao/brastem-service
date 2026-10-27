@@ -183,6 +183,24 @@ describe('backup e restauração (e2e)', () => {
       })
     })
 
+    it('a conexão continua depois de fechar e abrir o app (como numa atualização de versão)', async () => {
+      // Outra instância do servidor na mesma pasta de dados: é o que acontece quando o app
+      // atualizado abre. A conexão fica em dados/integracoes/google.json, que a atualização não toca.
+      // (Nos testes o banco é em memória, então a instância nova começa sem usuários.)
+      const { createApp } = await import('../src/bootstrap.js')
+      const reaberto = await createApp()
+      await reaberto.init()
+      try {
+        const outro = request.agent(reaberto.getHttpServer())
+        await outro.post('/api/auth/setup').send(credenciais).expect(201)
+        await outro.post('/api/auth/login').send(credenciais).expect(200)
+        const estado = await outro.get('/api/backup/estado').expect(200)
+        expect(estado.body.google).toMatchObject({ conectado: true, email: 'dono@exemplo.com' })
+      } finally {
+        await reaberto.close()
+      }
+    })
+
     it('envia o backup para a pasta do Drive e limpa os mais antigos além de 30', async () => {
       for (let i = 1; i <= 31; i++) {
         google.arquivos.push({
@@ -352,6 +370,67 @@ describe('backup e restauração (e2e)', () => {
       expect(res.body.message).toContain('versão mais nova')
       expect(existsSync(pendente())).toBe(false)
       rmSync(join(pastaBackups, nome))
+    })
+
+    describe('de um arquivo escolhido pelo usuário (R-BKP-10)', () => {
+      const enviar = (conteudo: Buffer | string) =>
+        admin
+          .post('/api/backup/restaurar/arquivo')
+          .set('content-type', 'application/octet-stream')
+          .send(Buffer.from(conteudo))
+
+      it('aceita o .sqlite.gz de um backup (do computador ou baixado do Drive)', async () => {
+        const gz = readFileSync(join(pastaBackups, await nomeDoUltimoBackup()))
+        const res = await enviar(gz).expect(200)
+        expect(res.body).toEqual({ reiniciando: false })
+        expect(existsSync(pendente())).toBe(true)
+        expect(readdirSync(dados).filter((n) => n.startsWith('restauracao'))).toEqual([
+          'restauracao-pendente.sqlite',
+        ])
+        rmSync(pendente())
+      })
+
+      it('aceita o .sqlite sem compactar (cópia antes de restaurar ou de atualizar)', async () => {
+        const gz = readFileSync(join(pastaBackups, await nomeDoUltimoBackup()))
+        await enviar(gunzipSync(gz)).expect(200)
+        expect(existsSync(pendente())).toBe(true)
+        rmSync(pendente())
+      })
+
+      it('recusa arquivo que não é backup, vazio ou de versão mais nova, sem deixar nada pendente', async () => {
+        const naoBanco = await enviar('isto não é um banco').expect(400)
+        expect(naoBanco.body.message).toBe(
+          'Este arquivo não é um backup válido do Brastem-Service.',
+        )
+
+        const vazio = await admin
+          .post('/api/backup/restaurar/arquivo')
+          .set('content-type', 'application/octet-stream')
+          .expect(400)
+        expect(vazio.body.message).toBe('Escolha o arquivo do backup.')
+
+        const nome = await copiaAntesDaMigracao()
+        const banco = new Database(join(pastaBackups, nome))
+        banco.exec('update __drizzle_migrations set created_at = created_at + 100000000000')
+        banco.close()
+        const novo = await enviar(readFileSync(join(pastaBackups, nome))).expect(400)
+        expect(novo.body.message).toContain('versão mais nova')
+        rmSync(join(pastaBackups, nome))
+
+        expect(existsSync(pendente())).toBe(false)
+        expect(readdirSync(dados).filter((n) => n.startsWith('restauracao'))).toEqual([])
+      })
+
+      it('só administrador e só como arquivo (nada de JSON)', async () => {
+        const json = await admin.post('/api/backup/restaurar/arquivo').send({ id: 'x' }).expect(400)
+        expect(json.body.message).toBe('Escolha o arquivo do backup.')
+
+        await request(app.getHttpServer())
+          .post('/api/backup/restaurar/arquivo')
+          .set('content-type', 'application/octet-stream')
+          .send(Buffer.from('x'))
+          .expect(401)
+      })
     })
 
     it('recusa arquivo que não é um backup do sistema, nome com caminho e arquivo inexistente', async () => {
