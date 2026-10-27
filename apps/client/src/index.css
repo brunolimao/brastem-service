@@ -18,8 +18,9 @@
   --secondary-foreground: oklch(0.3 0.04 255);
   --muted: oklch(0.955 0.006 255);
   --muted-foreground: oklch(0.5 0.02 255);
-  --accent: oklch(0.7 0.19 35);
-  --accent-foreground: oklch(0.99 0 0);
+  /* Fundo de hover (botões contornados, itens de menu e de lista): discreto, nunca o laranja. */
+  --accent: oklch(0.93 0.025 255);
+  --accent-foreground: oklch(0.2 0.02 255);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.91 0.01 255);
   --input: oklch(0.87 0.015 255);
@@ -39,7 +40,8 @@
   --warning: oklch(0.75 0.15 75);
   --sidebar: oklch(0.2 0.03 260);
   --sidebar-foreground: oklch(0.95 0.01 255);
-  --sidebar-primary: oklch(0.7 0.19 35);
+  /* Laranja da marca no item ativo do menu: escuro o bastante para o texto branco (4,6:1). */
+  --sidebar-primary: oklch(0.58 0.19 35);
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.28 0.04 260);
   --sidebar-accent-foreground: oklch(0.98 0 0);
@@ -60,8 +62,8 @@
   --secondary-foreground: oklch(0.96 0.005 255);
   --muted: oklch(0.28 0.03 260);
   --muted-foreground: oklch(0.72 0.02 255);
-  --accent: oklch(0.72 0.18 35);
-  --accent-foreground: oklch(0.15 0.02 260);
+  --accent: oklch(0.3 0.035 260);
+  --accent-foreground: oklch(0.96 0.005 255);
   --destructive: oklch(0.65 0.2 25);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);

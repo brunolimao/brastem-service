@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { pagina, usuario } from '../dados'
 import { abrirTela, COMUM, esperarTitulo } from '../tela'
@@ -18,7 +18,11 @@ describe('Usuários', () => {
     const tela = abrirTela('/usuarios', {
       api: { 'GET /usuarios': usuarios, 'DELETE /usuarios/2': undefined },
     })
-    expect(await screen.findByRole('button', { name: 'Excluir ana' })).toBeDisabled()
+    const euMesma = await screen.findByRole('button', { name: 'Excluir ana' })
+    expect(euMesma).toBeDisabled()
+    // O botão desabilitado não recebe o mouse: a dica que explica fica no invólucro (R-UX-09).
+    act(() => (euMesma.parentElement as HTMLElement).focus())
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Você não pode apagar a si mesmo')
 
     fireEvent.click(screen.getByRole('button', { name: 'Excluir bruno' }))
     expect(screen.getByRole('alertdialog')).toHaveTextContent('não poderá mais entrar')

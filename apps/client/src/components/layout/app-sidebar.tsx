@@ -19,6 +19,7 @@ import {
 import { Fragment, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { Dica } from '@/components/ui/tooltip'
 import { useLogout } from '@/hooks/use-auth'
 import { buscaLembrada } from '@/hooks/use-listas-lembradas'
 import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
@@ -159,24 +160,25 @@ export function AppSidebar() {
                       {item.grupo}
                     </p>
                   ))}
-                <Link
-                  to={item.to}
-                  search={buscaLembrada(item.to)}
-                  activeOptions={{ exact: item.exato }}
-                  title={recolhido ? item.rotulo : undefined}
-                  className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent',
-                    recolhido && 'justify-center px-0',
-                  )}
-                  activeProps={{
-                    className:
-                      'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary',
-                  }}
-                >
-                  <Icone className="size-4 shrink-0" />
-                  {/* Recolhido, o nome some da tela mas continua para leitores de tela. */}
-                  <span className={cn(recolhido && 'sr-only')}>{item.rotulo}</span>
-                </Link>
+                <Dica texto={recolhido ? item.rotulo : undefined} lado="right">
+                  <Link
+                    to={item.to}
+                    search={buscaLembrada(item.to)}
+                    activeOptions={{ exact: item.exato }}
+                    className={cn(
+                      'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent',
+                      recolhido && 'justify-center px-0',
+                    )}
+                    activeProps={{
+                      className:
+                        'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary',
+                    }}
+                  >
+                    <Icone className="size-4 shrink-0" />
+                    {/* Recolhido, o nome some da tela mas continua para leitores de tela. */}
+                    <span className={cn(recolhido && 'sr-only')}>{item.rotulo}</span>
+                  </Link>
+                </Dica>
               </Fragment>
             )
           })}

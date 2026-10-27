@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { empresaVazia } from '@/models/empresa.model'
 import { clienteDetalhe, pagina } from '../dados'
@@ -81,16 +81,20 @@ describe('atalhos de teclado nos formulários (R-UX-08)', () => {
 })
 
 describe('dicas nos botões de ícone (R-UX-09)', () => {
-  it('botão só com ícone mostra o que faz ao parar o mouse', async () => {
+  it('botão só com ícone mostra o que faz numa dica estilizada, com o atalho à parte', async () => {
     abrirTela('/clientes/7', { api })
     await esperarTitulo('João da Silva')
-    expect(screen.getByRole('button', { name: 'Remover aparelho 1' })).toHaveAttribute(
-      'title',
-      'Remover aparelho 1',
-    )
-    expect(screen.getByRole('button', { name: 'Salvar' })).toHaveAttribute(
-      'title',
-      'Salvar (Ctrl+S)',
-    )
+    const remover = screen.getByRole('button', { name: 'Remover aparelho 1' })
+    // Nada da dica cinza do navegador: o balão é do próprio sistema.
+    expect(remover).not.toHaveAttribute('title')
+    act(() => remover.focus())
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Remover aparelho 1')
+
+    const salvar = screen.getByRole('button', { name: 'Salvar' })
+    expect(salvar).not.toHaveAttribute('title')
+    act(() => salvar.focus())
+    await waitFor(() => expect(screen.getByRole('tooltip')).toHaveTextContent('Salvar'))
+    const atalho = screen.getAllByText('Ctrl+S').find((elemento) => elemento.tagName === 'KBD')
+    expect(atalho).toBeDefined()
   })
 })

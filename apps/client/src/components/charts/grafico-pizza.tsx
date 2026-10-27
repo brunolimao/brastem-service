@@ -5,6 +5,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import ReactEChartsCoreModulo from 'echarts-for-react/lib/core'
 import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dica } from '@/components/ui/tooltip'
 import { useThemeStore } from '@/hooks/use-theme-store'
 import { corDoTema } from '@/libs/cores'
 import {
@@ -81,9 +82,9 @@ export function GraficoPizza({ titulo, dados, cores = PALETA_PADRAO }: GraficoPi
                     className="size-3 shrink-0 rounded-sm"
                     style={{ backgroundColor: fatia.itemStyle.color }}
                   />
-                  <span className="min-w-0 flex-1 truncate" title={fatia.name}>
-                    {fatia.name}
-                  </span>
+                  <Dica texto={fatia.name}>
+                    <span className="min-w-0 flex-1 truncate">{fatia.name}</span>
+                  </Dica>
                   <span className="tabular-nums">{fatia.value}</span>
                   <span className="w-11 text-right text-muted-foreground tabular-nums">
                     {Math.round((fatia.value / total) * 100)}%

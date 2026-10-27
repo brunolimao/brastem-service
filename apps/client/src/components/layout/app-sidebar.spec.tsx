@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
@@ -129,7 +129,9 @@ describe('AppSidebar: menu recolhível (R-UX-04)', () => {
     expect(menu()).toHaveAttribute('data-recolhido', 'true')
     expect(usePreferenciasStore.getState().menuRecolhido).toBe(true)
     const clientes = screen.getByRole('link', { name: 'Clientes' })
-    expect(clientes).toHaveAttribute('title', 'Clientes')
+    expect(clientes).not.toHaveAttribute('title')
+    act(() => clientes.focus())
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Clientes')
     expect(within(clientes).getByText('Clientes')).toHaveClass('sr-only')
     expect(screen.getByRole('button', { name: 'Buscar (Ctrl+K)' })).toBeInTheDocument()
 

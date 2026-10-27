@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Dica } from '@/components/ui/tooltip'
 import {
   type LinhasPorPagina,
   OPCOES_LINHAS_POR_PAGINA,
@@ -146,19 +147,22 @@ export function DataTable<TData extends RowData>({
                         ativa ? (ordenacao?.direcao === 'asc' ? 'ascending' : 'descending') : 'none'
                       }
                     >
-                      <button
-                        type="button"
-                        className="-mx-1 inline-flex items-center gap-1 rounded px-1 hover:text-foreground"
-                        title={
+                      <Dica
+                        texto={
                           ativa && ordenacao
                             ? `Ordenado em ordem ${ROTULO_DIRECAO[ordenacao.direcao]}`
                             : 'Ordenar por esta coluna'
                         }
-                        onClick={() => ordenar(proximaOrdenacao(ordenacao, chave))}
                       >
-                        {conteudo}
-                        <Seta className={ativa ? 'size-3.5' : 'size-3.5 opacity-40'} />
-                      </button>
+                        <button
+                          type="button"
+                          className="-mx-1 inline-flex items-center gap-1 rounded px-1 hover:text-foreground"
+                          onClick={() => ordenar(proximaOrdenacao(ordenacao, chave))}
+                        >
+                          {conteudo}
+                          <Seta className={ativa ? 'size-3.5' : 'size-3.5 opacity-40'} />
+                        </button>
+                      </Dica>
                     </TableHead>
                   )
                 })}

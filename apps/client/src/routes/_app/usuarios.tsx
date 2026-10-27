@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Dica } from '@/components/ui/tooltip'
 import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { useRemoverUsuario, useUsuarios } from '@/hooks/use-usuarios'
@@ -37,16 +38,24 @@ function BotaoRemover({ usuario }: { usuario: Usuario }) {
   const remover = useRemoverUsuario()
   const euMesmo = useSessionStore((estado) => estado.usuario?.id === usuario.id)
 
+  if (euMesmo) {
+    // Botão desabilitado não recebe o mouse: a dica que explica o porquê fica num invólucro focável.
+    return (
+      <Dica texto="Você não pode apagar a si mesmo">
+        {/* biome-ignore lint/a11y/noNoninteractiveTabindex: foco para ler a dica do botão desabilitado */}
+        <span tabIndex={0} className="inline-flex">
+          <Button variant="ghost" size="icon" aria-label={`Excluir ${usuario.usuario}`} disabled>
+            <Trash2 className="text-destructive" />
+          </Button>
+        </span>
+      </Dica>
+    )
+  }
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={`Excluir ${usuario.usuario}`}
-          disabled={euMesmo}
-          title={euMesmo ? 'Você não pode apagar a si mesmo' : undefined}
-        >
+        <Button variant="ghost" size="icon" aria-label={`Excluir ${usuario.usuario}`}>
           <Trash2 className="text-destructive" />
         </Button>
       </AlertDialogTrigger>

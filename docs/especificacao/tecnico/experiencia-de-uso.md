@@ -31,7 +31,11 @@
 - **R-UX-08**: Atalhos nos formulários: **Ctrl+S** salva (com dois formulários na tela, o do cursor; com um
   diálogo aberto, só o do diálogo) e **Esc** volta (mas, com diálogo ou lista aberta, o Esc só fecha esse).
   Salvar com erro rola até o primeiro campo errado e põe o cursor nele.
-- **R-UX-09**: Botões só com ícone (editar, excluir, imprimir, parcelas...) mostram o que fazem ao parar o mouse.
+- **R-UX-09**: Botões só com ícone (editar, excluir, imprimir, parcelas...) mostram o que fazem ao parar o mouse
+  ou ao receber o foco do teclado, num balão do próprio sistema (componente `Dica`, nas cores do tema; o atalho,
+  como _Ctrl+S_, sai numa etiqueta à parte), nunca na dica cinza do navegador (`title`). Vale também para o menu
+  recolhido, a ordenação das tabelas e a legenda dos gráficos. Botão desabilitado que precisa explicar o porquê
+  (excluir a si mesmo) leva a dica num invólucro focável.
 - **R-UX-10**: Lista vazia sugere o próximo passo: _Cadastrar cliente_, _Limpar busca_ (quando a busca não achou
   nada), como gerar uma OS, _Lançar receita/despesa_ no caixa.
 - **R-UX-11**: As listas (clientes, OS, pagamentos, caixa, usuários, relatórios) reabrem no ponto em que ficaram
@@ -48,6 +52,9 @@
 - **R-UX-14**: No modo claro, nada se mistura com o fundo: campos têm fundo próprio, e botão contornado tem o
   fundo do cartão, borda mais forte que a das linhas e uma sombra leve. As cores vêm só dos tokens de
   `index.css` (trocar um token muda o sistema inteiro).
+- **R-UX-15**: O fundo de hover (`--accent`: botões contornados e fantasmas, itens de menus e de listas) é um tom
+  discreto da paleta azul nos dois temas, nunca o laranja. O laranja da marca fica para o item ativo do menu
+  (`--sidebar-primary`), escuro o bastante para o texto branco passar no contraste de acessibilidade (4,6:1).
 
 ## Onde está no código
 
@@ -67,8 +74,10 @@
 - `apps/client/src/components/layout/app-sidebar.spec.tsx` — menu recolhível e Ctrl+B (R-UX-04).
 - `apps/client/src/components/domain/aparencia-card.spec.tsx` — tamanho da letra e limites (R-UX-05).
 - `apps/client/src/components/data-table/data-table.spec.tsx`, `apps/client/src/test/telas/clientes.spec.tsx`, `apps/server/test/ordenacao.e2e-spec.ts` — ordenar na tela e no servidor, colunas permitidas, linhas por página (R-UX-06, R-UX-07).
-- `apps/client/src/test/telas/atalhos.spec.tsx` — Ctrl+S, foco no erro, Esc, dois formulários na tela, dicas (R-UX-08, R-UX-09).
+- `apps/client/src/test/telas/atalhos.spec.tsx` — Ctrl+S, foco no erro, Esc, dois formulários na tela, dicas estilizadas (R-UX-08, R-UX-09).
+- `apps/client/src/test/telas/administracao.spec.tsx` — dica do botão desabilitado de excluir a si mesmo (R-UX-09).
 - `apps/client/src/test/telas/clientes.spec.tsx`, `apps/client/src/test/telas/financeiro.spec.tsx` — lista vazia com ação, limpar busca, lista que reabre no mesmo ponto (R-UX-10, R-UX-11).
 - `apps/server/test/painel.e2e-spec.ts`, `apps/client/src/test/telas/inicio.spec.tsx` — resumo, gráfico, OS paradas, financeiro só para o administrador, ordem dos cartões (R-UX-12).
 - `apps/client/src/libs/estilo.spec.ts` — largura máxima do conteúdo e classes que deixam o conteúdo encolher e quebrar linha (R-UX-13). O jsdom não mede layout: o efeito foi conferido no app a 560 px e 700 px, rota por rota.
 - `apps/client/src/libs/estilo.spec.ts` — fundo dos campos e contraste do botão contornado (R-UX-14).
+- `apps/client/src/libs/estilo.spec.ts` — hover discreto e laranja do menu com contraste (R-UX-15).

@@ -2,6 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from 'cn'
 import { Slot } from 'radix-ui'
 import type * as React from 'react'
+import { Dica } from '@/components/ui/tooltip'
 
 const buttonVariants = cva(
   "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -41,25 +42,29 @@ function Button({
   variant = 'default',
   size = 'default',
   asChild = false,
+  title,
   ...props
 }: React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot.Root : 'button'
-  // Botão só com ícone mostra o que faz ao parar o mouse (o mesmo texto dos leitores de tela).
-  const dica = String(size).startsWith('icon') ? props['aria-label'] : undefined
-
-  return (
+  // Botão só com ícone mostra o que faz ao parar o mouse (o mesmo texto dos leitores de tela). O `title`
+  // vira a dica estilizada, não a do navegador (R-UX-09).
+  const dica = title ?? (String(size).startsWith('icon') ? props['aria-label'] : undefined)
+  const botao = (
     <Comp
       data-slot="button"
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-      title={props.title ?? dica}
     />
   )
+
+  // Botão desabilitado não recebe o mouse, então não mostra dica; quem precisa explicar o porquê
+  // envolve o botão (ex.: excluir a si mesmo, em Usuários).
+  return <Dica texto={dica}>{botao}</Dica>
 }
 
 export { Button, buttonVariants }

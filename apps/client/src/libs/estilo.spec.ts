@@ -79,6 +79,23 @@ describe('botão contornado no modo claro (R-UX-14)', () => {
   })
 })
 
+describe('cores de hover e destaque (R-UX-15)', () => {
+  const css = ler('../index.css')
+  const tema = (nome: ':root' | '.dark') => css.split(`${nome} {`)[1]?.split('}')[0] ?? ''
+
+  it('o hover (accent) é um tom discreto, não o laranja da marca, nos dois temas', () => {
+    // Laranja tem matiz perto de 35; o hover fica no azul-acinzentado da paleta.
+    expect(tema(':root')).toMatch(/--accent: oklch\(0\.93 0\.025 255\)/)
+    expect(tema(':root')).toMatch(/--accent-foreground: oklch\(0\.2 /)
+    expect(tema('.dark')).toMatch(/--accent: oklch\(0\.3 0\.035 260\)/)
+  })
+
+  it('o laranja do item ativo do menu é escuro o bastante para o texto branco (4,6:1)', () => {
+    expect(tema(':root')).toMatch(/--sidebar-primary: oklch\(0\.58 0\.19 35\)/)
+    expect(tema(':root')).toMatch(/--sidebar-primary-foreground: oklch\(0\.99 0 0\)/)
+  })
+})
+
 describe('papel da impressão (R-IMP-04)', () => {
   it('na impressão o fundo da página é branco, mesmo no tema escuro (sem faixa preta na margem)', () => {
     expect(ler('../index.css')).toMatch(/@media print \{\s*html,\s*body \{\s*background: white;/)
