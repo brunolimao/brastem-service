@@ -23,8 +23,9 @@ export const Route = createFileRoute('/_app/relatorios')({
   component: RelatoriosPage,
 })
 
-// Uma cor por status, na ordem de STATUS_OS: aberto, aguardando, aprovado, fechado, cancelado.
-const CORES_STATUS = ['#5b8def', '#fac858', '#9a60b4', '#3ba272', '#ee6666']
+// Uma cor do tema por status, na ordem de STATUS_OS: aberto (azul), aguardando (âmbar), aprovado
+// (roxo), fechado (verde), cancelado (vermelho).
+const CORES_STATUS = ['--chart-1', '--chart-4', '--chart-5', '--chart-3', '--chart-2']
 
 interface IndicadorProps {
   titulo: string

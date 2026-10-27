@@ -103,7 +103,7 @@ function ImportarPage() {
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2 font-medium text-green-600 dark:text-green-400">
+              <div className="flex items-center gap-2 font-medium text-success">
                 <CheckCircle2 className="size-5" /> Importação concluída
               </div>
               <DataTable colunas={colunasResumo} dados={linhasResumo} />
@@ -118,7 +118,7 @@ function ImportarPage() {
                 </div>
               </dl>
               {resultado.avisos.length > 0 && (
-                <div className="grid gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+                <div className="grid gap-2 rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm">
                   <p className="flex items-center gap-2 font-medium">
                     <AlertTriangle className="size-4" /> Avisos
                   </p>

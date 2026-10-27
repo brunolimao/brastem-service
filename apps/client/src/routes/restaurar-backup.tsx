@@ -37,7 +37,7 @@ function RestaurarBackupPage() {
         <CardContent className="grid gap-5">
           {restaurar.data ? (
             <div className="grid gap-2 text-center">
-              <p className="flex items-center justify-center gap-2 font-medium text-green-600 dark:text-green-400">
+              <p className="flex items-center justify-center gap-2 font-medium text-success">
                 <CheckCircle2 className="size-5" /> Backup pronto para entrar
               </p>
               <p className="text-muted-foreground text-sm">

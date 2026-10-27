@@ -17,3 +17,22 @@ describe('cursor de clique', () => {
     }
   })
 })
+
+describe('cores dos componentes', () => {
+  it('campos têm fundo próprio (--campo), diferente da página no modo claro', () => {
+    expect(ler('../index.css')).toMatch(/--campo: oklch\(0\.965/)
+    for (const componente of ['input.tsx', 'textarea.tsx', 'select.tsx', 'checkbox.tsx']) {
+      const codigo = ler(`../components/ui/${componente}`)
+      expect(codigo, componente).toContain('bg-campo')
+    }
+  })
+
+  it('no modo escuro, o texto do botão continua claro ao passar o mouse', () => {
+    const botao = ler('../components/ui/button.tsx')
+    for (const variante of ['outline', 'ghost']) {
+      // As classes da variante vão de "variante:" até o fim da string dela.
+      const classes = botao.split(`${variante}:`)[1]?.split("',")[0] ?? ''
+      expect(classes, variante).toContain('dark:hover:text-foreground')
+    }
+  })
+})

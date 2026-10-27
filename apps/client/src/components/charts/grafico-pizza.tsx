@@ -1,11 +1,20 @@
 import { PieChart } from 'echarts/charts'
-import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
+import { TitleComponent, TooltipComponent } from 'echarts/components'
 import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import ReactEChartsCoreModulo from 'echarts-for-react/lib/core'
+import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { temaEfetivo, useThemeStore } from '@/hooks/use-theme-store'
-import { type FatiaGrafico, montarOpcaoPizza } from './opcao-pizza'
+import { useThemeStore } from '@/hooks/use-theme-store'
+import { corDoTema } from '@/libs/cores'
+import {
+  type CoresGrafico,
+  type FatiaGrafico,
+  fatiasColoridas,
+  montarOpcaoPizza,
+  PALETA_PADRAO,
+  RESERVA_PADRAO,
+} from './opcao-pizza'
 
 // O pacote é CommonJS: dependendo do empacotador, o componente vem em `.default` do import padrão.
 const ReactEChartsCore = ((
@@ -13,24 +22,44 @@ const ReactEChartsCore = ((
 ).default ?? ReactEChartsCoreModulo) as typeof ReactEChartsCoreModulo
 
 // Só os pedaços do echarts que usamos entram no pacote.
-echarts.use([PieChart, LegendComponent, TitleComponent, TooltipComponent, CanvasRenderer])
+echarts.use([PieChart, TitleComponent, TooltipComponent, CanvasRenderer])
 
 interface GraficoPizzaProps {
   titulo: string
   dados: FatiaGrafico[]
+  /** Variáveis do tema, em ordem (padrão: `--chart-1` a `--chart-7`). */
   cores?: string[]
 }
 
-export function GraficoPizza({ titulo, dados, cores }: GraficoPizzaProps) {
+/** Lê as cores do tema atual; muda junto quando o tema (claro/escuro) muda. */
+function useCoresGrafico(variaveis: string[]): CoresGrafico {
   const tema = useThemeStore((estado) => estado.tema)
+  const chave = variaveis.join()
+  // biome-ignore lint/correctness/useExhaustiveDependencies: o tema muda as variáveis do CSS
+  return useMemo(
+    () => ({
+      fatias: variaveis.map((variavel, indice) =>
+        corDoTema(variavel, RESERVA_PADRAO[indice % RESERVA_PADRAO.length] as string),
+      ),
+      texto: corDoTema('--foreground', '#1f2937'),
+      suave: corDoTema('--muted-foreground', '#6b7280'),
+      fundo: corDoTema('--card', '#ffffff'),
+    }),
+    [chave, tema],
+  )
+}
+
+export function GraficoPizza({ titulo, dados, cores = PALETA_PADRAO }: GraficoPizzaProps) {
+  const paleta = useCoresGrafico(cores)
   const total = dados.reduce((soma, fatia) => soma + fatia.value, 0)
+  const legenda = fatiasColoridas(dados, paleta.fatias).filter((fatia) => fatia.value > 0)
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{titulo}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="grid gap-3">
         {total === 0 ? (
           <p className="grid h-64 place-items-center text-muted-foreground text-sm">
             Sem dados no período
@@ -39,15 +68,26 @@ export function GraficoPizza({ titulo, dados, cores }: GraficoPizzaProps) {
           <>
             <ReactEChartsCore
               echarts={echarts}
-              option={montarOpcaoPizza({ dados, cores, escuro: temaEfetivo(tema) === 'escuro' })}
-              style={{ height: 280 }}
+              option={montarOpcaoPizza(dados, paleta)}
+              style={{ height: 220 }}
               notMerge
             />
-            {/* Mesmos números em texto, para leitores de tela. */}
-            <ul className="sr-only">
-              {dados.map((fatia) => (
-                <li key={fatia.name}>
-                  {fatia.name}: {fatia.value}
+            {/* Legenda em HTML: quebra linha em vez de cobrir o gráfico, e serve a leitores de tela. */}
+            <ul aria-label={`Legenda: ${titulo}`} className="grid gap-1 text-sm">
+              {legenda.map((fatia) => (
+                <li key={fatia.name} className="flex items-center gap-2">
+                  <span
+                    aria-hidden
+                    className="size-3 shrink-0 rounded-sm"
+                    style={{ backgroundColor: fatia.itemStyle.color }}
+                  />
+                  <span className="min-w-0 flex-1 truncate" title={fatia.name}>
+                    {fatia.name}
+                  </span>
+                  <span className="tabular-nums">{fatia.value}</span>
+                  <span className="w-11 text-right text-muted-foreground tabular-nums">
+                    {Math.round((fatia.value / total) * 100)}%
+                  </span>
                 </li>
               ))}
             </ul>

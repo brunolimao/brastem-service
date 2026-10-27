@@ -5,8 +5,19 @@ export interface FatiaGrafico {
   value: number
 }
 
-/** Cores que funcionam no claro e no escuro (as mesmas do sistema antigo, com verde/âmbar/roxo extras). */
+/** Variáveis do tema usadas, em ordem, pelas fatias (ver `--chart-*` no `index.css`). */
 export const PALETA_PADRAO = [
+  '--chart-1',
+  '--chart-2',
+  '--chart-3',
+  '--chart-4',
+  '--chart-5',
+  '--chart-6',
+  '--chart-7',
+]
+
+/** As mesmas cores em hex, usadas onde o tema não pode ser lido (testes). */
+export const RESERVA_PADRAO = [
   '#5b8def',
   '#ee6666',
   '#3ba272',
@@ -28,48 +39,50 @@ export function agruparMenores(dados: FatiaGrafico[], maximo = 7): FatiaGrafico[
   return [...principais, { name: 'Outros', value: resto }]
 }
 
-interface OpcaoPizza {
-  dados: FatiaGrafico[]
-  escuro: boolean
-  cores?: string[]
+/** Cores já resolvidas (#rrggbb) do tema atual. */
+export interface CoresGrafico {
+  fatias: string[]
+  texto: string
+  suave: string
+  fundo: string
 }
 
-/** Rosca com o total no centro. Fatias zeradas ficam de fora para não poluir a legenda. */
-export function montarOpcaoPizza({
-  dados,
-  escuro,
-  cores = PALETA_PADRAO,
-}: OpcaoPizza): EChartsOption {
-  // A cor é fixada antes de filtrar, para cada fatia manter a sua mesmo quando outras zeram.
-  const fatias = dados
-    .map((fatia, indice) => ({ ...fatia, itemStyle: { color: cores[indice % cores.length] } }))
-    .filter((fatia) => fatia.value > 0)
+/**
+ * Rosca com o total no centro. A legenda fica fora do gráfico (em HTML, embaixo), para quebrar linha em
+ * vez de cobrir a rosca. Fatias zeradas ficam de fora.
+ */
+export function montarOpcaoPizza(dados: FatiaGrafico[], cores: CoresGrafico): EChartsOption {
+  const fatias = fatiasColoridas(dados, cores.fatias).filter((fatia) => fatia.value > 0)
   const total = fatias.reduce((soma, fatia) => soma + fatia.value, 0)
-  const texto = escuro ? '#e5e7eb' : '#1f2937'
-  const suave = escuro ? '#9ca3af' : '#6b7280'
 
   return {
-    color: cores,
+    color: cores.fatias,
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-    legend: { bottom: 0, textStyle: { color: texto } },
     title: {
       text: String(total),
       subtext: 'Total',
       left: 'center',
-      top: '36%',
-      textStyle: { color: texto, fontSize: 26 },
-      subtextStyle: { color: suave },
+      top: '38%',
+      textStyle: { color: cores.texto, fontSize: 26 },
+      subtextStyle: { color: cores.suave },
     },
     series: [
       {
         type: 'pie',
-        radius: ['45%', '70%'],
-        center: ['50%', '45%'],
+        radius: ['52%', '80%'],
+        center: ['50%', '50%'],
         avoidLabelOverlap: true,
-        itemStyle: { borderRadius: 6, borderColor: escuro ? '#111827' : '#ffffff', borderWidth: 2 },
+        itemStyle: { borderRadius: 6, borderColor: cores.fundo, borderWidth: 2 },
         label: { show: false },
         data: fatias,
       },
     ],
   }
 }
+
+/** A cor é fixada antes de filtrar, para cada fatia manter a sua mesmo quando outras zeram. */
+export const fatiasColoridas = (dados: FatiaGrafico[], cores: string[]) =>
+  dados.map((fatia, indice) => ({
+    ...fatia,
+    itemStyle: { color: cores[indice % cores.length] as string },
+  }))
