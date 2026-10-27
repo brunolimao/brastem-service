@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtualizarOrdemServico, useOrdemServico } from '@/hooks/use-ordens-servico'
+import { useRegistrarRecente } from '@/hooks/use-recentes'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
 import { formParaPayloadOrdemServico, ordemServicoParaForm } from '@/models/ordem-servico.model'
 
@@ -17,6 +18,14 @@ function EditarOrdemServicoPage() {
   const navigate = useNavigate()
   const { data, isLoading } = useOrdemServico(ordemId)
   const atualizar = useAtualizarOrdemServico(ordemId)
+  useRegistrarRecente(
+    data && {
+      tipo: 'os',
+      id: data.ordemServico.id,
+      titulo: `OS ${data.ordemServico.id} · ${data.cliente.nome}`,
+      detalhe: data.aparelho.nome,
+    },
+  )
 
   if (isLoading) return <Skeleton className="h-96 w-full" />
   if (!data) return <PageHeader titulo="Ordem de serviço não encontrada" />

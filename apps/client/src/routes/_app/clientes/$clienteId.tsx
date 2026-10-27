@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtualizarCliente, useCliente } from '@/hooks/use-clientes'
+import { useRegistrarRecente } from '@/hooks/use-recentes'
 import { formatarData } from '@/libs/formatters'
 import { clienteParaForm, formParaPayloadCliente } from '@/models/cliente.model'
 
@@ -15,6 +16,14 @@ function EditarClientePage() {
   const navigate = useNavigate()
   const { data: cliente, isLoading } = useCliente(clienteId)
   const atualizar = useAtualizarCliente(clienteId)
+  useRegistrarRecente(
+    cliente && {
+      tipo: 'cliente',
+      id: cliente.id,
+      titulo: cliente.nome,
+      detalhe: `Código ${cliente.id}`,
+    },
+  )
 
   if (isLoading) return <Skeleton className="h-96 w-full" />
   if (!cliente) return <PageHeader titulo="Cliente não encontrado" />

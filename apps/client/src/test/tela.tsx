@@ -3,6 +3,7 @@ import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/rea
 import { configure, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, vi } from 'vitest'
 import { useBuscaRapidaStore } from '@/hooks/use-busca-rapida'
+import { useRecentesStore } from '@/hooks/use-recentes'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { notificarErro } from '@/libs/query-client'
 import '@/libs/zod'
@@ -67,6 +68,7 @@ export function abrirTela(url: string, { usuario = ADMIN, api = {} }: Opcoes = {
   // Stores globais (zustand) sobrevivem entre testes: cada tela começa do zero.
   useSessionStore.setState({ situacao: 'desconhecida', usuario: null })
   useBuscaRapidaStore.setState({ aberta: false })
+  useRecentesStore.setState({ porUsuario: {} })
   const respostas = { ...padrao(usuario), ...api }
   const feitos: Pedido[] = []
 

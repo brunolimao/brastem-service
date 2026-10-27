@@ -15,13 +15,18 @@
   cliente, OS, receita/despesa ou dados da empresa, o app pergunta _Continuar editando_ ou _Sair sem salvar_.
   "Alteração" é diferença em relação ao último salvo (desfazer à mão não conta); ir para outra tela durante o
   próprio salvamento não pergunta. Fechar o app não é bloqueado.
+- **R-UX-03**: Início: atalhos (buscar, cadastrar cliente, ordens de serviço, lançar receita e despesa; caixa só
+  para o administrador) e as últimas 8 fichas de cliente e de OS abertas, da mais nova para a mais antiga, sem
+  repetir. Ficam guardadas neste computador, separadas por usuário.
 
 ## Onde está no código
 
 - `apps/client/src/components/layout/busca-rapida.tsx`, `apps/client/src/hooks/use-busca-rapida.ts`
 - `apps/client/src/components/form/vigiar-alteracoes.tsx`, `apps/client/src/components/layout/aviso-sair-sem-salvar.tsx`, `apps/client/src/hooks/use-alteracoes-pendentes.ts`
+- `apps/client/src/routes/_app/index.tsx`, `apps/client/src/hooks/use-recentes.ts`
 
 ## Testes
 
 - `apps/client/src/test/telas/busca-rapida.spec.tsx` — Ctrl+K, resultados, setas e Enter, mínimo de letras (R-UX-01).
 - `apps/client/src/test/telas/sair-sem-salvar.spec.tsx` — pergunta, continuar editando, sair, desfazer à mão, depois de salvar (R-UX-02).
+- `apps/client/src/test/telas/inicio.spec.tsx` — atalhos por papel, busca, fichas recentes por usuário (R-UX-03).
