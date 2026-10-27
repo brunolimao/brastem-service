@@ -42,6 +42,10 @@ arquivo em UTF-8 (com ou sem BOM) e UTF-16 (gerado pelo PowerShell). Limite: 200
   de fechamento (garantia zero); a importação corrige e informa quantos aparelhos mudaram. No dump do
   Railway foram 1.711 de 1.733 aparelhos com garantia.
 - **R-IMPT-08**: tudo é importado numa transação: se algo falhar, nada fica pela metade.
+- **R-IMPT-09**: acentos quebrados pelo PowerShell (`mysqldump ... > arquivo.sql` grava "S├âO" no lugar de "SÃO")
+  são consertados na leitura, e o relatório avisa quantos trechos mudaram. Só age em arquivos com essa
+  assinatura (`├`/`┬` seguidos de um caractere de continuação); um `.sql` normal fica intacto. O dump do
+  Railway importado em 26/10/2026 tinha 7.875 campos assim (2.608 clientes, 2.621 OS).
 
 ## Permissões
 
@@ -64,6 +68,7 @@ Também existe o script `pnpm --filter @brastem/server migrate:legacy -- <dump.s
 
 - `apps/server/src/legacy/legacy.spec.ts` — leitura do dump, conversões, órfãos, garantia (R-IMPT-02 a R-IMPT-07).
 - `apps/server/test/importacao.e2e-spec.ts` — importação pela API, senhas antigas valendo, recusa com usuários (R-IMPT-01, R-IMPT-06).
+- `apps/server/src/legacy/acentos.spec.ts` e `apps/server/test/importacao.e2e-spec.ts` (dump do PowerShell) — R-IMPT-09.
 
 ## Limitações conhecidas
 

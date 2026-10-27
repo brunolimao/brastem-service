@@ -6,6 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common'
 import { type Db, DRIZZLE } from '../../common/database/index.js'
+import { repararAcentos } from '../../legacy/acentos.js'
 import { type DumpLegado, decodificarDump, lerDump } from '../../legacy/dump-parser.js'
 import { migrarDoDump, type RelatorioMigracao } from '../../legacy/migrar.js'
 import { UsuariosService } from '../usuarios/usuarios.service.js'
@@ -30,7 +31,8 @@ export class ImportacaoService {
       throw new BadRequestException('Envie o arquivo .sql do sistema antigo.')
     }
 
-    const texto = decodificarDump(arquivo)
+    // Dump salvo pelo PowerShell traz os acentos quebrados ("S├âO"): volta ao original antes de ler.
+    const { texto, reparados } = repararAcentos(decodificarDump(arquivo))
     if (!texto.includes('CREATE TABLE')) {
       throw new BadRequestException('Este arquivo não parece um dump do MySQL (.sql).')
     }
@@ -46,7 +48,13 @@ export class ImportacaoService {
     }
 
     try {
-      return await migrarDoDump(this.db, dump)
+      const relatorio = await migrarDoDump(this.db, dump)
+      if (reparados > 0) {
+        relatorio.avisos.unshift(
+          `Acentuação corrigida em ${reparados} trechos: o arquivo foi salvo pelo PowerShell, que quebra os acentos ("S├âO" → "SÃO").`,
+        )
+      }
+      return relatorio
     } catch (erro) {
       if (erro instanceof Error && erro.message.includes('já tem clientes')) {
         throw new ConflictException('Este sistema já tem clientes cadastrados.')

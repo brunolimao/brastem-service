@@ -4,6 +4,7 @@ import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createApp } from '../src/bootstrap.js'
 import { dumpExemplo } from '../src/legacy/dump-exemplo.js'
+import { dumpDoPowerShell } from './powershell-falso.js'
 
 describe('importação do sistema antigo (e2e)', () => {
   let app: INestApplication
@@ -50,6 +51,29 @@ describe('importação do sistema antigo (e2e)', () => {
     await agent.post('/api/auth/login').send({ usuario: 'admin', senha: '123456' }).expect(200)
     const clientes = await agent.get('/api/clientes').expect(200)
     expect(clientes.body.total).toBe(3)
+  })
+
+  it('dump salvo pelo PowerShell: acentos corrigidos e avisados (R-IMPT-09)', async () => {
+    const outro = await createApp()
+    await outro.init()
+    try {
+      const res = await request(outro.getHttpServer())
+        .post('/api/import/legacy')
+        .set('content-type', 'application/octet-stream')
+        .send(dumpDoPowerShell(dumpExemplo))
+        .expect(201)
+      expect(res.body.avisos[0]).toMatch(/^Acentuação corrigida em \d+ trechos/)
+
+      const agent = request.agent(outro.getHttpServer())
+      await agent.post('/api/auth/login').send({ usuario: 'admin', senha: '123456' }).expect(200)
+      const nomes = (await agent.get('/api/clientes')).body.items.map(
+        (c: { nome: string }) => c.nome,
+      )
+      expect(nomes).toContain("João D'Ávila")
+      expect(nomes.join(' ')).not.toMatch(/[├┬]/)
+    } finally {
+      await outro.close()
+    }
   })
 
   it('não deixa importar de novo depois que o sistema já tem usuários', async () => {
