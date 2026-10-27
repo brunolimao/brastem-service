@@ -3,13 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { caixa, itemCaixa, pagamentoListado, pagina, relatorio } from '../dados'
 import { abrirTela, COMUM, esperarCaminho, esperarTitulo } from '../tela'
 
-// O echarts desenha em canvas, que o jsdom não tem: aqui só conferimos o que é entregue a ele.
-vi.mock('echarts-for-react/lib/core', () => ({
-  default: ({ option }: { option: unknown }) => (
-    <div data-testid="grafico" data-option={JSON.stringify(option)} />
-  ),
-}))
-
 // "Hoje" fixo: 15/10/2026. Só o relógio de datas é falso (os temporizadores seguem reais).
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] })

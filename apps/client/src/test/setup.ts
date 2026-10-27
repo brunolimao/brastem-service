@@ -1,4 +1,6 @@
 import '@testing-library/jest-dom/vitest'
+import { createElement } from 'react'
+import { vi } from 'vitest'
 
 // O jsdom não implementa matchMedia (usado para descobrir o tema do sistema); aqui é sempre claro.
 Object.defineProperty(window, 'matchMedia', {
@@ -29,3 +31,10 @@ window.scrollTo = () => undefined
 Element.prototype.hasPointerCapture ??= () => false
 Element.prototype.releasePointerCapture ??= () => undefined
 Element.prototype.scrollIntoView ??= () => undefined
+
+// O echarts desenha em canvas, que o jsdom não tem: em todos os testes o gráfico vira um <div> com a
+// opção recebida (para conferir o que é entregue a ele).
+vi.mock('echarts-for-react/lib/core', () => ({
+  default: ({ option }: { option: unknown }) =>
+    createElement('div', { 'data-testid': 'grafico', 'data-option': JSON.stringify(option) }),
+}))

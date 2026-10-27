@@ -12,6 +12,7 @@ import '@/libs/zod'
 import type { SessaoUsuario } from '@/models/auth.model'
 import { empresaVazia } from '@/models/empresa.model'
 import { routeTree } from '@/routeTree.gen'
+import { painel } from './dados'
 
 /**
  * Abre o app inteiro numa URL, como o usuário faria, com um servidor falso no lugar da API.
@@ -57,6 +58,7 @@ const padrao = (usuario: SessaoUsuario | null): Record<string, Responder> => ({
   'GET /auth/setup': { needsSetup: false },
   'GET /sistema': { versao: '2.1.0' },
   'GET /empresa': empresaVazia,
+  'GET /painel': painel(),
 })
 
 afterEach(() => vi.unstubAllGlobals())

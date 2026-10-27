@@ -9,12 +9,20 @@ import {
   UserRound,
   Wallet,
 } from 'lucide-react'
+import { GraficoPizza } from '@/components/charts/grafico-pizza'
+import { Indicador } from '@/components/domain/indicador'
 import { PageHeader } from '@/components/layout/page-header'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useBuscaRapidaStore } from '@/hooks/use-busca-rapida'
+import { usePainel } from '@/hooks/use-painel'
 import { useRecentes } from '@/hooks/use-recentes'
 import { useSessionStore } from '@/hooks/use-session-store'
+import { formatarData, formatarMoeda } from '@/libs/formatters'
+import { COR_DO_STATUS, ROTULO_STATUS } from '@/models/ordem-servico.model'
+import { type Painel, STATUS_EM_ANDAMENTO } from '@/models/painel.model'
 
 export const Route = createFileRoute('/_app/')({ component: InicioPage })
 
@@ -42,7 +50,6 @@ function InicioPage() {
   return (
     <>
       <PageHeader titulo={`Olá, ${usuario?.usuario ?? ''}`} descricao="O que vamos fazer agora?" />
-
       <Card>
         <CardHeader>
           <CardTitle>Atalhos</CardTitle>
@@ -66,6 +73,8 @@ function InicioPage() {
           })}
         </CardContent>
       </Card>
+
+      <Resumo />
 
       <Card>
         <CardHeader>
@@ -106,5 +115,105 @@ function InicioPage() {
         </CardContent>
       </Card>
     </>
+  )
+}
+
+const plural = (quantidade: number, um: string, varios: string) =>
+  `${quantidade} ${quantidade === 1 ? um : varios}`
+
+/** Números do dia e do mês, OS em andamento por status e as paradas há mais tempo (R-UX-12). */
+function Resumo() {
+  const { data, isLoading } = usePainel()
+  if (isLoading || !data) return <Skeleton className="h-48 w-full" />
+
+  const { emAndamento } = data.ordens
+  const totalEmAndamento = STATUS_EM_ANDAMENTO.reduce(
+    (soma, status) => soma + emAndamento[status],
+    0,
+  )
+
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Indicador
+          titulo="OS em andamento"
+          valor={String(totalEmAndamento)}
+          detalhe={`${emAndamento.AGUARDANDO} aguardando · ${emAndamento.APROVADO} aprovadas`}
+        />
+        <Indicador titulo="Abertas hoje" valor={String(data.ordens.abertasHoje)} />
+        <Indicador titulo="Fechadas no mês" valor={String(data.ordens.fechadasNoMes)} />
+        <Indicador titulo="Clientes novos no mês" valor={String(data.clientesNovosNoMes)} />
+        {data.financeiro && (
+          <>
+            <Indicador
+              titulo="Faturamento do mês"
+              valor={formatarMoeda(data.financeiro.faturamentoMes)}
+              detalhe="OS fechadas, fora da garantia"
+            />
+            <Indicador
+              titulo="Caixa do mês"
+              valor={formatarMoeda(data.financeiro.caixaMes)}
+              detalhe="Entradas menos saídas"
+              negativo={data.financeiro.caixaMes < 0}
+            />
+          </>
+        )}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <GraficoPizza
+          titulo="OS em andamento por status"
+          cores={STATUS_EM_ANDAMENTO.map((status) => COR_DO_STATUS[status])}
+          dados={STATUS_EM_ANDAMENTO.map((status) => ({
+            name: ROTULO_STATUS[status],
+            value: emAndamento[status],
+          }))}
+        />
+        <OsParadas paradas={data.paradas} />
+      </div>
+    </>
+  )
+}
+
+function OsParadas({ paradas }: { paradas: Painel['paradas'] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Paradas há mais tempo</CardTitle>
+        <CardDescription>
+          OS em andamento, da abertura mais antiga para a mais nova.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {paradas.length === 0 ? (
+          <p className="text-muted-foreground text-sm">Nenhuma OS em andamento.</p>
+        ) : (
+          <ul aria-label="OS paradas há mais tempo" className="grid gap-1">
+            {paradas.map((os) => (
+              <li key={os.id}>
+                <Link
+                  to="/ordens-servico/$ordemId"
+                  params={{ ordemId: String(os.id) }}
+                  className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-muted"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-sm">
+                      OS {os.id} · {os.clienteNome}
+                    </p>
+                    <p className="truncate text-muted-foreground text-xs">
+                      {os.aparelhoNome} · aberta em {formatarData(os.abertura)}
+                    </p>
+                  </div>
+                  <Badge variant="secondary">{ROTULO_STATUS[os.status]}</Badge>
+                  <span className="w-16 text-right text-sm tabular-nums">
+                    {os.dias === 0 ? 'hoje' : plural(os.dias, 'dia', 'dias')}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   )
 }

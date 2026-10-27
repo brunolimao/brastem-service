@@ -1,14 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GraficoPizza } from './grafico-pizza'
 import { agruparMenores, montarOpcaoPizza } from './opcao-pizza'
-
-// O echarts desenha em canvas, que o jsdom não tem; aqui só conferimos o que é entregue a ele.
-vi.mock('echarts-for-react/lib/core', () => ({
-  default: ({ option }: { option: unknown }) => (
-    <div data-testid="echarts" data-option={JSON.stringify(option)} />
-  ),
-}))
 
 type Serie = { data: { name: string; value: number; itemStyle: { color: string } }[] }
 
@@ -57,7 +50,7 @@ describe('GraficoPizza', () => {
   it('avisa quando não há dados no período', () => {
     render(<GraficoPizza titulo="Ordens por status" dados={[{ name: 'Aberto', value: 0 }]} />)
     expect(screen.getByText('Sem dados no período')).toBeInTheDocument()
-    expect(screen.queryByTestId('echarts')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('grafico')).not.toBeInTheDocument()
   })
 
   it('legenda embaixo do gráfico, com quantidade e porcentagem, sem as fatias zeradas', () => {
@@ -71,7 +64,7 @@ describe('GraficoPizza', () => {
         ]}
       />,
     )
-    expect(screen.getByTestId('echarts')).toBeInTheDocument()
+    expect(screen.getByTestId('grafico')).toBeInTheDocument()
     const legenda = screen.getByRole('list', { name: 'Legenda: Clientes novos por bairro' })
     expect(
       within(legenda)

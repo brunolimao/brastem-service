@@ -66,7 +66,11 @@ export class PainelService {
       .orderBy(asc(ordensServico.abertura), asc(ordensServico.id))
       .limit(MAXIMO_PARADAS)
       .all()
-      .map((os) => ({ ...os, dias: differenceInCalendarDays(agora, parseISO(os.abertura)) }))
+      // Abertura digitada no futuro conta como hoje: nada de "-1 dias".
+      .map((os) => ({
+        ...os,
+        dias: Math.max(0, differenceInCalendarDays(agora, parseISO(os.abertura))),
+      }))
 
     const relatorioDoMes = this.relatorios.gerar(mes)
 

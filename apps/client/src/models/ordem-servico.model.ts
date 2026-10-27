@@ -21,6 +21,15 @@ export const ROTULO_STATUS: Record<StatusOS, string> = {
 
 export const OPCOES_STATUS = STATUS_OS.map((valor) => ({ valor, rotulo: ROTULO_STATUS[valor] }))
 
+/** Cor do tema de cada status nos gráficos (Início, Relatórios). */
+export const COR_DO_STATUS: Record<StatusOS, string> = {
+  ABERTO: '--chart-1',
+  AGUARDANDO: '--chart-4',
+  APROVADO: '--chart-5',
+  FECHADO: '--chart-3',
+  CANCELADO: '--chart-2',
+}
+
 export const CAMPOS_BUSCA_OS = [
   { valor: 'todos', rotulo: 'Todos' },
   { valor: 'id', rotulo: 'Código' },

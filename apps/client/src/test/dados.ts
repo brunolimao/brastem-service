@@ -5,6 +5,7 @@ import type { ClienteDetalhe, ClienteListado } from '@/models/cliente.model'
 import type { OrdemServicoDetalhe, OrdemServicoListada } from '@/models/ordem-servico.model'
 import type { PagamentoListado } from '@/models/pagamento.model'
 import type { Pagina } from '@/models/pagina.model'
+import type { Painel } from '@/models/painel.model'
 import type { Relatorio } from '@/models/relatorio.model'
 import type { Usuario } from '@/models/usuario.model'
 
@@ -195,5 +196,36 @@ export const usuario = (dados: Partial<Usuario> = {}): Usuario => ({
   role: 'admin',
   ativo: true,
   criadoEm: '2026-09-01T10:00:00.000Z',
+  ...dados,
+})
+
+export const painel = (dados: Partial<Painel> = {}): Painel => ({
+  hoje: '2026-10-27',
+  ordens: {
+    emAndamento: { ABERTO: 3, AGUARDANDO: 2, APROVADO: 1 },
+    abertasHoje: 2,
+    fechadasNoMes: 7,
+  },
+  clientesNovosNoMes: 4,
+  paradas: [
+    {
+      id: 30,
+      abertura: '2026-10-07',
+      status: 'AGUARDANDO',
+      clienteId: 7,
+      clienteNome: 'João da Silva',
+      aparelhoNome: 'Geladeira',
+      dias: 20,
+    },
+    {
+      id: 41,
+      abertura: '2026-10-26',
+      status: 'ABERTO',
+      clienteId: 8,
+      clienteNome: 'Maria Souza',
+      aparelhoNome: 'Fogão',
+      dias: 1,
+    },
+  ],
   ...dados,
 })

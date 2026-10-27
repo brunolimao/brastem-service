@@ -78,6 +78,28 @@ describe('painel do Início (e2e)', () => {
     expect(body.paradas[0]).toMatchObject({ clienteNome: 'Maria', aparelhoNome: 'Geladeira' })
   })
 
+  it('abertura digitada no futuro conta como hoje (nunca "-1 dias")', async () => {
+    const outro = await admin
+      .post('/api/clientes')
+      .send({ nome: 'Zé', aparelhos: [{ nome: 'Micro-ondas' }] })
+      .expect(201)
+    const futura = await admin
+      .post('/api/ordens-servico')
+      .send({
+        clienteId: outro.body.id,
+        aparelhoId: outro.body.aparelhos[0].id,
+        status: 'ABERTO',
+        valor: 100,
+        abertura: dia(-3),
+      })
+      .expect(201)
+    const { body } = await comum.get('/api/painel').expect(200)
+    const parada = body.paradas.find((p: { id: number }) => p.id === futura.body.ordemServico.id)
+    expect(parada.dias).toBe(0)
+    await admin.delete(`/api/ordens-servico/${futura.body.ordemServico.id}`).expect(204)
+    await admin.delete(`/api/clientes/${outro.body.id}`).expect(204)
+  })
+
   it('números do financeiro só para o administrador (R-PERM-03)', async () => {
     const doComum = await comum.get('/api/painel').expect(200)
     expect(doComum.body.financeiro).toBeUndefined()

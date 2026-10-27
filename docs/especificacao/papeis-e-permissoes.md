@@ -37,6 +37,7 @@
 | Relatórios                                              | sim           | não                                            |
 | Usuários (listar, cadastrar, excluir)                   | sim           | não                                            |
 | Configurações: aparência (tamanho da letra)             | sim           | sim                                            |
+| Início: faturamento e caixa do mês                      | sim           | não (vê só os números das OS e de clientes)    |
 | Configurações: ver/salvar dados da empresa              | sim           | não (a impressão da OS lê os dados para todos) |
 | Configurações: backup, restauração e Google Drive       | sim           | não                                            |
 

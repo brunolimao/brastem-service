@@ -36,12 +36,16 @@
   nada), como gerar uma OS, _Lançar receita/despesa_ no caixa.
 - **R-UX-11**: As listas (clientes, OS, pagamentos, caixa, usuários, relatórios) reabrem no ponto em que ficaram
   (busca, página, ordem, período) ao voltar pelo menu ou pelo _Voltar_ da ficha. Vale enquanto o app está aberto.
+- **R-UX-12**: Início, de cima para baixo: atalhos; os números do dia e do mês (OS em andamento, abertas hoje,
+  fechadas no mês, clientes novos no mês e, só para o administrador, faturamento e caixa do mês, com os mesmos
+  cálculos de Relatórios e Caixa); o gráfico das OS em andamento por status; as 5 OS paradas há mais tempo
+  (com os dias desde a abertura; data futura conta como hoje), com link para cada uma; as fichas recentes.
 
 ## Onde está no código
 
 - `apps/client/src/components/layout/busca-rapida.tsx`, `apps/client/src/hooks/use-busca-rapida.ts`
 - `apps/client/src/components/form/vigiar-alteracoes.tsx`, `apps/client/src/components/layout/aviso-sair-sem-salvar.tsx`, `apps/client/src/hooks/use-alteracoes-pendentes.ts`
-- `apps/client/src/routes/_app/index.tsx`, `apps/client/src/hooks/use-recentes.ts`
+- `apps/client/src/routes/_app/index.tsx`, `apps/client/src/hooks/use-recentes.ts`, `apps/client/src/hooks/use-painel.ts`; no servidor, `apps/server/src/modules/painel/`
 - `apps/client/src/components/layout/app-sidebar.tsx`, `apps/client/src/hooks/use-preferencias-store.ts`
 - `apps/client/src/components/data-table/data-table.tsx`, `apps/client/src/libs/ordenacao.ts`; no servidor, `ordenar` em `apps/server/src/common/utils/pagination.ts`
 - `apps/client/src/components/form/botao-salvar.tsx`, `apps/client/src/components/form/botao-voltar.tsx`, `apps/client/src/components/ui/button.tsx`
@@ -57,3 +61,4 @@
 - `apps/client/src/components/data-table/data-table.spec.tsx`, `apps/client/src/test/telas/clientes.spec.tsx`, `apps/server/test/ordenacao.e2e-spec.ts` — ordenar na tela e no servidor, colunas permitidas, linhas por página (R-UX-06, R-UX-07).
 - `apps/client/src/test/telas/atalhos.spec.tsx` — Ctrl+S, foco no erro, Esc, dois formulários na tela, dicas (R-UX-08, R-UX-09).
 - `apps/client/src/test/telas/clientes.spec.tsx`, `apps/client/src/test/telas/financeiro.spec.tsx` — lista vazia com ação, limpar busca, lista que reabre no mesmo ponto (R-UX-10, R-UX-11).
+- `apps/server/test/painel.e2e-spec.ts`, `apps/client/src/test/telas/inicio.spec.tsx` — resumo, gráfico, OS paradas, financeiro só para o administrador, ordem dos cartões (R-UX-12).

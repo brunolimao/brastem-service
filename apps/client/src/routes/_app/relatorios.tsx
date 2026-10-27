@@ -3,8 +3,8 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { GraficoPizza } from '@/components/charts/grafico-pizza'
 import { agruparMenores } from '@/components/charts/opcao-pizza'
 import { FiltroPeriodo } from '@/components/domain/filtro-periodo'
+import { Indicador } from '@/components/domain/indicador'
 import { PageHeader } from '@/components/layout/page-header'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useRelatorio } from '@/hooks/use-financeiro'
 import { useSessionStore } from '@/hooks/use-session-store'
@@ -12,7 +12,7 @@ import { formatarMoeda } from '@/libs/formatters'
 import { resolverPeriodo } from '@/libs/periodo'
 import { buscaDePeriodo } from '@/libs/search-params'
 import { ROTULO_RECOMENDACAO } from '@/models/cliente.model'
-import { ROTULO_STATUS } from '@/models/ordem-servico.model'
+import { COR_DO_STATUS, ROTULO_STATUS } from '@/models/ordem-servico.model'
 import { percentual } from '@/models/relatorio.model'
 
 export const Route = createFileRoute('/_app/relatorios')({
@@ -22,28 +22,6 @@ export const Route = createFileRoute('/_app/relatorios')({
   },
   component: RelatoriosPage,
 })
-
-// Uma cor do tema por status, na ordem de STATUS_OS: aberto (azul), aguardando (âmbar), aprovado
-// (roxo), fechado (verde), cancelado (vermelho).
-const CORES_STATUS = ['--chart-1', '--chart-4', '--chart-5', '--chart-3', '--chart-2']
-
-interface IndicadorProps {
-  titulo: string
-  valor: string
-  detalhe: string
-}
-
-function Indicador({ titulo, valor, detalhe }: IndicadorProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardDescription>{titulo}</CardDescription>
-        <CardTitle className="text-3xl tracking-tight">{valor}</CardTitle>
-      </CardHeader>
-      <CardContent className="text-muted-foreground text-sm">{detalhe}</CardContent>
-    </Card>
-  )
-}
 
 function RelatoriosPage() {
   const { inicio, fim } = Route.useSearch()
@@ -94,7 +72,7 @@ function RelatoriosPage() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <GraficoPizza
               titulo="Ordens por status"
-              cores={CORES_STATUS}
+              cores={STATUS_OS.map((status) => COR_DO_STATUS[status])}
               dados={STATUS_OS.map((status) => ({
                 name: ROTULO_STATUS[status],
                 value: data.status[status],
