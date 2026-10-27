@@ -3,7 +3,6 @@ import { PagamentosCampos } from '@/components/domain/pagamentos-campos'
 import { BotaoVoltar } from '@/components/form/botao-voltar'
 import { useAppForm } from '@/components/form/form-hook'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   opcoesCategoria,
