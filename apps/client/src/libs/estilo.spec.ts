@@ -37,9 +37,15 @@ describe('cores dos componentes', () => {
   })
 })
 
-describe('janela estreita (R-UX-13)', () => {
+describe('largura da tela (R-UX-13)', () => {
+  it('tela grande aproveita a largura: o conteúdo vai até 1536 px (antes parava em 1152 px)', () => {
+    const layout = ler('../routes/_app.tsx')
+    expect(layout).toContain('max-w-screen-2xl')
+    expect(layout).not.toContain('max-w-6xl')
+  })
+
   it('conteúdo encolhe até a largura da janela; tabela larga rola dentro dela', () => {
-    expect(ler('../routes/_app.tsx')).toContain('grid max-w-6xl grid-cols-1')
+    expect(ler('../routes/_app.tsx')).toContain('grid max-w-screen-2xl grid-cols-1')
     expect(ler('../components/data-table/data-table.tsx')).toContain('grid min-w-0 grid-cols-1')
     for (const formulario of ['cliente-form.tsx', 'ordem-servico-form.tsx', 'transacao-form.tsx']) {
       expect(ler(`../components/domain/${formulario}`), formulario).toContain(

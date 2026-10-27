@@ -43,7 +43,8 @@
 - **R-UX-13**: Janela estreita (ou letra grande) não corta nem empurra nada para fora da tela: o conteúdo encolhe
   até a largura da janela, títulos, ações e a barra de salvar quebram linha, o botão do cabeçalho de um cartão
   estreito desce para baixo do título e tabela larga rola dentro da própria moldura. Conferido a partir de
-  560 px de janela com o menu aberto.
+  560 px de janela com o menu aberto. Em tela grande o conteúdo aproveita a largura até 1536 px (a lista de OS
+  cabe sem rolar num monitor Full HD); acima disso fica centralizado, para o texto não esticar demais.
 - **R-UX-14**: No modo claro, nada se mistura com o fundo: campos têm fundo próprio, e botão contornado tem o
   fundo do cartão, borda mais forte que a das linhas e uma sombra leve. As cores vêm só dos tokens de
   `index.css` (trocar um token muda o sistema inteiro).
@@ -69,5 +70,5 @@
 - `apps/client/src/test/telas/atalhos.spec.tsx` — Ctrl+S, foco no erro, Esc, dois formulários na tela, dicas (R-UX-08, R-UX-09).
 - `apps/client/src/test/telas/clientes.spec.tsx`, `apps/client/src/test/telas/financeiro.spec.tsx` — lista vazia com ação, limpar busca, lista que reabre no mesmo ponto (R-UX-10, R-UX-11).
 - `apps/server/test/painel.e2e-spec.ts`, `apps/client/src/test/telas/inicio.spec.tsx` — resumo, gráfico, OS paradas, financeiro só para o administrador, ordem dos cartões (R-UX-12).
-- `apps/client/src/libs/estilo.spec.ts` — classes que deixam o conteúdo encolher e quebrar linha (R-UX-13). O jsdom não mede layout: o efeito foi conferido no app a 560 px e 700 px, rota por rota.
+- `apps/client/src/libs/estilo.spec.ts` — largura máxima do conteúdo e classes que deixam o conteúdo encolher e quebrar linha (R-UX-13). O jsdom não mede layout: o efeito foi conferido no app a 560 px e 700 px, rota por rota.
 - `apps/client/src/libs/estilo.spec.ts` — fundo dos campos e contraste do botão contornado (R-UX-14).
