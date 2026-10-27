@@ -52,8 +52,9 @@ describe('api', () => {
       }),
     )
     const arquivo = await api<Blob>('/sistema/diagnostico', { respostaEmArquivo: true })
-    expect(arquivo).toBeInstanceOf(Blob)
-    expect(new Uint8Array(await arquivo.arrayBuffer())).toEqual(new Uint8Array([80, 75, 3, 4]))
+    // Sem `instanceof Blob`: no Node 22 o Blob da resposta é o do Node, não o do jsdom.
+    expect(arquivo.type).toBe('application/zip')
+    expect([...new Uint8Array(await arquivo.arrayBuffer())]).toEqual([80, 75, 3, 4])
   })
 
   it('transforma erro da API em ApiError com todas as mensagens', async () => {
