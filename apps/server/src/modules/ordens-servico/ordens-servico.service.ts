@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { and, count, desc, eq, or, type SQL, sql } from 'drizzle-orm'
 import { type Db, type DbLike, DRIZZLE, schema } from '../../common/database/index.js'
 import { reaisParaCentavos } from '../../common/utils/money.js'
-import { contem, limites, type Pagina } from '../../common/utils/pagination.js'
+import { contem, limites, ordenar, type Pagina, semCaixa } from '../../common/utils/pagination.js'
 import { PagamentosService } from '../pagamentos/pagamentos.service.js'
 import {
   CAMPOS_BUSCA_OS,
@@ -90,7 +90,23 @@ export class OrdensServicoService {
       .innerJoin(clientes, eq(ordensServico.clienteId, clientes.id))
       .innerJoin(aparelhos, eq(ordensServico.aparelhoId, aparelhos.id))
       .where(where)
-      .orderBy(desc(ordensServico.id))
+      .orderBy(
+        ...ordenar(
+          query,
+          {
+            id: ordensServico.id,
+            abertura: ordensServico.abertura,
+            // A lista mostra valor + taxa de deslocamento.
+            valor: sql`${ordensServico.valor} + ${ordensServico.taxaDeslocamento}`,
+            status: ordensServico.status,
+            solucionado: semCaixa(ordensServico.solucionado),
+            clienteNome: semCaixa(clientes.nome),
+            aparelhoNome: semCaixa(aparelhos.nome),
+          },
+          ordensServico.id,
+          [desc(ordensServico.id)],
+        ),
+      )
       .limit(limites(query).limit)
       .offset(limites(query).offset)
       .all()

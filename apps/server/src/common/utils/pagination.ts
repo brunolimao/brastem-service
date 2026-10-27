@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common'
 import { Type } from 'class-transformer'
-import { IsInt, Max, Min } from 'class-validator'
-import { type SQL, sql } from 'drizzle-orm'
+import { IsIn, IsInt, IsString, Max, MaxLength, Min } from 'class-validator'
+import { asc, desc, type SQL, sql } from 'drizzle-orm'
 import type { SQLiteColumn } from 'drizzle-orm/sqlite-core'
 import { DataIso, Opcional } from '../validation/decorators.js'
 import { hoje } from './dates.js'
@@ -19,7 +19,40 @@ export class PaginacaoQueryDto {
   @Min(1)
   @Max(100)
   pageSize: number = 20
+
+  /** Coluna para ordenar (uma da lista fixa de cada listagem; ver `ordenar`). */
+  @Opcional()
+  @IsString()
+  @MaxLength(40)
+  ordem?: string
+
+  @Opcional()
+  @IsIn(['asc', 'desc'])
+  direcao?: 'asc' | 'desc'
 }
+
+/** Colunas pelas quais uma listagem aceita ordenar: chave da tela → coluna ou expressão SQL. */
+export type ColunasOrdenaveis = Record<string, SQLiteColumn | SQL>
+
+/**
+ * Ordem pedida pela tela, sempre por uma coluna da lista fixa (nunca o nome que veio na URL); sem pedido,
+ * a ordem padrão. O desempate pelo código (na mesma direção) mantém as páginas estáveis.
+ */
+export function ordenar(
+  { ordem, direcao }: Pick<PaginacaoQueryDto, 'ordem' | 'direcao'>,
+  colunas: ColunasOrdenaveis,
+  desempate: SQLiteColumn,
+  padrao: SQL[],
+): SQL[] {
+  if (!ordem) return padrao
+  const coluna = Object.hasOwn(colunas, ordem) ? colunas[ordem] : undefined
+  if (!coluna) throw new BadRequestException(`Não dá para ordenar por "${ordem}".`)
+  const sentido = direcao === 'desc' ? desc : asc
+  return [sentido(coluna), sentido(desempate)]
+}
+
+/** Texto sem diferenciar maiúsculas de minúsculas ("ana" junto de "Ana"). */
+export const semCaixa = (coluna: SQLiteColumn) => sql`${coluna} collate nocase`
 
 export class PeriodoQueryDto {
   @Opcional()

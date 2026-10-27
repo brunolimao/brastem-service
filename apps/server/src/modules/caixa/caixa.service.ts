@@ -1,8 +1,8 @@
 import { TIPOS_PAGAMENTO } from '@brastem/shared'
 import { Inject, Injectable } from '@nestjs/common'
-import { between, count, eq, sum } from 'drizzle-orm'
+import { asc, between, count, eq, sum } from 'drizzle-orm'
 import { type Db, DRIZZLE, schema } from '../../common/database/index.js'
-import { limites, resolverPeriodo } from '../../common/utils/pagination.js'
+import { limites, ordenar, resolverPeriodo } from '../../common/utils/pagination.js'
 import type { CaixaQueryDto } from './dto/caixa.dto.js'
 
 const { parcelas, pagamentos, ordensServico, transacoes } = schema
@@ -54,7 +54,19 @@ export class CaixaService {
       .leftJoin(ordensServico, eq(pagamentos.ordemServicoId, ordensServico.id))
       .leftJoin(transacoes, eq(pagamentos.transacaoId, transacoes.id))
       .where(noPeriodo)
-      .orderBy(parcelas.data, parcelas.id)
+      .orderBy(
+        ...ordenar(
+          query,
+          {
+            id: parcelas.id,
+            data: parcelas.data,
+            valor: parcelas.valor,
+            tipo: pagamentos.tipo,
+          },
+          parcelas.id,
+          [asc(parcelas.data), asc(parcelas.id)],
+        ),
+      )
       .limit(limites(query).limit)
       .offset(limites(query).offset)
       .all()

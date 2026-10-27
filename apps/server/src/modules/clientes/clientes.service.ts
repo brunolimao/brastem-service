@@ -1,7 +1,14 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { and, count, desc, eq, exists, notInArray, or, type SQL, sql } from 'drizzle-orm'
 import { type Db, type DbLike, DRIZZLE, schema } from '../../common/database/index.js'
-import { contem, contemNumero, limites, type Pagina } from '../../common/utils/pagination.js'
+import {
+  contem,
+  contemNumero,
+  limites,
+  ordenar,
+  type Pagina,
+  semCaixa,
+} from '../../common/utils/pagination.js'
 import type {
   AparelhoDto,
   ClientesQueryDto,
@@ -55,7 +62,19 @@ export class ClientesService {
       })
       .from(clientes)
       .where(where)
-      .orderBy(desc(clientes.id))
+      .orderBy(
+        ...ordenar(
+          query,
+          {
+            id: clientes.id,
+            nome: semCaixa(clientes.nome),
+            email: semCaixa(clientes.email),
+            cpf: clientes.cpf,
+          },
+          clientes.id,
+          [desc(clientes.id)],
+        ),
+      )
       .limit(limites(query).limit)
       .offset(limites(query).offset)
       .all()

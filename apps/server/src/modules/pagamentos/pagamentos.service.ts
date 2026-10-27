@@ -3,7 +3,7 @@ import { and, count, desc, eq, inArray, or, type SQL, sql } from 'drizzle-orm'
 import { type Db, type DbLike, DRIZZLE, schema } from '../../common/database/index.js'
 import { somarMeses } from '../../common/utils/dates.js'
 import { dividirEmParcelas, reaisParaCentavos } from '../../common/utils/money.js'
-import { contem, limites, type Pagina } from '../../common/utils/pagination.js'
+import { contem, limites, ordenar, type Pagina, semCaixa } from '../../common/utils/pagination.js'
 import {
   CAMPOS_BUSCA_PAGAMENTO,
   type PagamentoInputDto,
@@ -158,7 +158,21 @@ export class PagamentosService {
       .from(pagamentos)
       .leftJoin(ordensServico, eq(pagamentos.ordemServicoId, ordensServico.id))
       .where(where)
-      .orderBy(desc(pagamentos.id))
+      .orderBy(
+        ...ordenar(
+          query,
+          {
+            id: pagamentos.id,
+            valor: pagamentos.valor,
+            data: pagamentos.data,
+            parcelas: pagamentos.parcelas,
+            tipo: pagamentos.tipo,
+            observacao: semCaixa(pagamentos.observacao),
+          },
+          pagamentos.id,
+          [desc(pagamentos.id)],
+        ),
+      )
       .limit(limites(query).limit)
       .offset(limites(query).offset)
       .all()

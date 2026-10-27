@@ -6,9 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { hash } from '@node-rs/argon2'
-import { count, eq } from 'drizzle-orm'
+import { asc, count, eq } from 'drizzle-orm'
 import { type Db, DRIZZLE, schema } from '../../common/database/index.js'
-import { limites, type Pagina, type PaginacaoQueryDto } from '../../common/utils/pagination.js'
+import {
+  limites,
+  ordenar,
+  type Pagina,
+  type PaginacaoQueryDto,
+  semCaixa,
+} from '../../common/utils/pagination.js'
 import type { CreateUsuarioDto, UsuarioResponseDto } from './dto/usuario.dto.js'
 
 const { usuarios } = schema
@@ -29,7 +35,19 @@ export class UsuariosService {
     const items = this.db
       .select(publicColumns)
       .from(usuarios)
-      .orderBy(usuarios.id)
+      .orderBy(
+        ...ordenar(
+          query,
+          {
+            id: usuarios.id,
+            usuario: semCaixa(usuarios.usuario),
+            role: usuarios.role,
+            criadoEm: usuarios.criadoEm,
+          },
+          usuarios.id,
+          [asc(usuarios.id)],
+        ),
+      )
       .limit(limites(query).limit)
       .offset(limites(query).offset)
       .all()
