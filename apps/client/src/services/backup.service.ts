@@ -12,6 +12,9 @@ export const backupService = {
   executar: () => api<EstadoBackup>('/backup/executar', { method: 'POST' }),
   restaurar: (origem: OrigemBackup, id: string) =>
     api<{ reiniciando: boolean }>('/backup/restaurar', { method: 'POST', body: { origem, id } }),
+  /** Começar do zero: prepara um banco vazio no lugar do atual (pede a senha de quem está logado). */
+  apagarTudo: (senha: string) =>
+    api<{ reiniciando: boolean }>('/backup/apagar-tudo', { method: 'POST', body: { senha } }),
   /** Backup escolhido no computador (.sqlite.gz ou .sqlite), enviado como arquivo. */
   restaurarArquivo: (arquivo: File) =>
     api<{ reiniciando: boolean }>('/backup/restaurar/arquivo', { method: 'POST', arquivo }),

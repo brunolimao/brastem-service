@@ -9,12 +9,26 @@ import {
 import { basename, join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 import { createGunzip } from 'node:zlib'
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
 import { type ConfigType } from '@nestjs/config'
+import { verify } from '@node-rs/argon2'
 import Database from 'better-sqlite3'
 import { appConfig } from '../../common/config/app.config.js'
-import { NOME_RESTAURACAO_PENDENTE, situacaoDoSchema } from '../../common/database/connection.js'
+import {
+  criarDb,
+  migrarSchema,
+  NOME_RESTAURACAO_PENDENTE,
+  situacaoDoSchema,
+} from '../../common/database/connection.js'
 import { moverArquivo } from '../../common/utils/arquivos.js'
+import { UsuariosService } from '../usuarios/usuarios.service.js'
 import { PADRAO_BACKUP_LOCAL } from './backup.service.js'
 import { GoogleDriveClient } from './google-drive.client.js'
 
@@ -38,6 +52,7 @@ export class RestauracaoService {
   constructor(
     @Inject(appConfig.KEY) private readonly config: ConfigType<typeof appConfig>,
     private readonly drive: GoogleDriveClient,
+    private readonly usuarios: UsuariosService,
   ) {}
 
   /**
@@ -61,6 +76,29 @@ export class RestauracaoService {
     return this.prepararCom((temporario) => {
       writeFileSync(temporario, conteudo)
       return { caminho: temporario, gzip: conteudo[0] === 0x1f && conteudo[1] === 0x8b }
+    })
+  }
+
+  /**
+   * Começar do zero: um banco novo, vazio e na versão atual, entra no lugar do atual pelo mesmo caminho
+   * da restauração (o atual fica guardado em backups/antes-da-restauracao-*, então dá para voltar).
+   * Pede a senha de quem está logado. Backups e a conexão com o Google Drive não são tocados.
+   */
+  async prepararBancoVazio(usuarioId: number, senha: string): Promise<{ reiniciando: boolean }> {
+    const usuario = this.usuarios.findById(usuarioId)
+    const confere = usuario ? await verify(usuario.senhaHash, senha).catch(() => false) : false
+    // 403, não 401: senha errada aqui não pode derrubar a sessão de quem está logado.
+    if (!confere) throw new ForbiddenException('Senha incorreta.')
+
+    this.logger.warn(`Começar do zero pedido por "${usuario?.usuario}".`)
+    return this.prepararCom((temporario) => {
+      const banco = new Database(temporario)
+      try {
+        migrarSchema(criarDb(banco))
+      } finally {
+        banco.close()
+      }
+      return { caminho: temporario, gzip: false }
     })
   }
 

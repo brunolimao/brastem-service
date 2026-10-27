@@ -38,6 +38,10 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
 - **R-BKP-11**: A conexão com o Google Drive sobrevive a atualizações e reinstalações: fica em
   `dados/integracoes/google.json`, que o instalador não toca (nem ao desinstalar). Só deixa de estar conectado
   ao clicar em _Desconectar_ ou se o Google revogar o acesso (aí o app avisa para conectar de novo).
+- **R-BKP-12**: Começar do zero (só administrador, com a própria senha): um banco novo, vazio e na versão
+  atual entra no lugar do atual pelo mesmo caminho da restauração (R-BKP-06, R-BKP-07). O app reabre no
+  primeiro acesso (criar o administrador ou importar o sistema antigo, R-IMPT-01). Backups e a conexão com o
+  Google Drive continuam. Senha errada responde 403 (não derruba a sessão); no máximo 5 tentativas por minuto.
 
 ## Onde está no código
 
@@ -48,7 +52,7 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
 
 ## Testes
 
-- `apps/server/test/backup.e2e-spec.ts` — backup, retenção, Drive (com Google falso), envio pendente, restauração e recusas, restauração de arquivo enviado, conexão que continua depois de reabrir o app (R-BKP-01 a R-BKP-08, R-BKP-10, R-BKP-11).
+- `apps/server/test/backup.e2e-spec.ts` — backup, retenção, Drive (com Google falso), envio pendente, restauração e recusas, restauração de arquivo enviado, conexão que continua depois de reabrir o app, começar do zero com senha (R-BKP-01 a R-BKP-08, R-BKP-10 a R-BKP-12).
 - `apps/server/src/common/database/connection.spec.ts` — troca do banco na abertura, cópia antiga completa mesmo com `-wal` pendente (R-BKP-06, R-BKP-07).
 - `apps/server/src/common/utils/arquivos.spec.ts` — R-BKP-09.
 - `apps/server/src/modules/backup/backup.agendador.spec.ts` — 1 minuto depois de abrir e de hora em hora; falha não derruba o app (R-BKP-01).

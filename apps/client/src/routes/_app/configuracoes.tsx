@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { ApagarTudoCard } from '@/components/domain/apagar-tudo-card'
 import { BackupGoogleCard } from '@/components/domain/backup-google-card'
 import { BackupLista } from '@/components/domain/backup-lista'
 import { BackupStatusCard } from '@/components/domain/backup-status-card'
@@ -22,7 +23,10 @@ function ConfiguracoesPage() {
 
   return (
     <>
-      <PageHeader titulo="Configurações" descricao="Dados da empresa, backup e restauração." />
+      <PageHeader
+        titulo="Configurações"
+        descricao="Dados da empresa, backup, restauração e começar do zero."
+      />
       {/* A key refaz o formulário se os dados chegarem depois. */}
       {empresa && <EmpresaCard key={JSON.stringify(empresa)} empresa={empresa} />}
       {estado ? (
@@ -34,6 +38,7 @@ function ConfiguracoesPage() {
       ) : (
         <Skeleton className="h-96 w-full" />
       )}
+      <ApagarTudoCard />
     </>
   )
 }

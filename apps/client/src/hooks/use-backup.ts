@@ -59,3 +59,6 @@ export function useDesconectarGoogle() {
     },
   })
 }
+
+/** Começar do zero (o app reinicia vazio; o banco atual fica guardado como backup). */
+export const useApagarTudo = () => useMutation({ mutationFn: backupService.apagarTudo })

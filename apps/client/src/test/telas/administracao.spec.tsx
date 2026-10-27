@@ -64,5 +64,6 @@ describe('Configurações', () => {
     expect(await screen.findByText('Backup automático')).toBeInTheDocument()
     expect(screen.getByText('Google Drive')).toBeInTheDocument()
     expect(await screen.findByText('Nenhum backup ainda')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Apagar todos os dados' })).toBeInTheDocument()
   })
 })

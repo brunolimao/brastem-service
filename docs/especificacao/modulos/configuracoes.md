@@ -50,6 +50,9 @@ Só o administrador.
   uma restauração ou de uma atualização do banco.
 - **R-CFG-07**: _Restaurar de um arquivo_ (no cartão _Restaurar um backup_) escolhe um backup no computador
   (`.gz` ou `.sqlite`) e pede a mesma confirmação, mostrando o nome do arquivo (R-BKP-10).
+- **R-CFG-08**: _Começar do zero_ (último cartão) apaga todos os dados depois de mostrar o que é apagado (inclusive
+  todos os usuários), o que continua (backups e Google Drive), o que acontece depois (primeiro acesso ou
+  importação) e como desfazer; o botão só funciona com a senha de quem está logado (R-BKP-12).
 
 ## Permissões
 
@@ -67,6 +70,7 @@ Só o administrador.
 | `GET /api/backup/estado`, `GET /api/backup/arquivos`                                                  | situação e lista de backups       | administrador                    |
 | `POST /api/backup/executar`                                                                           | backup agora (R-CFG-03)           | administrador                    |
 | `POST /api/backup/restaurar`                                                                          | prepara a restauração (R-CFG-05)  | administrador                    |
+| `POST /api/backup/apagar-tudo` (corpo: `{ senha }`)                                                   | começar do zero (R-CFG-08)        | administrador                    |
 | `POST /api/backup/restaurar/arquivo` (corpo: o arquivo, `application/octet-stream`)                   | restaura de um arquivo (R-CFG-07) | administrador                    |
 | `POST /api/backup/google/credenciais`, `GET /api/backup/google/conectar`, `DELETE /api/backup/google` | Google Drive                      | administrador                    |
 | `GET /api/backup/google/callback`                                                                     | retorno da autorização do Google  | público (protegido pelo `state`) |
@@ -80,5 +84,6 @@ Só o administrador.
 
 - `apps/server/test/empresa.e2e-spec.ts` — dados da empresa e permissões (R-CFG-01, R-CFG-02).
 - `apps/server/test/backup.e2e-spec.ts` — backup, Google (com um Google falso), restauração (R-CFG-03 a R-CFG-06).
+- `apps/client/src/components/domain/apagar-tudo-card.spec.tsx` — consequências claras, senha obrigatória, senha errada não sai do sistema (R-CFG-08).
 - `apps/client/src/components/domain/backup.spec.tsx` — cartões de backup e Google Drive, lista e confirmação de restauração, restaurar de um arquivo (R-CFG-03 a R-CFG-07).
 - `apps/client/src/components/domain/usuario-e-empresa.spec.tsx` — dados da empresa começam vazios e saem com máscara (R-CFG-01).

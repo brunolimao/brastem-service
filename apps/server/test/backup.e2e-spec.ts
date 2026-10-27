@@ -70,6 +70,9 @@ describe('backup e restauração (e2e)', () => {
     await maria.get('/api/backup/estado').expect(403)
     await maria.post('/api/backup/executar').expect(403)
     await maria.post('/api/backup/restaurar').send({ origem: 'local', id: 'x' }).expect(403)
+    // Nem com a própria senha certa um usuário comum apaga os dados (R-BKP-12).
+    await maria.post('/api/backup/apagar-tudo').send({ senha: 'outra-senha-1' }).expect(403)
+    expect(existsSync(join(dados, 'restauracao-pendente.sqlite'))).toBe(false)
   })
 
   it('faz o backup local compactado e registra o estado', async () => {
@@ -430,6 +433,73 @@ describe('backup e restauração (e2e)', () => {
           .set('content-type', 'application/octet-stream')
           .send(Buffer.from('x'))
           .expect(401)
+      })
+    })
+
+    describe('apagar tudo para começar do zero (R-BKP-12)', () => {
+      it('pede a senha de quem está logado; errada ou vazia não prepara nada', async () => {
+        const errada = await admin
+          .post('/api/backup/apagar-tudo')
+          .send({ senha: 'nao-e-esta' })
+          .expect(403)
+        expect(errada.body.message).toBe('Senha incorreta.')
+
+        const vazia = await admin.post('/api/backup/apagar-tudo').send({}).expect(400)
+        expect(vazia.body.message).toContain('O campo "senha" é obrigatório')
+        expect(existsSync(pendente())).toBe(false)
+      })
+
+      it('com a senha certa, prepara um banco vazio (sem usuários) no lugar do atual', async () => {
+        const res = await admin
+          .post('/api/backup/apagar-tudo')
+          .send({ senha: credenciais.senha })
+          .expect(200)
+        expect(res.body).toEqual({ reiniciando: false })
+
+        // O banco preparado está na versão atual do app e não tem nenhum dado.
+        const novo = new Database(pendente(), { readonly: true })
+        try {
+          for (const tabela of [
+            'usuarios',
+            'clientes',
+            'ordens_servico',
+            'pagamentos',
+            'empresa',
+          ]) {
+            const { total } = novo.prepare(`select count(*) as total from ${tabela}`).get() as {
+              total: number
+            }
+            expect(total, tabela).toBe(0)
+          }
+          const { migracoes } = novo
+            .prepare('select count(*) as migracoes from __drizzle_migrations')
+            .get() as { migracoes: number }
+          expect(migracoes).toBeGreaterThan(0)
+        } finally {
+          novo.close()
+        }
+        expect(readdirSync(dados).filter((n) => n.startsWith('restauracao'))).toEqual([
+          'restauracao-pendente.sqlite',
+        ])
+        // Nada muda até reabrir o app: o banco em uso continua respondendo.
+        await admin.get('/api/clientes').expect(200)
+        rmSync(pendente())
+      })
+
+      it('avisa o app desktop para reiniciar', async () => {
+        const escuta = vi.fn()
+        process.on('brastem:reiniciar', escuta)
+        try {
+          const res = await admin
+            .post('/api/backup/apagar-tudo')
+            .send({ senha: credenciais.senha })
+            .expect(200)
+          expect(res.body).toEqual({ reiniciando: true })
+          expect(escuta).toHaveBeenCalledOnce()
+        } finally {
+          process.off('brastem:reiniciar', escuta)
+          rmSync(pendente(), { force: true })
+        }
       })
     })
 

@@ -2,9 +2,10 @@ import { Body, Controller, Delete, Get, HttpCode, Post, Query, Req, Res } from '
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
-import { Public, Roles } from '../../common/auth/decorators.js'
+import type { AuthUser } from '../../common/auth/auth.types.js'
+import { CurrentUser, Public, Roles } from '../../common/auth/decorators.js'
 import { BackupService } from './backup.service.js'
-import { CredenciaisGoogleDto, RestaurarDto } from './dto/backup.dto.js'
+import { ApagarTudoDto, CredenciaisGoogleDto, RestaurarDto } from './dto/backup.dto.js'
 import { GoogleOauthService } from './google-oauth.service.js'
 import { RestauracaoService } from './restauracao.service.js'
 
@@ -59,6 +60,17 @@ export class BackupController {
   })
   restaurar(@Body() dto: RestaurarDto) {
     return this.restauracao.preparar(dto.origem, dto.id)
+  }
+
+  @Post('apagar-tudo')
+  @HttpCode(200)
+  // Como o login: a senha não pode ser adivinhada na força bruta.
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({
+    summary: 'Prepara um banco vazio no lugar do atual (começar do zero; pede a senha)',
+  })
+  apagarTudo(@Body() dto: ApagarTudoDto, @CurrentUser() usuario: AuthUser) {
+    return this.restauracao.prepararBancoVazio(usuario.id, dto.senha)
   }
 
   @Post('restaurar/arquivo')

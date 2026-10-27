@@ -15,6 +15,14 @@ export class CredenciaisGoogleDto {
   clientSecret!: string
 }
 
+export class ApagarTudoDto {
+  @ApiProperty({ description: 'Senha de quem está logado, para confirmar' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  senha!: string
+}
+
 export class RestaurarDto {
   @ApiProperty({ enum: ['local', 'drive'] })
   @IsIn(['local', 'drive'])
