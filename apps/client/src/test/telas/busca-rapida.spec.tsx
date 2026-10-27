@@ -33,6 +33,10 @@ describe('busca rápida (Ctrl+K)', () => {
       expect.stringContaining('OS 42 · João da Silva'),
     ])
     expect(opcoes[0]).toHaveTextContent('123.456.789-01')
+    // Sem o "X" de fechar (ficava por cima do campo): Esc ou clicar fora fecham.
+    expect(within(screen.getByRole('dialog')).queryByRole('button', { name: 'Fechar' })).toBeNull()
+    // Destaque neutro: o texto miúdo continua legível no item escolhido.
+    expect(opcoes[0]).toHaveClass('aria-selected:bg-muted')
     expect(opcoes[2]).toHaveTextContent('Geladeira · Fechado · 30/09/2026')
     // "Todos" não manda campo: busca em nome, telefone, CPF...
     expect(tela.ultimo('GET /clientes').query.has('campo')).toBe(false)

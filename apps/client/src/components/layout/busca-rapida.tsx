@@ -106,7 +106,7 @@ export function BuscaRapida({ compacta = false }: { compacta?: boolean }) {
       )}
 
       <Dialog open={aberta} onOpenChange={(valor) => (valor ? abrir() : fecharELimpar())}>
-        <DialogContent className="top-[20%] translate-y-0 gap-3 p-4">
+        <DialogContent showCloseButton={false} className="top-[20%] translate-y-0 gap-3 p-4">
           <DialogTitle className="sr-only">Busca rápida</DialogTitle>
           <DialogDescription className="sr-only">
             Digite nome, telefone, CPF ou número da OS. Use as setas para escolher e Enter para
@@ -165,7 +165,7 @@ export function BuscaRapida({ compacta = false }: { compacta?: boolean }) {
                     role="option"
                     tabIndex={-1}
                     aria-selected={indice === ativo}
-                    className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 aria-selected:bg-accent aria-selected:text-accent-foreground"
+                    className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 aria-selected:bg-muted"
                     onMouseEnter={() => setAtivo(indice)}
                     onClick={() => escolher(resultado)}
                     onKeyDown={() => undefined}
