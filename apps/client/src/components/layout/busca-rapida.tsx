@@ -30,7 +30,7 @@ const ehAtalho = (evento: KeyboardEvent) =>
  * Busca rápida: digita nome, telefone, CPF ou número da OS e vai direto, sem passar pelas listas.
  * O botão fica no menu; Ctrl+K abre de qualquer tela; setas escolhem e Enter abre.
  */
-export function BuscaRapida() {
+export function BuscaRapida({ compacta = false }: { compacta?: boolean }) {
   const { aberta, abrir, fechar } = useBuscaRapidaStore()
   const navigate = useNavigate()
   const [texto, setTexto] = useState('')
@@ -83,14 +83,27 @@ export function BuscaRapida() {
 
   return (
     <>
-      <Button
-        variant="outline"
-        className="w-full justify-start border-sidebar-border bg-transparent text-sidebar-foreground/80 hover:bg-sidebar-accent"
-        onClick={abrir}
-      >
-        <Search /> Buscar
-        <kbd className="ml-auto rounded border border-sidebar-border px-1.5 text-xs">Ctrl K</kbd>
-      </Button>
+      {compacta ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Buscar (Ctrl+K)"
+          title="Buscar (Ctrl+K)"
+          className="w-full hover:bg-sidebar-accent"
+          onClick={abrir}
+        >
+          <Search />
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          className="w-full justify-start border-sidebar-border bg-transparent text-sidebar-foreground/80 hover:bg-sidebar-accent"
+          onClick={abrir}
+        >
+          <Search /> Buscar
+          <kbd className="ml-auto rounded border border-sidebar-border px-1.5 text-xs">Ctrl K</kbd>
+        </Button>
+      )}
 
       <Dialog open={aberta} onOpenChange={(valor) => (valor ? abrir() : fecharELimpar())}>
         <DialogContent className="top-[20%] translate-y-0 gap-3 p-4">

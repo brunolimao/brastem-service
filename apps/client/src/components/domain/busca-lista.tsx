@@ -40,7 +40,7 @@ function FormularioBusca<C extends string>({
 
   return (
     <form
-      className="flex flex-wrap items-center gap-2"
+      className="flex min-w-0 flex-1 flex-wrap items-center gap-2"
       onSubmit={(evento) => {
         evento.preventDefault()
         if (campoAtual) aoBuscar({ campo: campoAtual, busca: texto.trim() })
@@ -59,7 +59,7 @@ function FormularioBusca<C extends string>({
         </SelectContent>
       </Select>
       <Input
-        className="max-w-sm flex-1"
+        className="min-w-56 max-w-2xl flex-1"
         placeholder={placeholder ?? 'Buscar...'}
         aria-label="Texto da busca"
         value={texto}

@@ -3,6 +3,7 @@ import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/rea
 import { configure, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, vi } from 'vitest'
 import { useBuscaRapidaStore } from '@/hooks/use-busca-rapida'
+import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useRecentesStore } from '@/hooks/use-recentes'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { notificarErro } from '@/libs/query-client'
@@ -69,6 +70,7 @@ export function abrirTela(url: string, { usuario = ADMIN, api = {} }: Opcoes = {
   useSessionStore.setState({ situacao: 'desconhecida', usuario: null })
   useBuscaRapidaStore.setState({ aberta: false })
   useRecentesStore.setState({ porUsuario: {} })
+  usePreferenciasStore.setState({ menuRecolhido: false, tamanhoDeLetra: 1 })
   const respostas = { ...padrao(usuario), ...api }
   const feitos: Pedido[] = []
 

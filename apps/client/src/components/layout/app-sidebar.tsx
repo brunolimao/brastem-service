@@ -1,11 +1,16 @@
 import { Link, useNavigate } from '@tanstack/react-router'
+import { cn } from 'cn'
 import {
+  AArrowDown,
+  AArrowUp,
   BarChart3,
   ClipboardList,
   CreditCard,
   Home,
   LogOut,
   type LucideIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings,
   TrendingDown,
   TrendingUp,
@@ -13,10 +18,11 @@ import {
   Users,
   Wallet,
 } from 'lucide-react'
-import { Fragment } from 'react'
+import { Fragment, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useLogout } from '@/hooks/use-auth'
+import { TAMANHOS_DE_LETRA, usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { useVersao } from '@/hooks/use-sistema'
 import { ROTULO_ROLE } from '@/models/usuario.model'
@@ -95,17 +101,52 @@ export function AppSidebar() {
   const navigate = useNavigate()
   const { data: versao } = useVersao()
 
+  const {
+    menuRecolhido: recolhido,
+    alternarMenu,
+    tamanhoDeLetra,
+    mudarLetra,
+  } = usePreferenciasStore()
+
   const sair = () => logout.mutate(undefined, { onSettled: () => navigate({ to: '/login' }) })
 
+  // Ctrl+B recolhe/expande o menu de qualquer tela.
+  useEffect(() => {
+    const aoTeclar = (evento: KeyboardEvent) => {
+      if (!(evento.ctrlKey || evento.metaKey) || evento.key.toLowerCase() !== 'b') return
+      evento.preventDefault()
+      alternarMenu()
+    }
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [alternarMenu])
+
+  const IconeMenu = recolhido ? PanelLeftOpen : PanelLeftClose
+
   return (
-    <aside className="flex w-60 shrink-0 print:hidden flex-col bg-sidebar text-sidebar-foreground">
-      <div className="flex items-center gap-3 p-4">
+    <aside
+      data-recolhido={recolhido}
+      className={cn(
+        'flex shrink-0 print:hidden flex-col bg-sidebar text-sidebar-foreground transition-[width]',
+        recolhido ? 'w-16' : 'w-60',
+      )}
+    >
+      <div className={cn('flex items-center gap-3 p-3', recolhido && 'flex-col')}>
         <img src="/logo.jpg" alt="" className="size-10 rounded-md bg-white object-contain" />
-        <span className="font-semibold tracking-tight">Brastem-Service</span>
+        {!recolhido && <span className="flex-1 font-semibold tracking-tight">Brastem-Service</span>}
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={recolhido ? 'Expandir menu (Ctrl+B)' : 'Recolher menu (Ctrl+B)'}
+          aria-expanded={!recolhido}
+          onClick={alternarMenu}
+        >
+          <IconeMenu />
+        </Button>
       </div>
       <Separator className="bg-sidebar-border" />
       <div className="px-3 pt-3">
-        <BuscaRapida />
+        <BuscaRapida compacta={recolhido} />
       </div>
 
       <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
@@ -116,22 +157,30 @@ export function AppSidebar() {
             const novoGrupo = item.grupo && item.grupo !== visiveis[indice - 1]?.grupo
             return (
               <Fragment key={item.to}>
-                {novoGrupo && (
-                  <p className="mt-3 px-3 pb-1 text-sidebar-foreground/60 text-xs uppercase tracking-wide">
-                    {item.grupo}
-                  </p>
-                )}
+                {novoGrupo &&
+                  (recolhido ? (
+                    <Separator className="my-2 bg-sidebar-border" />
+                  ) : (
+                    <p className="mt-3 px-3 pb-1 text-sidebar-foreground/60 text-xs uppercase tracking-wide">
+                      {item.grupo}
+                    </p>
+                  ))}
                 <Link
                   to={item.to}
                   activeOptions={{ exact: item.exato }}
-                  className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent"
+                  title={recolhido ? item.rotulo : undefined}
+                  className={cn(
+                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent',
+                    recolhido && 'justify-center px-0',
+                  )}
                   activeProps={{
                     className:
                       'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary',
                   }}
                 >
-                  <Icone className="size-4" />
-                  {item.rotulo}
+                  <Icone className="size-4 shrink-0" />
+                  {/* Recolhido, o nome some da tela mas continua para leitores de tela. */}
+                  <span className={cn(recolhido && 'sr-only')}>{item.rotulo}</span>
                 </Link>
               </Fragment>
             )
@@ -139,8 +188,13 @@ export function AppSidebar() {
       </nav>
 
       <Separator className="bg-sidebar-border" />
-      <div className="flex items-center justify-between gap-2 p-3">
-        <div className="min-w-0">
+      <div
+        className={cn(
+          'flex items-center justify-between gap-2 p-3',
+          recolhido && 'flex-col justify-center',
+        )}
+      >
+        <div className={cn('min-w-0', recolhido && 'sr-only')}>
           <p className="truncate font-medium text-sm">{usuario?.usuario}</p>
           <p className="text-sidebar-foreground/70 text-xs">
             {usuario ? ROTULO_ROLE[usuario.role] : ''}
@@ -151,7 +205,27 @@ export function AppSidebar() {
             </p>
           )}
         </div>
-        <div className="flex items-center">
+        <div className={cn('flex items-center', recolhido && 'flex-col')}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Diminuir a letra"
+            title="Diminuir a letra"
+            disabled={tamanhoDeLetra === 0}
+            onClick={() => mudarLetra(-1)}
+          >
+            <AArrowDown />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Aumentar a letra"
+            title="Aumentar a letra"
+            disabled={tamanhoDeLetra === TAMANHOS_DE_LETRA.length - 1}
+            onClick={() => mudarLetra(1)}
+          >
+            <AArrowUp />
+          </Button>
           <ThemeToggle />
           <Button
             variant="ghost"
