@@ -38,11 +38,12 @@ describe('Usuários', () => {
 })
 
 describe('Configurações', () => {
-  it('usuário comum vê só a Aparência, sem nada do administrador (R-CFG-09)', async () => {
+  it('usuário comum vê só Aparência e Atualizações, sem nada do administrador (R-CFG-09)', async () => {
     const tela = abrirTela('/configuracoes', { usuario: COMUM })
     await esperarTitulo('Configurações')
     expect(screen.getByText('Aparência')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Maior' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Procurar atualização' })).toBeInTheDocument()
     for (const deAdmin of [
       'Dados da empresa',
       'Backup automático',
@@ -87,5 +88,6 @@ describe('Configurações', () => {
     expect(screen.getByText('Google Drive')).toBeInTheDocument()
     expect(await screen.findByText('Nenhum backup ainda')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Apagar todos os dados' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Procurar atualização' })).toBeInTheDocument()
   })
 })

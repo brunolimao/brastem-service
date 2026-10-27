@@ -41,8 +41,6 @@ beforeEach(() => {
     'fetch',
     vi.fn(async (url: string) => {
       if (url.startsWith('/api/sistema')) return new Response(JSON.stringify({ versao }))
-      if (url.startsWith('/api/sistema/procurar-atualizacao'))
-        return new Response(JSON.stringify({ iniciado: true }), { status: 202 })
       if (url.startsWith('/api/auth/logout'))
         return logoutOk ? new Response(null, { status: 204 }) : new Response('{}', { status: 500 })
       return new Response('{}', { status: 404 })
@@ -102,6 +100,8 @@ describe('AppSidebar: rodapé', () => {
   it('mostra a versão do app instalado', async () => {
     renderizar('usuario')
     expect(await screen.findByText('Versão 2.1.0')).toBeInTheDocument()
+    // "Procurar atualização" fica em Configurações (R-ATU-11), não no menu.
+    expect(screen.queryByRole('button', { name: /Procurar atualização/ })).toBeNull()
   })
 
   it('rodando em desenvolvimento, diz isso em vez de um número', async () => {
@@ -146,24 +146,5 @@ describe('AppSidebar: menu recolhível (R-UX-04)', () => {
     expect(menu()).toHaveAttribute('data-recolhido', 'true')
     fireEvent.keyDown(window, { key: 'B', ctrlKey: true })
     expect(menu()).toHaveAttribute('data-recolhido', 'false')
-  })
-})
-
-describe('AppSidebar: procurar atualização (R-ATU-11)', () => {
-  it('no app instalado, o botão pede ao app para procurar agora', async () => {
-    renderizar('usuario')
-    fireEvent.click(await screen.findByRole('button', { name: 'Procurar atualização' }))
-    await waitFor(() =>
-      expect(vi.mocked(fetch).mock.calls.map(([url]) => url)).toContain(
-        '/api/sistema/procurar-atualizacao',
-      ),
-    )
-  })
-
-  it('em desenvolvimento não aparece', async () => {
-    versao = 'desenvolvimento'
-    renderizar('usuario')
-    await screen.findByText('Desenvolvimento')
-    expect(screen.queryByRole('button', { name: 'Procurar atualização' })).toBeNull()
   })
 })

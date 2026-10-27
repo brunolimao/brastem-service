@@ -23,7 +23,7 @@ import { useLogout } from '@/hooks/use-auth'
 import { buscaLembrada } from '@/hooks/use-listas-lembradas'
 import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
-import { useProcurarAtualizacao, useVersao } from '@/hooks/use-sistema'
+import { useVersao } from '@/hooks/use-sistema'
 import { ROTULO_ROLE } from '@/models/usuario.model'
 import { BuscaRapida } from './busca-rapida'
 import { ThemeToggle } from './theme-toggle'
@@ -99,7 +99,6 @@ export function AppSidebar() {
   const logout = useLogout()
   const navigate = useNavigate()
   const { data: versao } = useVersao()
-  const procurar = useProcurarAtualizacao()
 
   const { menuRecolhido: recolhido, alternarMenu } = usePreferenciasStore()
 
@@ -199,16 +198,6 @@ export function AppSidebar() {
             <p className="text-sidebar-foreground/50 text-xs">
               {versao === 'desenvolvimento' ? 'Desenvolvimento' : `Versão ${versao}`}
             </p>
-          )}
-          {versao && versao !== 'desenvolvimento' && (
-            <button
-              type="button"
-              className="text-sidebar-foreground/70 text-xs underline-offset-2 hover:text-sidebar-foreground hover:underline disabled:opacity-50"
-              onClick={() => procurar.mutate()}
-              disabled={procurar.isPending}
-            >
-              Procurar atualização
-            </button>
           )}
         </div>
         <div className={cn('flex items-center', recolhido && 'flex-col')}>
