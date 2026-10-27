@@ -81,6 +81,9 @@ export function EmpresaCard({ empresa }: { empresa: Empresa }) {
             )}
           </form.AppField>
           <form.AppForm>
+            <form.VigiarAlteracoes />
+          </form.AppForm>
+          <form.AppForm>
             <form.BotaoSalvar texto="Salvar dados da empresa" className="w-fit md:col-span-6" />
           </form.AppForm>
         </form>

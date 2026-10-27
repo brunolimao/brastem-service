@@ -7,6 +7,7 @@ import { CampoSelect } from './campo-select'
 import { CampoTextarea } from './campo-textarea'
 import { CampoTexto } from './campo-texto'
 import { fieldContext, formContext } from './contexto'
+import { VigiarAlteracoes } from './vigiar-alteracoes'
 
 /**
  * Hook de formulário do app. Os campos e o botão de salvar ficam registrados aqui, então cada
@@ -15,6 +16,7 @@ import { fieldContext, formContext } from './contexto'
  *   const form = useAppForm({ defaultValues, validators: { onChange: schema }, onSubmit })
  *   <form.AppField name="nome">{(campo) => <campo.CampoTexto rotulo="Nome" />}</form.AppField>
  *   <form.AppForm><form.BotaoSalvar /></form.AppForm>
+ *   <form.AppForm><form.VigiarAlteracoes /></form.AppForm>   (avisa ao sair sem salvar)
  *
  * Grupos de campos usados em mais de um formulário (ex.: pagamentos) usam `withFieldGroup`.
  */
@@ -29,5 +31,5 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     CampoTextarea,
     CampoTexto,
   },
-  formComponents: { BotaoSalvar },
+  formComponents: { BotaoSalvar, VigiarAlteracoes },
 })

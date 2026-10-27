@@ -341,6 +341,9 @@ export function ClienteFormulario({
           Voltar
         </Button>
         <form.AppForm>
+          <form.VigiarAlteracoes />
+        </form.AppForm>
+        <form.AppForm>
           <form.BotaoSalvar />
         </form.AppForm>
       </BarraAcoes>

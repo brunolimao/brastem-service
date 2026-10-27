@@ -11,11 +11,17 @@
   clientes (nome, telefone, CPF, e-mail...) e ordens de serviço (código, data, valor, status...). Mostra até 5
   de cada; as setas escolhem e **Enter** abre a ficha. Começa com 2 letras ou números e espera a digitação
   parar (0,25 s) para consultar.
+- **R-UX-02**: Sair sem salvar: ao trocar de tela (menu, _Voltar_, busca rápida) com alterações não salvas em
+  cliente, OS, receita/despesa ou dados da empresa, o app pergunta _Continuar editando_ ou _Sair sem salvar_.
+  "Alteração" é diferença em relação ao último salvo (desfazer à mão não conta); ir para outra tela durante o
+  próprio salvamento não pergunta. Fechar o app não é bloqueado.
 
 ## Onde está no código
 
 - `apps/client/src/components/layout/busca-rapida.tsx`, `apps/client/src/hooks/use-busca-rapida.ts`
+- `apps/client/src/components/form/vigiar-alteracoes.tsx`, `apps/client/src/components/layout/aviso-sair-sem-salvar.tsx`, `apps/client/src/hooks/use-alteracoes-pendentes.ts`
 
 ## Testes
 
 - `apps/client/src/test/telas/busca-rapida.spec.tsx` — Ctrl+K, resultados, setas e Enter, mínimo de letras (R-UX-01).
+- `apps/client/src/test/telas/sair-sem-salvar.spec.tsx` — pergunta, continuar editando, sair, desfazer à mão, depois de salvar (R-UX-02).

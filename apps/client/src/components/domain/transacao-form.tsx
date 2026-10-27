@@ -72,6 +72,9 @@ export function TransacaoFormulario({ tipo, aoSalvar, aoCancelar }: TransacaoFor
           Voltar
         </Button>
         <form.AppForm>
+          <form.VigiarAlteracoes />
+        </form.AppForm>
+        <form.AppForm>
           <form.BotaoSalvar />
         </form.AppForm>
       </BarraAcoes>
