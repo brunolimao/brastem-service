@@ -27,6 +27,7 @@ IA) começa pelo arquivo do assunto, confere as regras e só depois vai ao códi
 | [tecnico/seguranca-e-privacidade.md](tecnico/seguranca-e-privacidade.md)               | Proteções do app, da sessão e dos dados                                                      |
 | [tecnico/api.md](tecnico/api.md)                                                       | Todas as rotas da API, com permissão                                                         |
 | [tecnico/testes.md](tecnico/testes.md)                                                 | Testes obrigatórios, cobertura mínima e teste de fumaça                                      |
+| [tecnico/experiencia-de-uso.md](tecnico/experiencia-de-uso.md)                         | Atalhos, busca rápida, avisos e ajustes de leitura                                           |
 | **historico/**                                                                         | Por que as coisas são como são                                                               |
 | [historico/diferencas-do-sistema-antigo.md](historico/diferencas-do-sistema-antigo.md) | O que mudou em relação ao sistema antigo e os defeitos corrigidos                            |
 | [historico/decisoes.md](historico/decisoes.md)                                         | Decisões de projeto e o motivo de cada uma                                                   |

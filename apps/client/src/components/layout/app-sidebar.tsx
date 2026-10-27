@@ -20,6 +20,7 @@ import { useLogout } from '@/hooks/use-auth'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { useVersao } from '@/hooks/use-sistema'
 import { ROTULO_ROLE } from '@/models/usuario.model'
+import { BuscaRapida } from './busca-rapida'
 import { ThemeToggle } from './theme-toggle'
 
 interface ItemMenu {
@@ -103,6 +104,9 @@ export function AppSidebar() {
         <span className="font-semibold tracking-tight">Brastem-Service</span>
       </div>
       <Separator className="bg-sidebar-border" />
+      <div className="px-3 pt-3">
+        <BuscaRapida />
+      </div>
 
       <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
         {itens

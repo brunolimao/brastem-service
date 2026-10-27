@@ -2,6 +2,7 @@ import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@ta
 import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router'
 import { configure, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, vi } from 'vitest'
+import { useBuscaRapidaStore } from '@/hooks/use-busca-rapida'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { notificarErro } from '@/libs/query-client'
 import '@/libs/zod'
@@ -63,7 +64,9 @@ configure({ asyncUtilTimeout: 10_000 })
 vi.setConfig({ testTimeout: 30_000 })
 
 export function abrirTela(url: string, { usuario = ADMIN, api = {} }: Opcoes = {}) {
+  // Stores globais (zustand) sobrevivem entre testes: cada tela começa do zero.
   useSessionStore.setState({ situacao: 'desconhecida', usuario: null })
+  useBuscaRapidaStore.setState({ aberta: false })
   const respostas = { ...padrao(usuario), ...api }
   const feitos: Pedido[] = []
 
