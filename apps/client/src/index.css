@@ -22,7 +22,7 @@
   --accent-foreground: oklch(0.99 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.91 0.01 255);
-  --input: oklch(0.91 0.01 255);
+  --input: oklch(0.87 0.015 255);
   /* Fundo dos campos: diferente da página e dos cartões, para se ver onde digitar. */
   --campo: oklch(0.965 0.01 255);
   --ring: oklch(0.6 0.14 260);

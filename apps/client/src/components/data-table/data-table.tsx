@@ -118,7 +118,8 @@ export function DataTable<TData extends RowData>({
   }, [paginaAlemDoFim, aoMudarPagina, totalPaginas])
 
   return (
-    <div className="grid gap-3">
+    // min-w-0: a tabela larga rola dentro da moldura dela, sem alargar a tela.
+    <div className="grid min-w-0 grid-cols-1 gap-3">
       <div className="rounded-lg border bg-card">
         <Table>
           <TableHeader>

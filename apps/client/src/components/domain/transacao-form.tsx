@@ -29,7 +29,7 @@ export function TransacaoFormulario({ tipo, aoSalvar, aoCancelar }: TransacaoFor
 
   return (
     <form
-      className="grid gap-6"
+      className="grid grid-cols-1 gap-6"
       onSubmit={(evento) => {
         evento.preventDefault()
         evento.stopPropagation()

@@ -57,7 +57,7 @@ function InicioPage() {
         <CardContent className="flex flex-wrap gap-2">
           <Button onClick={abrirBusca}>
             <Search /> Buscar cliente ou OS
-            <kbd className="ml-1 rounded border border-primary-foreground/40 px-1.5 text-xs">
+            <kbd className="ml-1 hidden rounded border border-primary-foreground/40 px-1.5 text-xs md:inline">
               Ctrl K
             </kbd>
           </Button>
@@ -87,7 +87,7 @@ function InicioPage() {
               As fichas que você abrir aparecem aqui, para voltar a elas com um clique.
             </p>
           ) : (
-            <ul className="grid gap-1">
+            <ul className="grid grid-cols-1 gap-1">
               {recentes.map((recente) => {
                 const Icone = recente.tipo === 'cliente' ? UserRound : ClipboardList
                 return (
@@ -102,8 +102,8 @@ function InicioPage() {
                       className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-muted"
                     >
                       <Icone className="size-4 shrink-0 text-muted-foreground" />
-                      <span className="truncate font-medium text-sm">{recente.titulo}</span>
-                      <span className="truncate text-muted-foreground text-sm">
+                      <span className="min-w-0 truncate font-medium text-sm">{recente.titulo}</span>
+                      <span className="min-w-0 truncate text-muted-foreground text-sm">
                         {recente.detalhe}
                       </span>
                     </Link>
@@ -188,7 +188,7 @@ function OsParadas({ paradas }: { paradas: Painel['paradas'] }) {
         {paradas.length === 0 ? (
           <p className="text-muted-foreground text-sm">Nenhuma OS em andamento.</p>
         ) : (
-          <ul aria-label="OS paradas há mais tempo" className="grid gap-1">
+          <ul aria-label="OS paradas há mais tempo" className="grid grid-cols-1 gap-1">
             {paradas.map((os) => (
               <li key={os.id}>
                 <Link
@@ -204,10 +204,13 @@ function OsParadas({ paradas }: { paradas: Painel['paradas'] }) {
                       {os.aparelhoNome} · aberta em {formatarData(os.abertura)}
                     </p>
                   </div>
-                  <Badge variant="secondary">{ROTULO_STATUS[os.status]}</Badge>
-                  <span className="w-16 text-right text-sm tabular-nums">
-                    {os.dias === 0 ? 'hoje' : plural(os.dias, 'dia', 'dias')}
-                  </span>
+                  {/* Status e dias empilhados, sem largura fixa: cabem em tela estreita e com letra maior. */}
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <Badge variant="secondary">{ROTULO_STATUS[os.status]}</Badge>
+                    <span className="whitespace-nowrap text-muted-foreground text-xs tabular-nums">
+                      {os.dias === 0 ? 'hoje' : plural(os.dias, 'dia', 'dias')}
+                    </span>
+                  </div>
                 </Link>
               </li>
             ))}

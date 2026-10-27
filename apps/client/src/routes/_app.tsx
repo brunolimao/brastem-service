@@ -20,8 +20,9 @@ function LayoutDoApp() {
     <div className="fixed inset-0 flex overflow-hidden print:static print:block print:overflow-visible">
       <AppSidebar />
       <AvisoSairSemSalvar />
-      <main className="min-w-0 flex-1 overflow-y-auto p-8 print:overflow-visible print:p-0">
-        <div className="mx-auto grid max-w-6xl gap-6 print:max-w-none">
+      <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-8 print:overflow-visible print:p-0">
+        {/* grid-cols-1 = minmax(0, 1fr): tabela larga rola dentro dela, em vez de alargar a página inteira. */}
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 print:max-w-none">
           <Outlet />
         </div>
       </main>

@@ -42,7 +42,7 @@ export function OrdemServicoFormulario({
 
   return (
     <form
-      className="grid gap-6"
+      className="grid grid-cols-1 gap-6"
       onSubmit={(evento) => {
         evento.preventDefault()
         evento.stopPropagation()

@@ -36,3 +36,39 @@ describe('cores dos componentes', () => {
     }
   })
 })
+
+describe('janela estreita (R-UX-13)', () => {
+  it('conteúdo encolhe até a largura da janela; tabela larga rola dentro dela', () => {
+    expect(ler('../routes/_app.tsx')).toContain('grid max-w-6xl grid-cols-1')
+    expect(ler('../components/data-table/data-table.tsx')).toContain('grid min-w-0 grid-cols-1')
+    for (const formulario of ['cliente-form.tsx', 'ordem-servico-form.tsx', 'transacao-form.tsx']) {
+      expect(ler(`../components/domain/${formulario}`), formulario).toContain(
+        'grid grid-cols-1 gap-6',
+      )
+    }
+  })
+
+  it('título, ações e barra de salvar quebram linha em vez de passar da borda', () => {
+    const cabecalho = ler('../components/layout/page-header.tsx')
+    expect(cabecalho).toContain('flex flex-wrap items-start justify-between')
+    expect(cabecalho).toContain('flex flex-wrap items-center gap-2')
+    expect(ler('../components/layout/barra-acoes.tsx')).toContain('flex flex-wrap')
+  })
+
+  it('no cartão estreito, o botão do cabeçalho desce para baixo do título', () => {
+    const cartao = ler('../components/ui/card.tsx')
+    expect(cartao).toContain('grid-cols-[minmax(0,1fr)_auto]')
+    expect(cartao).toContain('@max-md/card-header:col-start-1')
+  })
+})
+
+describe('botão contornado no modo claro (R-UX-14)', () => {
+  it('se destaca do fundo da página: fundo do cartão, borda mais forte e sombra', () => {
+    const botao = ler('../components/ui/button.tsx')
+    const classes = botao.split('outline:')[1]?.split("',")[0] ?? ''
+    expect(classes).toContain('border-input bg-card shadow-sm')
+    expect(classes).not.toContain(' bg-background')
+    // A borda dos campos e do botão é mais escura que a das linhas e cartões.
+    expect(ler('../index.css')).toMatch(/--input: oklch\(0\.87 /)
+  })
+})

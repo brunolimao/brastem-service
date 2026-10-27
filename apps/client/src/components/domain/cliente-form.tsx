@@ -64,7 +64,7 @@ export function ClienteFormulario({
 
   return (
     <form
-      className="grid gap-6"
+      className="grid grid-cols-1 gap-6"
       onSubmit={(evento) => {
         evento.preventDefault()
         evento.stopPropagation()
@@ -250,9 +250,9 @@ export function ClienteFormulario({
               ) : (
                 lista.state.value.map((aparelho, indice) => (
                   <div key={aparelho.chave} className="grid gap-3 rounded-lg border p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="font-medium text-sm">Aparelho {indice + 1}</h3>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         {clienteId !== undefined && aparelho.id !== undefined && (
                           // Como no sistema antigo: salvam antes o que foi alterado, senão se perderia.
                           <>
