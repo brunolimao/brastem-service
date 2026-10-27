@@ -28,6 +28,10 @@
   maiúsculas juntos, "Item 9" antes de "Item 10"); vazios sempre no fim.
 - **R-UX-07**: Linhas por página: 10, 25 (padrão), 50 ou 100, no rodapé de toda tabela; a escolha vale para
   todas as tabelas e fica guardada neste computador. Mudar volta para a primeira página.
+- **R-UX-08**: Atalhos nos formulários: **Ctrl+S** salva (com dois formulários na tela, o do cursor; com um
+  diálogo aberto, só o do diálogo) e **Esc** volta (mas, com diálogo ou lista aberta, o Esc só fecha esse).
+  Salvar com erro rola até o primeiro campo errado e põe o cursor nele.
+- **R-UX-09**: Botões só com ícone (editar, excluir, imprimir, parcelas...) mostram o que fazem ao parar o mouse.
 
 ## Onde está no código
 
@@ -36,6 +40,7 @@
 - `apps/client/src/routes/_app/index.tsx`, `apps/client/src/hooks/use-recentes.ts`
 - `apps/client/src/components/layout/app-sidebar.tsx`, `apps/client/src/hooks/use-preferencias-store.ts`
 - `apps/client/src/components/data-table/data-table.tsx`, `apps/client/src/libs/ordenacao.ts`; no servidor, `ordenar` em `apps/server/src/common/utils/pagination.ts`
+- `apps/client/src/components/form/botao-salvar.tsx`, `apps/client/src/components/form/botao-voltar.tsx`, `apps/client/src/components/ui/button.tsx`
 
 ## Testes
 
@@ -44,3 +49,4 @@
 - `apps/client/src/test/telas/inicio.spec.tsx` — atalhos por papel, busca, fichas recentes por usuário (R-UX-03).
 - `apps/client/src/components/layout/app-sidebar.spec.tsx` — menu recolhível, Ctrl+B, tamanho da letra e limites (R-UX-04, R-UX-05).
 - `apps/client/src/components/data-table/data-table.spec.tsx`, `apps/client/src/test/telas/clientes.spec.tsx`, `apps/server/test/ordenacao.e2e-spec.ts` — ordenar na tela e no servidor, colunas permitidas, linhas por página (R-UX-06, R-UX-07).
+- `apps/client/src/test/telas/atalhos.spec.tsx` — Ctrl+S, foco no erro, Esc, dois formulários na tela, dicas (R-UX-08, R-UX-09).

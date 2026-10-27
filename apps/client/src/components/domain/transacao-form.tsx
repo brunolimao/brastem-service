@@ -1,5 +1,6 @@
 import type { TipoTransacao } from '@brastem/shared'
 import { PagamentosCampos } from '@/components/domain/pagamentos-campos'
+import { BotaoVoltar } from '@/components/form/botao-voltar'
 import { useAppForm } from '@/components/form/form-hook'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
 import { Button } from '@/components/ui/button'
@@ -68,9 +69,7 @@ export function TransacaoFormulario({ tipo, aoSalvar, aoCancelar }: TransacaoFor
       />
 
       <BarraAcoes>
-        <Button type="button" variant="outline" onClick={aoCancelar}>
-          Voltar
-        </Button>
+        <BotaoVoltar aoVoltar={aoCancelar} />
         <form.AppForm>
           <form.VigiarAlteracoes />
         </form.AppForm>

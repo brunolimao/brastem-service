@@ -47,6 +47,8 @@ function Button({
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot.Root : 'button'
+  // Botão só com ícone mostra o que faz ao parar o mouse (o mesmo texto dos leitores de tela).
+  const dica = String(size).startsWith('icon') ? props['aria-label'] : undefined
 
   return (
     <Comp
@@ -55,6 +57,7 @@ function Button({
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
+      title={props.title ?? dica}
     />
   )
 }

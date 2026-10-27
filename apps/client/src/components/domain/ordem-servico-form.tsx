@@ -1,5 +1,6 @@
 import { Printer } from 'lucide-react'
 import { PagamentosCampos } from '@/components/domain/pagamentos-campos'
+import { BotaoVoltar } from '@/components/form/botao-voltar'
 import { useAppForm } from '@/components/form/form-hook'
 import { salvarSeAlterou } from '@/components/form/salvar-se-alterou'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
@@ -130,9 +131,7 @@ export function OrdemServicoFormulario({
       </form.Subscribe>
 
       <BarraAcoes>
-        <Button type="button" variant="outline" onClick={aoCancelar}>
-          Voltar
-        </Button>
+        <BotaoVoltar aoVoltar={aoCancelar} />
         {aoImprimir && (
           <Button
             type="button"

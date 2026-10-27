@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { FilePlus2, ListChecks, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { BotaoExcluir } from '@/components/domain/botao-excluir'
+import { BotaoVoltar } from '@/components/form/botao-voltar'
 import { useAppForm } from '@/components/form/form-hook'
 import { salvarSeAlterou } from '@/components/form/salvar-se-alterou'
 import { BarraAcoes } from '@/components/layout/barra-acoes'
@@ -337,9 +338,7 @@ export function ClienteFormulario({
       </Card>
 
       <BarraAcoes>
-        <Button type="button" variant="outline" onClick={aoCancelar}>
-          Voltar
-        </Button>
+        <BotaoVoltar aoVoltar={aoCancelar} />
         <form.AppForm>
           <form.VigiarAlteracoes />
         </form.AppForm>
