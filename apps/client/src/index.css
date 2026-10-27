@@ -105,6 +105,15 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+  /* O Tailwind 4 deixou de pôr a "mãozinha" nos botões: sem ela, o botão parece não ser clicável. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([data-disabled]),
+  [role="tab"],
+  input[type="file"],
+  label[for] {
+    cursor: pointer;
+  }
 }
 
 @page {
