@@ -63,7 +63,7 @@ describe('busca rápida (Ctrl+K)', () => {
 
   it('clicar num cliente abre a ficha dele (botão "Buscar" do menu)', async () => {
     const tela = abrirTela('/', { api })
-    fireEvent.click(await screen.findByRole('button', { name: /Buscar/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /^Buscar\s*Ctrl K$/ }))
     digitar('joão')
     fireEvent.click(await screen.findByRole('option', { name: /João da Silva Código 7/ }))
     await esperarCaminho(tela, '/clientes/7')
