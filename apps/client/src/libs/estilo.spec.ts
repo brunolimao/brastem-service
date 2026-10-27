@@ -61,10 +61,50 @@ describe('largura da tela (R-UX-13)', () => {
     expect(ler('../components/layout/barra-acoes.tsx')).toContain('flex flex-wrap')
   })
 
-  it('no cartão estreito, o botão do cabeçalho desce para baixo do título', () => {
+  it('no cartão estreito, título, descrição e botão do cabeçalho ficam um embaixo do outro', () => {
     const cartao = ler('../components/ui/card.tsx')
     expect(cartao).toContain('grid-cols-[minmax(0,1fr)_auto]')
-    expect(cartao).toContain('@max-md/card-header:col-start-1')
+    // Título, descrição e botão: cada um ocupa a linha inteira (antes título e descrição se sobrepunham).
+    expect(cartao.match(/@max-md\/card-header:col-span-full/g)).toHaveLength(3)
+  })
+})
+
+describe('barra de salvar e tabelas (R-UX-16, R-UX-17)', () => {
+  it('a barra Voltar/Salvar flutua no canto, compacta, em vez de uma faixa de ponta a ponta', () => {
+    const barra = ler('../components/layout/barra-acoes.tsx')
+    expect(barra).toContain('sticky bottom-4')
+    expect(barra).toContain('rounded-xl border bg-card/95 p-2 shadow-lg')
+    // A faixa antiga ocupava a largura toda (-mx) e cortava os campos de baixo.
+    expect(barra).not.toMatch(/-mx-/)
+  })
+
+  it('tabela compacta: cabeçalho cinza, linhas baixas, ações pequenas e paginação dentro do cartão', () => {
+    const tabela = ler('../components/ui/table.tsx')
+    expect(tabela).toContain('bg-muted/50')
+    expect(tabela).toContain('px-3 py-1.5')
+    // Cantos menos arredondados que os cartões (6 px em vez de 10 px).
+    expect(ler('../components/data-table/data-table.tsx')).toContain(
+      'overflow-hidden rounded-sm border',
+    )
+    // Rodapé (paginação) com o mesmo cinza do cabeçalho: a tabela fica emoldurada em cima e embaixo.
+    expect(ler('../components/data-table/data-table.tsx')).toContain(
+      'border-t bg-muted/50 px-4 py-2',
+    )
+    for (const tela of [
+      '../routes/_app/clientes/index.tsx',
+      '../routes/_app/ordens-servico/index.tsx',
+    ]) {
+      expect(ler(tela), tela).not.toContain('size="icon"')
+    }
+  })
+})
+
+describe('seções de Configurações (R-CFG-11)', () => {
+  it('dois cartões por linha só em janela grande, com a mesma altura', () => {
+    const secao = ler('../components/layout/secao.tsx')
+    expect(secao).toContain("'lg:grid-cols-2'")
+    // `items-start` deixava cartões vizinhos com alturas diferentes.
+    expect(secao).not.toContain('items-start')
   })
 })
 

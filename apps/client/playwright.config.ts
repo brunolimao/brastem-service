@@ -17,10 +17,11 @@ export default defineConfig({
   expect: {
     // Até 100 pixels de serrilhado diferente passam; uma porcentagem da tela deixaria passar a cor de
     // um botão (o item ativo do menu é menos de 1% da foto). A tolerância de cor por pixel também é
-    // baixa: a padrão (0,2) aceita trocar o laranja do menu por um laranja mais claro.
+    // baixa: a padrão (0,2) aceita trocar o laranja do menu por um laranja mais claro, e 0,05 ainda
+    // aceitava tirar o fundo cinza do rodapé da tabela.
     toHaveScreenshot: {
       maxDiffPixels: 100,
-      threshold: 0.05,
+      threshold: 0.01,
       animations: 'disabled',
       caret: 'hide',
     },

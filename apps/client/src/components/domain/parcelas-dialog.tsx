@@ -33,7 +33,11 @@ export function ParcelasDialog({ pagamentoId }: { pagamentoId: number }) {
   return (
     <Dialog open={aberto} onOpenChange={setAberto}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={`Ver parcelas do pagamento ${pagamentoId}`}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Ver parcelas do pagamento ${pagamentoId}`}
+        >
           <ListOrdered />
         </Button>
       </DialogTrigger>

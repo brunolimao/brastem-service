@@ -121,7 +121,7 @@ export function DataTable<TData extends RowData>({
   return (
     // min-w-0: a tabela larga rola dentro da moldura dela, sem alargar a tela.
     <div className="grid min-w-0 grid-cols-1 gap-3">
-      <div className="rounded-lg border bg-card">
+      <div className="overflow-hidden rounded-sm border bg-card shadow-xs">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((grupo) => (
@@ -204,51 +204,50 @@ export function DataTable<TData extends RowData>({
             )}
           </TableBody>
         </Table>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2 text-muted-foreground text-sm">
-        <span>
-          {pagina.total} {pagina.total === 1 ? 'resultado' : 'resultados'}
-        </span>
-        <div className="flex flex-wrap items-center gap-2">
-          <span>Linhas por página</span>
-          <Select
-            value={String(linhasPorPagina)}
-            onValueChange={(valor) => {
-              definirLinhasPorPagina(Number(valor) as LinhasPorPagina)
-              aoMudarPagina(1)
-            }}
-          >
-            <SelectTrigger size="sm" className="w-20" aria-label="Linhas por página">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {OPCOES_LINHAS_POR_PAGINA.map((opcao) => (
-                <SelectItem key={opcao} value={String(opcao)}>
-                  {opcao}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={pagina.page <= 1}
-            onClick={() => aoMudarPagina(pagina.page - 1)}
-          >
-            Anterior
-          </Button>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t bg-muted/50 px-4 py-2 text-muted-foreground text-sm">
           <span>
-            Página {pagina.page} de {totalPaginas}
+            {pagina.total} {pagina.total === 1 ? 'resultado' : 'resultados'}
           </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={pagina.page >= totalPaginas}
-            onClick={() => aoMudarPagina(pagina.page + 1)}
-          >
-            Próxima
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <span>Linhas por página</span>
+            <Select
+              value={String(linhasPorPagina)}
+              onValueChange={(valor) => {
+                definirLinhasPorPagina(Number(valor) as LinhasPorPagina)
+                aoMudarPagina(1)
+              }}
+            >
+              <SelectTrigger size="sm" className="w-20" aria-label="Linhas por página">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {OPCOES_LINHAS_POR_PAGINA.map((opcao) => (
+                  <SelectItem key={opcao} value={String(opcao)}>
+                    {opcao}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pagina.page <= 1}
+              onClick={() => aoMudarPagina(pagina.page - 1)}
+            >
+              Anterior
+            </Button>
+            <span>
+              Página {pagina.page} de {totalPaginas}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pagina.page >= totalPaginas}
+              onClick={() => aoMudarPagina(pagina.page + 1)}
+            >
+              Próxima
+            </Button>
+          </div>
         </div>
       </div>
     </div>

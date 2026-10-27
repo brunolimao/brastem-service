@@ -33,7 +33,7 @@ export function BotaoExcluir({
       <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           aria-label={titulo}
           disabled={desabilitado}
           title={dica}

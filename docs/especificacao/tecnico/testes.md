@@ -76,7 +76,8 @@
 - `scripts/conferir-regras.test.mjs` e `pnpm regras` (no CI) — toda regra tem teste que a cite ou está
   declarada sem teste automatizado (R-TST-03).
 - `apps/client/visual/telas.visual.ts` (no CI) — fotos das telas e da OS impressa (R-TST-08, R-IMP-03). Validado
-  trocando a cor do item ativo do menu: reprova com 7.394 pixels diferentes.
+  trocando a cor do item ativo do menu (reprova com 7.394 pixels diferentes) e tirando o fundo cinza do rodapé da
+  tabela (reprova com cerca de 40 mil). A lista de clientes é fotografada com 10 linhas, para o rodapé caber.
 - Sem teste automatizado: R-TST-01, R-TST-02, R-TST-06 e R-TST-07 (regras de trabalho, conferidas na revisão)
   e R-TST-04 (o mínimo de cobertura é o próprio CI que confere).
 - O próprio teste de fumaça foi validado por mutação: com o `main.ts` anterior à correção da janela em branco

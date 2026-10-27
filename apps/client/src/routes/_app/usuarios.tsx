@@ -44,7 +44,7 @@ function BotaoRemover({ usuario }: { usuario: Usuario }) {
       <Dica texto="Você não pode apagar a si mesmo">
         {/* biome-ignore lint/a11y/noNoninteractiveTabindex: foco para ler a dica do botão desabilitado */}
         <span tabIndex={0} className="inline-flex">
-          <Button variant="ghost" size="icon" aria-label={`Excluir ${usuario.usuario}`} disabled>
+          <Button variant="ghost" size="icon-sm" aria-label={`Excluir ${usuario.usuario}`} disabled>
             <Trash2 className="text-destructive" />
           </Button>
         </span>
@@ -55,7 +55,7 @@ function BotaoRemover({ usuario }: { usuario: Usuario }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={`Excluir ${usuario.usuario}`}>
+        <Button variant="ghost" size="icon-sm" aria-label={`Excluir ${usuario.usuario}`}>
           <Trash2 className="text-destructive" />
         </Button>
       </AlertDialogTrigger>

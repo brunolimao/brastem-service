@@ -98,4 +98,24 @@ describe('Configurações', () => {
     // Diagnóstico para o suporte, só do administrador (R-CFG-10).
     expect(screen.getByRole('button', { name: 'Gerar diagnóstico' })).toBeInTheDocument()
   })
+
+  it('em seções, do mais importante para o menos: backup primeiro, começar do zero por último (R-CFG-11)', async () => {
+    abrirTela('/configuracoes')
+    await esperarTitulo('Configurações')
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map((titulo) => titulo.textContent),
+    ).toEqual(['Backup', 'Empresa', 'Neste computador', 'Sistema', 'Zona de perigo'])
+    const backup = screen.getByRole('region', { name: 'Backup' })
+    expect(await within(backup).findByText('Backup automático')).toBeInTheDocument()
+    expect(within(backup).getByText('Google Drive')).toBeInTheDocument()
+    expect(within(backup).getByText('Restaurar um backup')).toBeInTheDocument()
+  })
+
+  it('usuário comum vê só as seções Neste computador e Sistema (R-CFG-11)', async () => {
+    abrirTela('/configuracoes', { usuario: COMUM })
+    await esperarTitulo('Configurações')
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map((titulo) => titulo.textContent),
+    ).toEqual(['Neste computador', 'Sistema'])
+  })
 })

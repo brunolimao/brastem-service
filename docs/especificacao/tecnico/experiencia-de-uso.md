@@ -55,6 +55,13 @@
 - **R-UX-15**: O fundo de hover (`--accent`: botões contornados e fantasmas, itens de menus e de listas) é um tom
   discreto da paleta azul nos dois temas, nunca o laranja. O laranja da marca fica para o item ativo do menu
   (`--sidebar-primary`), escuro o bastante para o texto branco passar no contraste de acessibilidade (4,6:1).
+- **R-UX-16**: Nos formulários longos (cliente, OS, receita/despesa), _Voltar_ e _Salvar_ ficam numa barra
+  flutuante, compacta e arredondada, no canto de baixo à direita: acompanha a rolagem sem uma faixa de ponta a
+  ponta cortando os campos. No fim do formulário ela fica embaixo do último cartão.
+- **R-UX-17**: Tabelas compactas: cabeçalho em fundo cinza com letra pequena, linhas baixas, botões de ação
+  pequenos e a paginação (quantidade, linhas por página, anterior/próxima) dentro do mesmo cartão da tabela,
+  num rodapé com o mesmo fundo cinza do cabeçalho. Os cantos da tabela são menos arredondados (6 px) que os
+  dos cartões (10 px).
 
 ## Onde está no código
 
@@ -80,4 +87,5 @@
 - `apps/server/test/painel.e2e-spec.ts`, `apps/client/src/test/telas/inicio.spec.tsx` — resumo, gráfico, OS paradas, financeiro só para o administrador, ordem dos cartões (R-UX-12).
 - `apps/client/src/libs/estilo.spec.ts` — largura máxima do conteúdo e classes que deixam o conteúdo encolher e quebrar linha (R-UX-13). O jsdom não mede layout: o efeito foi conferido no app a 560 px e 700 px, rota por rota.
 - `apps/client/src/libs/estilo.spec.ts` — fundo dos campos e contraste do botão contornado (R-UX-14).
-- `apps/client/src/libs/estilo.spec.ts` — hover discreto e laranja do menu com contraste (R-UX-15).
+- `apps/client/src/libs/estilo.spec.ts` — hover discreto e laranja do menu com contraste (R-UX-15); barra de
+  salvar flutuante e tabela compacta (R-UX-16, R-UX-17). A aparência é conferida pelas fotos de `visual/` (R-TST-08).

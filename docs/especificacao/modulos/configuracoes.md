@@ -15,8 +15,8 @@ Só o administrador.
 
 ## Telas
 
-- _**Configurações**_ (menu › Sistema), em cartões. O usuário comum vê só **Aparência**,
-  **Impressão da OS** e **Atualizações** (R-CFG-09).
+- _**Configurações**_ (menu › Sistema), em cartões agrupados em seções, com o backup no topo (R-CFG-11). O
+  usuário comum vê só **Aparência**, **Impressão da OS** e **Atualizações** (R-CFG-09).
   - **Dados da empresa**: nome, CNPJ, telefone, endereço, CEP.
   - **Aparência**: tamanho da letra (R-UX-05).
   - **Impressão da OS**: _Modelo novo_ ou _Igual ao sistema antigo_, neste computador (R-IMP-03).
@@ -66,6 +66,11 @@ Só o administrador.
   quantidade de registros por tabela; situação do backup) e os 3 registros (logs) diários mais recentes. Não leva
   dados de clientes nem da empresa, senhas, chaves nem o e-mail da conta do Google. O arquivo fica no computador:
   o próprio administrador decide se e para quem envia.
+- **R-CFG-11**: os cartões ficam em seções, do mais importante para o menos: **Backup** (backup automático e
+  Google Drive lado a lado, e a lista para restaurar), **Empresa**, **Neste computador** (Aparência e Impressão
+  da OS), **Sistema** (Atualizações e Suporte) e, por último, **Zona de perigo** (Começar do zero). Em tela
+  grande (a partir de 1024 px de largura da janela), os cartões pequenos de uma seção ficam lado a lado, com a
+  mesma altura; em janela menor, um embaixo do outro. O usuário comum vê só Neste computador e Sistema.
 
 ## Permissões
 
@@ -100,7 +105,7 @@ Só o administrador.
 
 - `apps/server/test/empresa.e2e-spec.ts` — dados da empresa e permissões (R-CFG-01, R-CFG-02).
 - `apps/server/test/backup.e2e-spec.ts` — backup, Google (com um Google falso), restauração (R-CFG-03 a R-CFG-06).
-- `apps/client/src/test/telas/administracao.spec.tsx` — usuário comum vê só Aparência, Impressão da OS e Atualizações (R-CFG-09).
+- `apps/client/src/test/telas/administracao.spec.tsx` — usuário comum vê só Aparência, Impressão da OS e Atualizações (R-CFG-09); ordem das seções, backup primeiro (R-CFG-11).
 - `apps/client/src/components/domain/apagar-tudo-card.spec.tsx` — consequências claras, senha obrigatória, senha errada não sai do sistema (R-CFG-08).
 - `apps/client/src/components/domain/backup.spec.tsx` — cartões de backup e Google Drive, lista e confirmação de restauração, restaurar de um arquivo (R-CFG-03 a R-CFG-07).
 - `apps/client/src/components/domain/usuario-e-empresa.spec.tsx` — dados da empresa começam vazios e saem com máscara (R-CFG-01).

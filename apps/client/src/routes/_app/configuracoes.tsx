@@ -9,12 +9,14 @@ import { DiagnosticoCard } from '@/components/domain/diagnostico-card'
 import { EmpresaCard } from '@/components/domain/empresa-card'
 import { ImpressaoCard } from '@/components/domain/seletor-modelo-impressao'
 import { PageHeader } from '@/components/layout/page-header'
+import { Secao } from '@/components/layout/secao'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useEstadoBackup } from '@/hooks/use-backup'
 import { useEmpresa } from '@/hooks/use-empresa'
 import { useSessionStore } from '@/hooks/use-session-store'
 
 // Aberta a todos: o comum vê só Aparência, Impressão e Atualizações; o resto é do admin (R-CFG-09).
+// Em seções, do mais importante para o menos: backup primeiro, começar do zero por último (R-CFG-11).
 export const Route = createFileRoute('/_app/configuracoes')({ component: ConfiguracoesPage })
 
 function ConfiguracoesPage() {
@@ -26,7 +28,7 @@ function ConfiguracoesPage() {
         titulo="Configurações"
         descricao={
           admin
-            ? 'Dados da empresa, aparência, impressão, atualizações, backup, restauração e começar do zero.'
+            ? 'Backup, dados da empresa, aparência, impressão, atualizações e suporte.'
             : 'Aparência, impressão e atualizações do sistema neste computador.'
         }
       />
@@ -34,9 +36,10 @@ function ConfiguracoesPage() {
         <ConfiguracoesDoAdministrador />
       ) : (
         <>
-          <AparenciaCard />
-          <ImpressaoCard />
-          <AtualizacaoCard />
+          <NesteComputador />
+          <Secao titulo="Sistema">
+            <AtualizacaoCard />
+          </Secao>
         </>
       )}
     </>
@@ -50,22 +53,45 @@ function ConfiguracoesDoAdministrador() {
 
   return (
     <>
-      {/* A key refaz o formulário se os dados chegarem depois. */}
-      {empresa && <EmpresaCard key={JSON.stringify(empresa)} empresa={empresa} />}
+      <Secao titulo="Backup" colunas={2}>
+        {estado ? (
+          <>
+            <BackupStatusCard estado={estado} />
+            <BackupGoogleCard estado={estado} />
+          </>
+        ) : (
+          <Skeleton className="h-64 w-full lg:col-span-2" />
+        )}
+        <div className="min-w-0 lg:col-span-2">
+          <BackupLista />
+        </div>
+      </Secao>
+      <Secao titulo="Empresa">
+        {/* A key refaz o formulário se os dados chegarem depois. */}
+        {empresa ? (
+          <EmpresaCard key={JSON.stringify(empresa)} empresa={empresa} />
+        ) : (
+          <Skeleton className="h-48 w-full" />
+        )}
+      </Secao>
+      <NesteComputador />
+      <Secao titulo="Sistema" colunas={2}>
+        <AtualizacaoCard />
+        <DiagnosticoCard />
+      </Secao>
+      <Secao titulo="Zona de perigo">
+        <ApagarTudoCard />
+      </Secao>
+    </>
+  )
+}
+
+/** Preferências guardadas só neste computador, para todos os usuários. */
+function NesteComputador() {
+  return (
+    <Secao titulo="Neste computador" colunas={2}>
       <AparenciaCard />
       <ImpressaoCard />
-      <AtualizacaoCard />
-      <DiagnosticoCard />
-      {estado ? (
-        <>
-          <BackupStatusCard estado={estado} />
-          <BackupGoogleCard estado={estado} />
-          <BackupLista />
-        </>
-      ) : (
-        <Skeleton className="h-96 w-full" />
-      )}
-      <ApagarTudoCard />
-    </>
+    </Secao>
   )
 }

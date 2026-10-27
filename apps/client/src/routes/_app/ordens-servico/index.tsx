@@ -39,12 +39,12 @@ function AcoesDaOrdem({ ordem }: { ordem: OrdemServicoListada }) {
 
   return (
     <div className="flex items-center justify-end">
-      <Button asChild variant="ghost" size="icon" aria-label={`Imprimir OS ${ordem.id}`}>
+      <Button asChild variant="ghost" size="icon-sm" aria-label={`Imprimir OS ${ordem.id}`}>
         <Link to="/ordens-servico/$ordemId/imprimir" params={params}>
           <Printer />
         </Link>
       </Button>
-      <Button asChild variant="ghost" size="icon" aria-label={`Editar OS ${ordem.id}`}>
+      <Button asChild variant="ghost" size="icon-sm" aria-label={`Editar OS ${ordem.id}`}>
         <Link to="/ordens-servico/$ordemId" params={params}>
           <Pencil />
         </Link>

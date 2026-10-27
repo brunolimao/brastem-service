@@ -31,7 +31,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-title"
-      className={cn('leading-none font-semibold', className)}
+      className={cn('leading-none font-semibold @max-md/card-header:col-span-full', className)}
       {...props}
     />
   )
@@ -41,7 +41,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-description"
-      className={cn('text-sm text-muted-foreground', className)}
+      className={cn('text-sm text-muted-foreground @max-md/card-header:col-span-full', className)}
       {...props}
     />
   )
@@ -53,8 +53,9 @@ function CardAction({ className, ...props }: React.ComponentProps<'div'>) {
       data-slot="card-action"
       className={cn(
         'col-start-2 row-span-2 row-start-1 self-start justify-self-end',
-        // Cartão estreito: o botão desce para baixo do título, em vez de passar da borda.
-        '@max-md/card-header:col-start-1 @max-md/card-header:row-span-1 @max-md/card-header:row-start-auto @max-md/card-header:justify-self-start',
+        // Cartão estreito: título, descrição e botão ocupam a linha inteira, um embaixo do outro (com duas
+        // colunas, a descrição subia para o lado do título e os dois se sobrepunham).
+        '@max-md/card-header:col-span-full @max-md/card-header:row-span-1 @max-md/card-header:row-start-auto @max-md/card-header:justify-self-start',
         className,
       )}
       {...props}

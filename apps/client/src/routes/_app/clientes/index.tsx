@@ -34,7 +34,7 @@ function AcoesDoCliente({ cliente }: { cliente: ClienteListado }) {
 
   return (
     <div className="flex items-center justify-end">
-      <Button asChild variant="ghost" size="icon" aria-label={`Editar ${cliente.nome}`}>
+      <Button asChild variant="ghost" size="icon-sm" aria-label={`Editar ${cliente.nome}`}>
         <Link to="/clientes/$clienteId" params={{ clienteId: String(cliente.id) }}>
           <Pencil />
         </Link>

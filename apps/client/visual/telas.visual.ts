@@ -15,13 +15,14 @@ const fotoDaTela = async (page: Page, nome: string) => {
 /** Fotos das telas e da OS impressa (R-TST-08). Dados de `scripts/semear.mjs`, todos inventados. */
 const ordem = () => process.env.ORDEM_PARA_IMPRIMIR
 
-const prepararModelo = async (page: Page, modelo: 'novo' | 'antigo') => {
-  await page.addInitScript((escolhido) => {
-    localStorage.setItem(
-      'brastem-preferencias',
-      JSON.stringify({ state: { modeloDeImpressao: escolhido }, version: 0 }),
-    )
-  }, modelo)
+/** Preferências deste computador (as mesmas do `usePreferenciasStore`) antes de a página abrir. */
+const preferir = async (
+  page: Page,
+  preferencias: { modeloDeImpressao?: 'novo' | 'antigo'; linhasPorPagina?: number },
+) => {
+  await page.addInitScript((estado) => {
+    localStorage.setItem('brastem-preferencias', JSON.stringify({ state: estado, version: 0 }))
+  }, preferencias)
 }
 
 test.describe('OS impressa', () => {
@@ -30,7 +31,7 @@ test.describe('OS impressa', () => {
 
   for (const modelo of ['novo', 'antigo'] as const) {
     test(`modelo ${modelo} (R-IMP-03)`, async ({ page }) => {
-      await prepararModelo(page, modelo)
+      await preferir(page, { modeloDeImpressao: modelo })
       await page.goto(`/ordens-servico/${ordem()}/imprimir`)
       const folha = page.getByRole('article')
       await expect(folha).toBeVisible()
@@ -44,6 +45,8 @@ for (const tema of ['light', 'dark'] as const) {
     test.use({ colorScheme: tema })
 
     test('lista de clientes', async ({ page }) => {
+      // 10 linhas: a tabela inteira, com o rodapé da paginação, cabe na foto.
+      await preferir(page, { linhasPorPagina: 10 })
       await page.goto('/clientes')
       await expect(
         page.getByRole('cell', { name: 'Cliente Impressão Exemplo', exact: true }),
