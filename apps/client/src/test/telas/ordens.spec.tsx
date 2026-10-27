@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { clienteDetalhe, ordemDetalhe, ordemListada, pagina } from '../dados'
 import { abrirTela, COMUM, esperarCaminho, esperarTitulo, resposta } from '../tela'
 
@@ -160,6 +161,22 @@ describe('Ordens de serviço: editar e imprimir', () => {
     expect(screen.getAllByText(/Troca do compressor/).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: /Imprimir/ }))
     expect(imprimir).toHaveBeenCalledOnce()
+  })
+
+  it('troca para o modelo igual ao antigo na própria página e a escolha fica guardada (R-IMP-03)', async () => {
+    abrirTela('/ordens-servico/42/imprimir', {
+      api: { 'GET /ordens-servico/42': ordemDetalhe() },
+    })
+    expect(await screen.findByText('Nº 42')).toBeInTheDocument()
+    expect(screen.queryByRole('article', { name: /modelo antigo/ })).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Igual ao sistema antigo' }))
+    expect(screen.getByRole('article', { name: /modelo antigo/ })).toBeInTheDocument()
+    expect(screen.queryByText('Nº 42')).toBeNull()
+    expect(usePreferenciasStore.getState().modeloDeImpressao).toBe('antigo')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Modelo novo' }))
+    expect(screen.getByText('Nº 42')).toBeInTheDocument()
   })
 
   it('OS que não existe', async () => {

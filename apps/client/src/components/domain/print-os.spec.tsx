@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { empresaVazia } from '@/models/empresa.model'
+import type { UltimaOrdem } from '@/models/ordem-servico.model'
 import { ordemDetalhe } from '@/test/dados'
 import { PrintOS } from './print-os'
 
@@ -20,6 +21,26 @@ describe('PrintOS', () => {
     expect(anteriores).not.toBeNull()
     expect(within(anteriores as HTMLElement).getByText('Troca do termostato')).toBeInTheDocument()
     expect(within(anteriores as HTMLElement).queryByText('42')).not.toBeInTheDocument()
+  })
+
+  it('mostra até 5 serviços anteriores além da OS atual, do mais novo para o mais antigo (R-IMP-02)', () => {
+    const [atual, anterior] = detalhe.ultimasOrdens as [UltimaOrdem, UltimaOrdem]
+    // A atual no meio da lista (OS antiga reimpressa) e 6 outras: saem só as 5 mais novas.
+    const ultimasOrdens = [50, 48, 42, 36, 33, 31, 30].map((id) =>
+      id === 42 ? atual : { ...anterior, id, solucionado: `Serviço ${id}` },
+    )
+    render(<PrintOS detalhe={{ ...detalhe, ultimasOrdens }} empresa={empresaVazia} />)
+    const anteriores = screen.getByRole('heading', { name: /últimos serviços/i }).closest('section')
+    const linhas = within(anteriores as HTMLElement)
+      .getAllByRole('row')
+      .slice(1)
+    expect(linhas.map((linha) => linha.firstChild?.textContent)).toEqual([
+      '50',
+      '48',
+      '36',
+      '33',
+      '31',
+    ])
   })
 
   it('mostra o código do aparelho e até quando vai a garantia dele (como a impressão antiga)', () => {

@@ -12,7 +12,8 @@
 - Caixa: mesmo cálculo (parcelas do período) e o mesmo gráfico de formas de pagamento.
 - Relatórios: mesmos indicadores e gráficos.
 - Usuários: administrador e usuário comum, sem excluir a si mesmo.
-- Impressão da OS: mesmos blocos (cliente, aparelho, serviço, últimos serviços).
+- Impressão da OS: mesmos blocos (cliente, aparelho, serviço, últimos serviços); e o modelo _Igual ao sistema
+  antigo_ reproduz a folha do antigo (R-IMP-03).
 
 ## Melhorado
 

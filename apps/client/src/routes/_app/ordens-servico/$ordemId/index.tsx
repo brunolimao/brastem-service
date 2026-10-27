@@ -7,7 +7,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useAtualizarOrdemServico, useOrdemServico } from '@/hooks/use-ordens-servico'
 import { useRegistrarRecente } from '@/hooks/use-recentes'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
-import { formParaPayloadOrdemServico, ordemServicoParaForm } from '@/models/ordem-servico.model'
+import {
+  formParaPayloadOrdemServico,
+  ordemServicoParaForm,
+  servicosAnteriores,
+} from '@/models/ordem-servico.model'
 
 export const Route = createFileRoute('/_app/ordens-servico/$ordemId/')({
   component: EditarOrdemServicoPage,
@@ -31,6 +35,7 @@ function EditarOrdemServicoPage() {
   if (!data) return <PageHeader titulo="Ordem de serviço não encontrada" />
 
   const voltar = () => navigate({ to: '/ordens-servico', search: { aparelhoId: data.aparelho.id } })
+  const anteriores = servicosAnteriores(data.ultimasOrdens, ordemId)
 
   return (
     <>
@@ -51,30 +56,28 @@ function EditarOrdemServicoPage() {
         }
       />
 
-      {data.ultimasOrdens.length > 1 && (
+      {anteriores.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Últimos serviços neste aparelho</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-2 text-sm">
-            {data.ultimasOrdens
-              .filter((ordem) => ordem.id !== ordemId)
-              .map((ordem) => (
-                <Link
-                  key={ordem.id}
-                  to="/ordens-servico/$ordemId"
-                  params={{ ordemId: String(ordem.id) }}
-                  className="flex flex-wrap justify-between gap-2 rounded-md border px-3 py-2 hover:bg-muted"
-                >
-                  <span>
-                    OS {ordem.id} · {formatarData(ordem.abertura)}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {ordem.solucionado || 'Sem solução registrada'}
-                  </span>
-                  <span>{formatarMoeda(ordem.valor + ordem.taxaDeslocamento)}</span>
-                </Link>
-              ))}
+            {anteriores.map((ordem) => (
+              <Link
+                key={ordem.id}
+                to="/ordens-servico/$ordemId"
+                params={{ ordemId: String(ordem.id) }}
+                className="flex flex-wrap justify-between gap-2 rounded-md border px-3 py-2 hover:bg-muted"
+              >
+                <span>
+                  OS {ordem.id} · {formatarData(ordem.abertura)}
+                </span>
+                <span className="text-muted-foreground">
+                  {ordem.solucionado || 'Sem solução registrada'}
+                </span>
+                <span>{formatarMoeda(ordem.valor + ordem.taxaDeslocamento)}</span>
+              </Link>
+            ))}
           </CardContent>
         </Card>
       )}

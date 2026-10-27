@@ -74,7 +74,11 @@ export function abrirTela(url: string, { usuario = ADMIN, api = {} }: Opcoes = {
   useBuscaRapidaStore.setState({ aberta: false })
   useRecentesStore.setState({ porUsuario: {} })
   useListasLembradasStore.setState({ buscas: {} })
-  usePreferenciasStore.setState({ menuRecolhido: false, tamanhoDeLetra: 1 })
+  usePreferenciasStore.setState({
+    menuRecolhido: false,
+    tamanhoDeLetra: 1,
+    modeloDeImpressao: 'novo',
+  })
   const respostas = { ...padrao(usuario), ...api }
   const feitos: Pedido[] = []
 

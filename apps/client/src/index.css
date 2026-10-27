@@ -137,6 +137,13 @@
   label[for] {
     cursor: pointer;
   }
+  /* O papel é sempre branco: com "gráficos de fundo" ligado, o tema escuro pintava a margem de preto. */
+  @media print {
+    html,
+    body {
+      background: white;
+    }
+  }
 }
 
 @page {

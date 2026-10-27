@@ -290,4 +290,29 @@ describe('regras de negócio (e2e)', () => {
     expect(pix.body.total).toBeGreaterThan(0)
     expect(pix.body.total).toBeLessThan(todos.body.total)
   })
+
+  it('a OS traz as 6 últimas do aparelho: a atual e mais 5 anteriores (R-IMP-02)', async () => {
+    const outro = await admin
+      .post('/api/clientes')
+      .send({ nome: 'Carlos', aparelhos: [{ nome: 'Lavadora' }] })
+      .expect(201)
+    const ids: number[] = []
+    for (let i = 0; i < 7; i++) {
+      const os = await admin
+        .post('/api/ordens-servico')
+        .send({
+          clienteId: outro.body.id,
+          aparelhoId: outro.body.aparelhos[0].id,
+          status: 'ABERTO',
+          valor: 10000,
+          abertura: '2026-10-01',
+        })
+        .expect(201)
+      ids.push(os.body.ordemServico.id)
+    }
+    const ultima = await admin.get(`/api/ordens-servico/${ids[6]}`).expect(200)
+    expect(ultima.body.ultimasOrdens.map((o: { id: number }) => o.id)).toEqual(
+      ids.slice(1).reverse(),
+    )
+  })
 })

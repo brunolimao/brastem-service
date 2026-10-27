@@ -38,11 +38,12 @@ describe('Usuários', () => {
 })
 
 describe('Configurações', () => {
-  it('usuário comum vê só Aparência e Atualizações, sem nada do administrador (R-CFG-09)', async () => {
+  it('usuário comum vê só Aparência, Impressão e Atualizações, sem nada do administrador (R-CFG-09)', async () => {
     const tela = abrirTela('/configuracoes', { usuario: COMUM })
     await esperarTitulo('Configurações')
     expect(screen.getByText('Aparência')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Maior' })).toBeInTheDocument()
+    expect(screen.getByText('Impressão da OS')).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: 'Procurar atualização' })).toBeInTheDocument()
     for (const deAdmin of [
       'Dados da empresa',

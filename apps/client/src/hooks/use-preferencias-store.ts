@@ -13,6 +13,10 @@ export function aplicarTamanhoDeLetra(indice: number) {
   document.documentElement.style.fontSize = `${TAMANHOS_DE_LETRA[indice] ?? 100}%`
 }
 
+/** Modelo da OS impressa: o novo (A4 em seções) ou o idêntico ao do sistema antigo (R-IMP-03). */
+export const MODELOS_DE_IMPRESSAO = ['novo', 'antigo'] as const
+export type ModeloDeImpressao = (typeof MODELOS_DE_IMPRESSAO)[number]
+
 interface PreferenciasState {
   menuRecolhido: boolean
   alternarMenu: () => void
@@ -22,9 +26,11 @@ interface PreferenciasState {
   /** Vale para todas as tabelas (a escolha numa vale para as outras). */
   linhasPorPagina: LinhasPorPagina
   definirLinhasPorPagina: (linhas: LinhasPorPagina) => void
+  modeloDeImpressao: ModeloDeImpressao
+  definirModeloDeImpressao: (modelo: ModeloDeImpressao) => void
 }
 
-/** Preferências de quem usa este computador (menu recolhido, tamanho da letra, linhas por página). */
+/** Preferências deste computador (menu, tamanho da letra, linhas por página, modelo de impressão). */
 export const usePreferenciasStore = create<PreferenciasState>()(
   persist(
     (set) => ({
@@ -39,6 +45,8 @@ export const usePreferenciasStore = create<PreferenciasState>()(
       },
       linhasPorPagina: 25,
       definirLinhasPorPagina: (linhasPorPagina) => set({ linhasPorPagina }),
+      modeloDeImpressao: 'novo',
+      definirModeloDeImpressao: (modeloDeImpressao) => set({ modeloDeImpressao }),
     }),
     {
       name: 'brastem-preferencias',

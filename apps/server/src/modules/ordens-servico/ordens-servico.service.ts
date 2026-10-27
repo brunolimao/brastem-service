@@ -150,7 +150,8 @@ export class OrdensServicoService {
         .from(ordensServico)
         .where(eq(ordensServico.aparelhoId, ordemServico.aparelhoId))
         .orderBy(desc(ordensServico.id))
-        .limit(5)
+        // A atual e mais 5: a impressão nova mostra 5 além da atual; a antiga, as 5 primeiras.
+        .limit(6)
         .all(),
     }
   }

@@ -90,3 +90,11 @@
 - **Escolha**: o `DataTable` sempre pagina: pelo servidor quando a tela passa `paginacao`; sozinho (20 por
   página) quando não passa. Listas que crescem (clientes, OS, pagamentos, caixa, usuários) paginam no servidor.
 - **Consequência**: tabela nova já nasce paginada. No caixa, saldo e gráfico continuam do período inteiro (R-CX-05).
+
+## D-15 · OS impressa em dois modelos
+
+- **Contexto**: a loja e os clientes já conheciam a folha do sistema antigo.
+- **Escolha**: manter o modelo novo como padrão e oferecer _Igual ao sistema antigo_, uma cópia da folha antiga
+  (mesmas posições e fonte), escolhido por computador (R-IMP-03).
+- **Consequência**: mudanças nos dados da OS precisam chegar aos dois modelos (`print-os.tsx` e
+  `print-os-antigo.tsx`); o antigo só ganha o que existia lá.

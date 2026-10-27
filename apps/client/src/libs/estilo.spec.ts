@@ -78,3 +78,9 @@ describe('botão contornado no modo claro (R-UX-14)', () => {
     expect(ler('../index.css')).toMatch(/--input: oklch\(0\.87 /)
   })
 })
+
+describe('papel da impressão (R-IMP-04)', () => {
+  it('na impressão o fundo da página é branco, mesmo no tema escuro (sem faixa preta na margem)', () => {
+    expect(ler('../index.css')).toMatch(/@media print \{\s*html,\s*body \{\s*background: white;/)
+  })
+})

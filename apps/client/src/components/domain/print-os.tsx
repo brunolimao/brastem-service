@@ -1,7 +1,11 @@
 import { formatarData, formatarMoeda } from '@/libs/formatters'
 import { mascararCpfCnpj, mascararTelefone } from '@/libs/masks'
 import type { Empresa } from '@/models/empresa.model'
-import { type OrdemServicoDetalhe, ROTULO_STATUS } from '@/models/ordem-servico.model'
+import {
+  type OrdemServicoDetalhe,
+  ROTULO_STATUS,
+  servicosAnteriores,
+} from '@/models/ordem-servico.model'
 import { ROTULO_TIPO_PAGAMENTO } from '@/models/pagamento.model'
 
 function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
@@ -40,6 +44,7 @@ export function PrintOS({ detalhe, empresa }: { detalhe: OrdemServicoDetalhe; em
     empresa.cep && `CEP ${empresa.cep}`,
     empresa.telefone && `Fone ${empresa.telefone}`,
   ].filter(Boolean)
+  const anteriores = servicosAnteriores(ultimasOrdens, os.id)
   const endereco = [cliente.endereco, cliente.numero && `nº ${cliente.numero}`, cliente.complemento]
     .filter(Boolean)
     .join(', ')
@@ -136,7 +141,7 @@ export function PrintOS({ detalhe, empresa }: { detalhe: OrdemServicoDetalhe; em
         </Secao>
       )}
 
-      {ultimasOrdens.length > 1 && (
+      {anteriores.length > 0 && (
         <Secao titulo="Últimos serviços neste aparelho">
           <table className="w-full text-left text-xs">
             <thead>
@@ -151,19 +156,17 @@ export function PrintOS({ detalhe, empresa }: { detalhe: OrdemServicoDetalhe; em
               </tr>
             </thead>
             <tbody>
-              {ultimasOrdens
-                .filter((ordem) => ordem.id !== os.id)
-                .map((ordem) => (
-                  <tr key={ordem.id} className="border-neutral-200 border-t">
-                    <td className="py-1">{ordem.id}</td>
-                    <td>{formatarData(ordem.abertura)}</td>
-                    <td>{formatarData(ordem.fechamento)}</td>
-                    <td>{ordem.solucionado || '—'}</td>
-                    <td>{ordem.garantiaDias ? `${ordem.garantiaDias} dias` : '—'}</td>
-                    <td className="text-right">{formatarMoeda(ordem.valor)}</td>
-                    <td className="text-right">{formatarMoeda(ordem.taxaDeslocamento)}</td>
-                  </tr>
-                ))}
+              {anteriores.map((ordem) => (
+                <tr key={ordem.id} className="border-neutral-200 border-t">
+                  <td className="py-1">{ordem.id}</td>
+                  <td>{formatarData(ordem.abertura)}</td>
+                  <td>{formatarData(ordem.fechamento)}</td>
+                  <td>{ordem.solucionado || '—'}</td>
+                  <td>{ordem.garantiaDias ? `${ordem.garantiaDias} dias` : '—'}</td>
+                  <td className="text-right">{formatarMoeda(ordem.valor)}</td>
+                  <td className="text-right">{formatarMoeda(ordem.taxaDeslocamento)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </Secao>

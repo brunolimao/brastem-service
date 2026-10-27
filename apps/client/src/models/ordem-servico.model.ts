@@ -82,6 +82,10 @@ export interface UltimaOrdem {
   garantiaDias: number | null
 }
 
+/** Até 5 serviços do aparelho além da OS atual, do mais novo para o mais antigo (R-IMP-02). */
+export const servicosAnteriores = (ultimas: UltimaOrdem[], atualId: number) =>
+  ultimas.filter((ordem) => ordem.id !== atualId).slice(0, 5)
+
 export interface OrdemServicoDetalhe {
   ordemServico: OrdemServicoApi
   cliente: ClienteApi

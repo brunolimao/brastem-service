@@ -15,10 +15,11 @@ Só o administrador.
 
 ## Telas
 
-- _**Configurações**_ (menu › Sistema), em cartões. O usuário comum vê só **Aparência** e
-  **Atualizações** (R-CFG-09).
+- _**Configurações**_ (menu › Sistema), em cartões. O usuário comum vê só **Aparência**,
+  **Impressão da OS** e **Atualizações** (R-CFG-09).
   - **Dados da empresa**: nome, CNPJ, telefone, endereço, CEP.
   - **Aparência**: tamanho da letra (R-UX-05).
+  - **Impressão da OS**: _Modelo novo_ ou _Igual ao sistema antigo_, neste computador (R-IMP-03).
   - **Atualizações**: versão instalada e _Procurar atualização_ (R-ATU-11).
   - **Backup automático**: último backup (quando, se foi automático ou manual, tamanho), onde está (computador
     e/ou Drive), próximo automático e o botão _Fazer backup agora_.
@@ -56,7 +57,7 @@ Só o administrador.
 - **R-CFG-08**: _Começar do zero_ (último cartão) apaga todos os dados depois de mostrar o que é apagado (inclusive
   todos os usuários), o que continua (backups e Google Drive), o que acontece depois (primeiro acesso ou
   importação) e como desfazer; o botão só funciona com a senha de quem está logado (R-BKP-12).
-- **R-CFG-09**: a tela abre para todos; o usuário comum vê só **Aparência** e **Atualizações**. Dados da empresa, backup,
+- **R-CFG-09**: a tela abre para todos; o usuário comum vê só **Aparência**, **Impressão da OS** e **Atualizações**. Dados da empresa, backup,
   restauração e começar do zero nem aparecem para ele (e a tela não consulta essas rotas, que o servidor
   recusa a quem não é administrador).
 
@@ -65,6 +66,7 @@ Só o administrador.
 | Ação                                     | Administrador | Usuário comum     |
 | ---------------------------------------- | ------------- | ----------------- |
 | Aparência (tamanho da letra)             | sim           | sim               |
+| Modelo de impressão da OS                | sim           | sim               |
 | Todo o resto desta tela                  | sim           | não (nem aparece) |
 | Ler os dados da empresa (pela impressão) | sim           | sim               |
 
@@ -85,13 +87,13 @@ Só o administrador.
 ## Onde está no código
 
 - Server: `apps/server/src/modules/empresa/`, `modules/backup/`
-- Client: `routes/_app/configuracoes.tsx`, `components/domain/empresa-card.tsx`, `aparencia-card.tsx`, `atualizacao-card.tsx`, `backup-*.tsx`
+- Client: `routes/_app/configuracoes.tsx`, `components/domain/empresa-card.tsx`, `aparencia-card.tsx`, `seletor-modelo-impressao.tsx`, `atualizacao-card.tsx`, `backup-*.tsx`
 
 ## Testes
 
 - `apps/server/test/empresa.e2e-spec.ts` — dados da empresa e permissões (R-CFG-01, R-CFG-02).
 - `apps/server/test/backup.e2e-spec.ts` — backup, Google (com um Google falso), restauração (R-CFG-03 a R-CFG-06).
-- `apps/client/src/test/telas/administracao.spec.tsx` — usuário comum vê só Aparência e Atualizações (R-CFG-09).
+- `apps/client/src/test/telas/administracao.spec.tsx` — usuário comum vê só Aparência, Impressão da OS e Atualizações (R-CFG-09).
 - `apps/client/src/components/domain/apagar-tudo-card.spec.tsx` — consequências claras, senha obrigatória, senha errada não sai do sistema (R-CFG-08).
 - `apps/client/src/components/domain/backup.spec.tsx` — cartões de backup e Google Drive, lista e confirmação de restauração, restaurar de um arquivo (R-CFG-03 a R-CFG-07).
 - `apps/client/src/components/domain/usuario-e-empresa.spec.tsx` — dados da empresa começam vazios e saem com máscara (R-CFG-01).
