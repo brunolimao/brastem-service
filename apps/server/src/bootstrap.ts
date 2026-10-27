@@ -15,6 +15,7 @@ import { ACCESS_COOKIE } from './common/auth/auth.types.js'
 import { appConfig } from './common/config/app.config.js'
 import { acessoLocal } from './common/http/acesso-local.js'
 import { createValidationPipe } from './common/validation/messages.js'
+import { MENSAGEM_RESTAURACAO_INICIAL } from './modules/backup/restauracao.service.js'
 import { UsuariosService } from './modules/usuarios/usuarios.service.js'
 
 /** Limite do arquivo .sql do sistema antigo (o real tem ~5 MB). */
@@ -65,16 +66,21 @@ export async function createApp(): Promise<INestApplication> {
   app.useBodyParser('json', { limit: '1mb' })
   // O arquivo importado chega como bytes crus, não como JSON (só com o tipo que o front usa).
   const usuarios = app.get(UsuariosService)
+  // Rotas sem login do primeiro uso: depois do primeiro usuário são recusadas sem nem receber o
+  // arquivo (até 200 MB).
+  const soNoPrimeiroUso =
+    (mensagem: string) => (_req: Request, res: Response, next: NextFunction) => {
+      if (usuarios.total() === 0) return next()
+      res.status(403).json({ statusCode: 403, message: mensagem })
+    }
   app.use(
     '/api/import/legacy',
-    // Depois do primeiro usuário a importação é recusada: nem recebe o arquivo (até 200 MB).
-    (_req: Request, res: Response, next: NextFunction) => {
-      if (usuarios.total() === 0) return next()
-      res.status(403).json({
-        statusCode: 403,
-        message: 'A importação só pode ser feita no primeiro uso, antes de criar usuários.',
-      })
-    },
+    soNoPrimeiroUso('A importação só pode ser feita no primeiro uso, antes de criar usuários.'),
+    raw({ type: 'application/octet-stream', limit: LIMITE_IMPORTACAO }),
+  )
+  app.use(
+    '/api/backup/restaurar/inicial',
+    soNoPrimeiroUso(MENSAGEM_RESTAURACAO_INICIAL),
     raw({ type: 'application/octet-stream', limit: LIMITE_IMPORTACAO }),
   )
   // Backup escolhido pelo usuário para restaurar (só administrador: o guard confere na rota).

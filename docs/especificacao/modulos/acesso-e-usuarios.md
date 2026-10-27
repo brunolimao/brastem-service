@@ -79,7 +79,7 @@ Todos fazem login. Só o administrador cadastra e exclui usuários.
 - `apps/server/test/regras.e2e-spec.ts` — primeiro acesso e cadastros simultâneos (R-ACE-01, R-USU-01).
 - `apps/server/test/seguranca.e2e-spec.ts` — usuário excluído perde o acesso (R-USU-04).
 - `apps/client/src/services/api.spec.ts` — renovação automática e sessão expirada (R-ACE-06).
-- `apps/client/src/test/telas/acesso.spec.tsx` — login volta à tela pedida (sem redirecionar para fora do app), primeiro acesso e importação (R-ACE-01, R-ACE-06).
+- `apps/client/src/test/telas/acesso.spec.tsx` — login volta à tela pedida (sem redirecionar para fora do app), primeiro acesso, importação e restauração de backup sem login (R-ACE-01, R-ACE-06, R-BKP-13).
 - `apps/client/src/hooks/hooks.spec.tsx` — _Sair_ limpa a sessão mesmo sem resposta do servidor (R-ACE-05).
 - `apps/client/src/libs/query-client.spec.ts` — erros viram aviso; sessão expirada não avisa duas vezes (R-ACE-06).
 - `apps/client/src/components/domain/usuario-e-empresa.spec.tsx` — cadastro de usuário (validação e função padrão).

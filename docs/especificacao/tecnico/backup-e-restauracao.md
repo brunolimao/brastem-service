@@ -42,6 +42,10 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
   atual entra no lugar do atual pelo mesmo caminho da restauração (R-BKP-06, R-BKP-07). O app reabre no
   primeiro acesso (criar o administrador ou importar o sistema antigo, R-IMPT-01). Backups e a conexão com o
   Google Drive continuam. Senha errada responde 403 (não derruba a sessão); no máximo 5 tentativas por minuto.
+- **R-BKP-13**: Restaurar no primeiro acesso: com o banco ainda sem usuários (app recém-instalado ou depois de
+  começar do zero), a tela de primeiro acesso oferece _Restaurar um backup_, sem login. Mesmas conferências
+  de R-BKP-10; os usuários do backup voltam junto. Depois do primeiro usuário, a rota recusa sem nem receber
+  o arquivo.
 
 ## Onde está no código
 
@@ -52,7 +56,7 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
 
 ## Testes
 
-- `apps/server/test/backup.e2e-spec.ts` — backup, retenção, Drive (com Google falso), envio pendente, restauração e recusas, restauração de arquivo enviado, conexão que continua depois de reabrir o app, começar do zero com senha (R-BKP-01 a R-BKP-08, R-BKP-10 a R-BKP-12).
+- `apps/server/test/backup.e2e-spec.ts` — backup, retenção, Drive (com Google falso), envio pendente, restauração e recusas, restauração de arquivo enviado, conexão que continua depois de reabrir o app, começar do zero com senha (R-BKP-01 a R-BKP-08, R-BKP-10 a R-BKP-13).
 - `apps/server/src/common/database/connection.spec.ts` — troca do banco na abertura, cópia antiga completa mesmo com `-wal` pendente (R-BKP-06, R-BKP-07).
 - `apps/server/src/common/utils/arquivos.spec.ts` — R-BKP-09.
 - `apps/server/src/modules/backup/backup.agendador.spec.ts` — 1 minuto depois de abrir e de hora em hora; falha não derruba o app (R-BKP-01).

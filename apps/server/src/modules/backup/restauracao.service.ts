@@ -40,6 +40,9 @@ const ID_DRIVE_VALIDO = /^[\w-]{10,120}$/
 
 export type OrigemRestauracao = 'local' | 'drive'
 
+export const MENSAGEM_RESTAURACAO_INICIAL =
+  'Sem entrar no sistema, a restauração só pode ser feita no primeiro uso, antes de criar usuários.'
+
 interface ArquivoObtido {
   caminho: string
   gzip: boolean
@@ -100,6 +103,15 @@ export class RestauracaoService {
       }
       return { caminho: temporario, gzip: false }
     })
+  }
+
+  /**
+   * Restaurar um backup na tela de primeiro acesso (sem login), em vez de criar um administrador: só com o
+   * banco sem usuários (o bootstrap já recusa antes de receber o arquivo; aqui é a segunda trava).
+   */
+  prepararInicial(conteudo: unknown): Promise<{ reiniciando: boolean }> {
+    if (this.usuarios.total() > 0) throw new ForbiddenException(MENSAGEM_RESTAURACAO_INICIAL)
+    return this.prepararDeArquivo(conteudo)
   }
 
   private async prepararCom(

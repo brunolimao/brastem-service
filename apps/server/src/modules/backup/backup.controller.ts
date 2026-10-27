@@ -73,6 +73,18 @@ export class BackupController {
     return this.restauracao.prepararBancoVazio(usuario.id, dto.senha)
   }
 
+  // Pública porque acontece antes de existir qualquer usuário; o serviço recusa se já houver.
+  @Public()
+  @Post('restaurar/inicial')
+  @HttpCode(200)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Restaura um backup no primeiro acesso (só antes do primeiro usuário)' })
+  @ApiConsumes('application/octet-stream')
+  @ApiBody({ schema: { type: 'string', format: 'binary' } })
+  restaurarInicial(@Req() req: Request) {
+    return this.restauracao.prepararInicial(req.body)
+  }
+
   @Post('restaurar/arquivo')
   @HttpCode(200)
   @Throttle({ default: { limit: 20, ttl: 60_000 } })

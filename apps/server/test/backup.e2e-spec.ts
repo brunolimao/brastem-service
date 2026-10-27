@@ -436,6 +436,46 @@ describe('backup e restauração (e2e)', () => {
       })
     })
 
+    describe('no primeiro acesso, sem login (R-BKP-13)', () => {
+      const enviarInicial = (servidor: Parameters<typeof request>[0], conteudo: Buffer) =>
+        request(servidor)
+          .post('/api/backup/restaurar/inicial')
+          .set('content-type', 'application/octet-stream')
+          .send(conteudo)
+
+      it('com o banco ainda sem usuários, restaura um backup sem precisar entrar', async () => {
+        const gz = readFileSync(join(pastaBackups, await nomeDoUltimoBackup()))
+        // Outra instância, de banco vazio (nos testes o banco é em memória): é o app recém-instalado.
+        const { createApp } = await import('../src/bootstrap.js')
+        const novo = await createApp()
+        await novo.init()
+        try {
+          const res = await enviarInicial(novo.getHttpServer(), gz).expect(200)
+          expect(res.body).toEqual({ reiniciando: false })
+          expect(existsSync(pendente())).toBe(true)
+          rmSync(pendente())
+
+          const lixo = await enviarInicial(
+            novo.getHttpServer(),
+            Buffer.from('não é backup'),
+          ).expect(400)
+          expect(lixo.body.message).toBe('Este arquivo não é um backup válido do Brastem-Service.')
+          expect(existsSync(pendente())).toBe(false)
+        } finally {
+          await novo.close()
+        }
+      })
+
+      it('depois do primeiro usuário, é recusada sem nem receber o arquivo', async () => {
+        const gz = readFileSync(join(pastaBackups, await nomeDoUltimoBackup()))
+        const res = await enviarInicial(app.getHttpServer(), gz).expect(403)
+        expect(res.body.message).toBe(
+          'Sem entrar no sistema, a restauração só pode ser feita no primeiro uso, antes de criar usuários.',
+        )
+        expect(existsSync(pendente())).toBe(false)
+      })
+    })
+
     describe('apagar tudo para começar do zero (R-BKP-12)', () => {
       it('pede a senha de quem está logado; errada ou vazia não prepara nada', async () => {
         const errada = await admin

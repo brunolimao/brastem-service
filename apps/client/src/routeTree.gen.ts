@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrimeiroAcessoRouteImport } from './routes/primeiro-acesso'
+import { Route as RestaurarBackupRouteImport } from './routes/restaurar-backup'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoes'
 import { Route as AppPagamentosRouteImport } from './routes/_app/pagamentos'
@@ -46,6 +47,11 @@ const LoginRoute = LoginRouteImport.update({
 const PrimeiroAcessoRoute = PrimeiroAcessoRouteImport.update({
   id: '/primeiro-acesso',
   path: '/primeiro-acesso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestaurarBackupRoute = RestaurarBackupRouteImport.update({
+  id: '/restaurar-backup',
+  path: '/restaurar-backup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/restaurar-backup': typeof RestaurarBackupRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/pagamentos': typeof AppPagamentosRoute
   '/relatorios': typeof AppRelatoriosRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/restaurar-backup': typeof RestaurarBackupRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/pagamentos': typeof AppPagamentosRoute
   '/relatorios': typeof AppRelatoriosRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/importar': typeof ImportarRoute
   '/login': typeof LoginRoute
   '/primeiro-acesso': typeof PrimeiroAcessoRoute
+  '/restaurar-backup': typeof RestaurarBackupRoute
   '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/pagamentos': typeof AppPagamentosRoute
   '/_app/relatorios': typeof AppRelatoriosRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/login'
     | '/primeiro-acesso'
+    | '/restaurar-backup'
     | '/configuracoes'
     | '/pagamentos'
     | '/relatorios'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/login'
     | '/primeiro-acesso'
+    | '/restaurar-backup'
     | '/configuracoes'
     | '/pagamentos'
     | '/relatorios'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/login'
     | '/primeiro-acesso'
+    | '/restaurar-backup'
     | '/_app/configuracoes'
     | '/_app/pagamentos'
     | '/_app/relatorios'
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   ImportarRoute: typeof ImportarRoute
   LoginRoute: typeof LoginRoute
   PrimeiroAcessoRoute: typeof PrimeiroAcessoRoute
+  RestaurarBackupRoute: typeof RestaurarBackupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -287,6 +300,13 @@ declare module '@tanstack/react-router' {
       path: '/primeiro-acesso'
       fullPath: '/primeiro-acesso'
       preLoaderRoute: typeof PrimeiroAcessoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restaurar-backup': {
+      id: '/restaurar-backup'
+      path: '/restaurar-backup'
+      fullPath: '/restaurar-backup'
+      preLoaderRoute: typeof RestaurarBackupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/': {
@@ -440,6 +460,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportarRoute: ImportarRoute,
   LoginRoute: LoginRoute,
   PrimeiroAcessoRoute: PrimeiroAcessoRoute,
+  RestaurarBackupRoute: RestaurarBackupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -64,12 +64,23 @@ function PrimeiroAcessoPage() {
               <form.BotaoSalvar texto="Criar administrador" textoEnviando="Criando..." />
             </form.AppForm>
           </form>
-          <p className="mt-4 text-center text-muted-foreground text-sm">
-            Já usava o sistema antigo?{' '}
-            <Link to="/importar" className="text-primary underline-offset-4 hover:underline">
-              Importar os dados
-            </Link>
-          </p>
+          <div className="mt-4 grid gap-1 text-center text-muted-foreground text-sm">
+            <p>
+              Já usava o sistema antigo?{' '}
+              <Link to="/importar" className="text-primary underline-offset-4 hover:underline">
+                Importar os dados
+              </Link>
+            </p>
+            <p>
+              Tem um backup do Brastem-Service?{' '}
+              <Link
+                to="/restaurar-backup"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                Restaurar um backup
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </main>

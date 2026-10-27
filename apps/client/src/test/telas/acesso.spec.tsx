@@ -159,6 +159,71 @@ describe('importar do sistema antigo', () => {
   })
 })
 
+describe('restaurar um backup no primeiro acesso (R-BKP-13)', () => {
+  it('o primeiro acesso oferece restaurar; o backup escolhido vai sem login', async () => {
+    const tela = abrirTela('/primeiro-acesso', {
+      usuario: null,
+      api: {
+        'GET /auth/setup': { needsSetup: true },
+        'POST /backup/restaurar/inicial': { reiniciando: true },
+      },
+    })
+    fireEvent.click(await screen.findByRole('link', { name: 'Restaurar um backup' }))
+    await esperarCaminho(tela, '/restaurar-backup')
+
+    const arquivo = new File(['backup'], 'brastem-2026-10-20-090000.sqlite.gz')
+    const seletor = await screen.findByLabelText('Arquivo de backup')
+    expect(seletor).toHaveAttribute('accept', '.gz,.sqlite')
+    expect(screen.getByRole('button', { name: 'Restaurar' })).toBeDisabled()
+    fireEvent.change(seletor, { target: { files: [arquivo] } })
+    expect(screen.getByRole('button', { name: /brastem-2026-10-20-090000/ })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Restaurar' }))
+
+    expect(await screen.findByText(/está reiniciando/)).toBeInTheDocument()
+    expect(tela.ultimo('POST /backup/restaurar/inicial').corpo).toBe(arquivo)
+  })
+
+  it('fora do app desktop, pede para fechar e abrir', async () => {
+    abrirTela('/restaurar-backup', {
+      usuario: null,
+      api: {
+        'GET /auth/setup': { needsSetup: true },
+        'POST /backup/restaurar/inicial': { reiniciando: false },
+      },
+    })
+    fireEvent.change(await screen.findByLabelText('Arquivo de backup'), {
+      target: { files: [new File(['x'], 'a.sqlite')] },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Restaurar' }))
+    expect(await screen.findByText(/Feche e abra/)).toBeInTheDocument()
+  })
+
+  it('arquivo recusado: mostra o motivo e deixa escolher outro', async () => {
+    abrirTela('/restaurar-backup', {
+      usuario: null,
+      api: {
+        'GET /auth/setup': { needsSetup: true },
+        'POST /backup/restaurar/inicial': resposta(400, {
+          message: 'Este arquivo não é um backup válido do Brastem-Service.',
+        }),
+      },
+    })
+    fireEvent.change(await screen.findByLabelText('Arquivo de backup'), {
+      target: { files: [new File(['x'], 'dump.sql')] },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Restaurar' }))
+    expect(
+      await screen.findByText('Este arquivo não é um backup válido do Brastem-Service.'),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Restaurar' })).toBeEnabled()
+  })
+
+  it('com usuários já cadastrados, a tela leva ao login', async () => {
+    const tela = abrirTela('/restaurar-backup', { usuario: null })
+    await esperarCaminho(tela, '/login')
+  })
+})
+
 describe('telas só do administrador (R-PERM-03)', () => {
   it.each(['/caixa', '/pagamentos', '/relatorios', '/usuarios', '/configuracoes'])(
     'usuário comum em %s volta para o início',

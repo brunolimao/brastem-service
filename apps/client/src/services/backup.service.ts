@@ -15,6 +15,9 @@ export const backupService = {
   /** Começar do zero: prepara um banco vazio no lugar do atual (pede a senha de quem está logado). */
   apagarTudo: (senha: string) =>
     api<{ reiniciando: boolean }>('/backup/apagar-tudo', { method: 'POST', body: { senha } }),
+  /** Primeiro acesso, sem login: só funciona com o banco ainda sem usuários. */
+  restaurarInicial: (arquivo: File) =>
+    api<{ reiniciando: boolean }>('/backup/restaurar/inicial', { method: 'POST', arquivo }),
   /** Backup escolhido no computador (.sqlite.gz ou .sqlite), enviado como arquivo. */
   restaurarArquivo: (arquivo: File) =>
     api<{ reiniciando: boolean }>('/backup/restaurar/arquivo', { method: 'POST', arquivo }),
