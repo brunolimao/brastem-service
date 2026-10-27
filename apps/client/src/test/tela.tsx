@@ -62,8 +62,8 @@ afterEach(() => vi.unstubAllGlobals())
 
 // Cada tela é carregada sob demanda (code splitting): na primeira vez o Vite ainda transforma o código
 // dela, o que com a cobertura ligada passa fácil de 1 s (a espera padrão do findBy/waitFor).
-configure({ asyncUtilTimeout: 10_000 })
-vi.setConfig({ testTimeout: 30_000 })
+configure({ asyncUtilTimeout: 20_000 })
+vi.setConfig({ testTimeout: 60_000 })
 
 export function abrirTela(url: string, { usuario = ADMIN, api = {} }: Opcoes = {}) {
   // Stores globais (zustand) sobrevivem entre testes: cada tela começa do zero.

@@ -14,12 +14,18 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { usePagamentos } from '@/hooks/use-financeiro'
+import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
+import { ordenacaoDaUrl, ordenacaoNaUrl, urlDaOrdenacao } from '@/libs/ordenacao'
 import { resolverPeriodo } from '@/libs/periodo'
 import { buscaDePeriodo, numeroPositivo, textoDeBusca, umDos } from '@/libs/search-params'
 import { cn } from '@/libs/utils'
-import { type PagamentoListado, ROTULO_TIPO_PAGAMENTO } from '@/models/pagamento.model'
+import {
+  ORDENAVEIS_PAGAMENTO,
+  type PagamentoListado,
+  ROTULO_TIPO_PAGAMENTO,
+} from '@/models/pagamento.model'
 
 const CAMPOS = [
   { valor: 'todos', rotulo: 'Todos' },
@@ -34,6 +40,7 @@ export const Route = createFileRoute('/_app/pagamentos')({
     campo: umDos(CAMPOS),
     tipo: z.enum(TIPOS_PAGAMENTO).optional().catch(undefined),
     page: numeroPositivo,
+    ...ordenacaoNaUrl(ORDENAVEIS_PAGAMENTO),
   }),
   beforeLoad: () => {
     if (useSessionStore.getState().usuario?.role !== 'admin') throw redirect({ to: '/' })
@@ -90,11 +97,21 @@ const colunas: Coluna<PagamentoListado>[] = [
 const SEM_DADOS: PagamentoListado[] = []
 
 function PagamentosPage() {
-  const { busca, campo, tipo, inicio, fim, page } = Route.useSearch()
+  const { busca, campo, tipo, inicio, fim, page, ordem, direcao } = Route.useSearch()
+  const pageSize = usePreferenciasStore((estado) => estado.linhasPorPagina)
   const navigate = useNavigate({ from: Route.fullPath })
   // Sem datas na URL vale o mês atual: o mesmo período que o filtro mostra (como no Caixa).
   const periodo = resolverPeriodo(inicio, fim)
-  const { data, isLoading } = usePagamentos({ busca, campo, tipo, ...periodo, page })
+  const { data, isLoading } = usePagamentos({
+    busca,
+    campo,
+    tipo,
+    ...periodo,
+    page,
+    pageSize,
+    ordem,
+    direcao,
+  })
 
   return (
     <>
@@ -155,6 +172,13 @@ function PagamentosPage() {
         colunas={colunas}
         dados={data?.items ?? SEM_DADOS}
         carregando={isLoading}
+        ordenaveis={ORDENAVEIS_PAGAMENTO}
+        ordenacao={ordenacaoDaUrl({ ordem, direcao })}
+        aoOrdenar={(nova) =>
+          navigate({
+            search: (anterior) => ({ ...anterior, ...urlDaOrdenacao(nova, ORDENAVEIS_PAGAMENTO) }),
+          })
+        }
         paginacao={
           data && {
             page: data.page,

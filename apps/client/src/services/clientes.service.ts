@@ -1,19 +1,18 @@
 import type { ClienteDetalhe, ClienteListado, formParaPayloadCliente } from '@/models/cliente.model'
-import type { Pagina } from '@/models/pagina.model'
+import type { OpcoesDeLista, Pagina } from '@/models/pagina.model'
 import { api } from './api'
 
-export interface BuscaClientes {
+export interface BuscaClientes extends OpcoesDeLista {
   busca?: string
   campo?: string
-  page?: number
 }
 
 type PayloadCliente = ReturnType<typeof formParaPayloadCliente>
 
 export const clientesService = {
-  listar: ({ busca, campo, page }: BuscaClientes) =>
+  listar: ({ campo, ...resto }: BuscaClientes) =>
     api<Pagina<ClienteListado>>('/clientes', {
-      query: { busca, campo: campo === 'todos' ? undefined : campo, page },
+      query: { ...resto, campo: campo === 'todos' ? undefined : campo },
     }),
   buscar: (id: number) => api<ClienteDetalhe>(`/clientes/${id}`),
   criar: (dados: PayloadCliente) =>

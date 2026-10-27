@@ -7,16 +7,23 @@ import { BuscaLista } from '@/components/domain/busca-lista'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { useClientes, useRemoverCliente } from '@/hooks/use-clientes'
+import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { mascararCpfCnpj } from '@/libs/masks'
+import { ordenacaoDaUrl, ordenacaoNaUrl, urlDaOrdenacao } from '@/libs/ordenacao'
 import { numeroPositivo, textoDeBusca, umDos } from '@/libs/search-params'
-import { CAMPOS_BUSCA_CLIENTE, type ClienteListado } from '@/models/cliente.model'
+import {
+  CAMPOS_BUSCA_CLIENTE,
+  type ClienteListado,
+  ORDENAVEIS_CLIENTE,
+} from '@/models/cliente.model'
 
 export const Route = createFileRoute('/_app/clientes/')({
   validateSearch: z.object({
     busca: textoDeBusca,
     campo: umDos(CAMPOS_BUSCA_CLIENTE),
     page: numeroPositivo,
+    ...ordenacaoNaUrl(ORDENAVEIS_CLIENTE),
   }),
   component: ClientesPage,
 })
@@ -58,9 +65,10 @@ const colunas: Coluna<ClienteListado>[] = [
 const SEM_DADOS: ClienteListado[] = []
 
 function ClientesPage() {
-  const { busca, campo, page } = Route.useSearch()
+  const { busca, campo, page, ordem, direcao } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isLoading } = useClientes({ busca, campo, page })
+  const pageSize = usePreferenciasStore((estado) => estado.linhasPorPagina)
+  const { data, isLoading } = useClientes({ busca, campo, page, pageSize, ordem, direcao })
 
   return (
     <>
@@ -90,6 +98,13 @@ function ClientesPage() {
         dados={data?.items ?? SEM_DADOS}
         carregando={isLoading}
         classeDaLinha={(cliente) => (cliente.negativado ? 'text-destructive' : undefined)}
+        ordenaveis={ORDENAVEIS_CLIENTE}
+        ordenacao={ordenacaoDaUrl({ ordem, direcao })}
+        aoOrdenar={(nova) =>
+          navigate({
+            search: (anterior) => ({ ...anterior, ...urlDaOrdenacao(nova, ORDENAVEIS_CLIENTE) }),
+          })
+        }
         paginacao={
           data && {
             page: data.page,

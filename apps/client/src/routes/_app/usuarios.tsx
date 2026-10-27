@@ -17,14 +17,16 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { useRemoverUsuario, useUsuarios } from '@/hooks/use-usuarios'
 import { formatarData } from '@/libs/formatters'
+import { ordenacaoDaUrl, ordenacaoNaUrl, urlDaOrdenacao } from '@/libs/ordenacao'
 import { numeroPositivo } from '@/libs/search-params'
-import { ROTULO_ROLE, type Usuario } from '@/models/usuario.model'
+import { ORDENAVEIS_USUARIO, ROTULO_ROLE, type Usuario } from '@/models/usuario.model'
 
 export const Route = createFileRoute('/_app/usuarios')({
-  validateSearch: z.object({ page: numeroPositivo }),
+  validateSearch: z.object({ page: numeroPositivo, ...ordenacaoNaUrl(ORDENAVEIS_USUARIO) }),
   beforeLoad: () => {
     if (useSessionStore.getState().usuario?.role !== 'admin') throw redirect({ to: '/' })
   },
@@ -85,9 +87,10 @@ const colunas: Coluna<Usuario>[] = [
 ]
 
 function UsuariosPage() {
-  const { page } = Route.useSearch()
+  const { page, ordem, direcao } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isLoading } = useUsuarios(page)
+  const pageSize = usePreferenciasStore((estado) => estado.linhasPorPagina)
+  const { data, isLoading } = useUsuarios({ page, pageSize, ordem, direcao })
 
   return (
     <>
@@ -100,11 +103,19 @@ function UsuariosPage() {
         colunas={colunas}
         dados={data?.items ?? SEM_DADOS}
         carregando={isLoading}
+        ordenaveis={ORDENAVEIS_USUARIO}
+        ordenacao={ordenacaoDaUrl({ ordem, direcao })}
+        aoOrdenar={(nova) =>
+          navigate({
+            search: (anterior) => ({ ...anterior, ...urlDaOrdenacao(nova, ORDENAVEIS_USUARIO) }),
+          })
+        }
         paginacao={{
           page: page ?? 1,
-          pageSize: data?.pageSize ?? 20,
+          pageSize,
           total: data?.total ?? 0,
-          aoMudarPagina: (novaPagina) => navigate({ search: { page: novaPagina } }),
+          aoMudarPagina: (novaPagina) =>
+            navigate({ search: (anterior) => ({ ...anterior, page: novaPagina }) }),
         }}
       />
     </>

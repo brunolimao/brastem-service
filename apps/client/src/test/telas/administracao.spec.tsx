@@ -30,7 +30,7 @@ describe('Usuários', () => {
 
   it('a página da URL vai para o servidor', async () => {
     const tela = abrirTela('/usuarios?page=2', {
-      api: { 'GET /usuarios': pagina([usuario({ id: 30 })], 25, 2) },
+      api: { 'GET /usuarios': pagina([usuario({ id: 30 })], 40, 2) },
     })
     expect(await screen.findByText('Página 2 de 2')).toBeInTheDocument()
     expect(tela.ultimo('GET /usuarios').query.get('page')).toBe('2')

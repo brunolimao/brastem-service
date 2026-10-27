@@ -96,3 +96,13 @@ export interface PagamentoListado {
   clienteId: number | null
   aparelhoId: number | null
 }
+
+/** Colunas da lista que o servidor sabe ordenar (as mesmas chaves das colunas da tabela). */
+export const ORDENAVEIS_PAGAMENTO = [
+  'id',
+  'valor',
+  'data',
+  'parcelas',
+  'tipo',
+  'observacao',
+] as const

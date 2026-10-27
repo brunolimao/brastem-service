@@ -202,3 +202,6 @@ export function formParaPayloadCliente(form: ClienteForm) {
     ),
   }
 }
+
+/** Colunas da lista que o servidor sabe ordenar (as mesmas chaves das colunas da tabela). */
+export const ORDENAVEIS_CLIENTE = ['id', 'nome', 'email', 'cpf'] as const

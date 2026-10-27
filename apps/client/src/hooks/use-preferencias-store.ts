@@ -5,6 +5,10 @@ import { persist } from 'zustand/middleware'
 export const TAMANHOS_DE_LETRA = [87.5, 100, 112.5, 125] as const
 const PADRAO = 1
 
+/** Quantas linhas cada tabela mostra por página. */
+export const OPCOES_LINHAS_POR_PAGINA = [10, 25, 50, 100] as const
+export type LinhasPorPagina = (typeof OPCOES_LINHAS_POR_PAGINA)[number]
+
 export function aplicarTamanhoDeLetra(indice: number) {
   document.documentElement.style.fontSize = `${TAMANHOS_DE_LETRA[indice] ?? 100}%`
 }
@@ -15,9 +19,12 @@ interface PreferenciasState {
   /** Posição em TAMANHOS_DE_LETRA. */
   tamanhoDeLetra: number
   mudarLetra: (passo: 1 | -1) => void
+  /** Vale para todas as tabelas (a escolha numa vale para as outras). */
+  linhasPorPagina: LinhasPorPagina
+  definirLinhasPorPagina: (linhas: LinhasPorPagina) => void
 }
 
-/** Preferências de quem usa este computador (menu recolhido, tamanho da letra). */
+/** Preferências de quem usa este computador (menu recolhido, tamanho da letra, linhas por página). */
 export const usePreferenciasStore = create<PreferenciasState>()(
   persist(
     (set) => ({
@@ -33,6 +40,8 @@ export const usePreferenciasStore = create<PreferenciasState>()(
           aplicarTamanhoDeLetra(tamanhoDeLetra)
           return { tamanhoDeLetra }
         }),
+      linhasPorPagina: 25,
+      definirLinhasPorPagina: (linhasPorPagina) => set({ linhasPorPagina }),
     }),
     {
       name: 'brastem-preferencias',

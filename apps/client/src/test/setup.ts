@@ -24,3 +24,8 @@ globalThis.ResizeObserver ??= class {
 
 // Nem rolagem de janela (o roteador rola para o topo ao trocar de tela).
 window.scrollTo = () => undefined
+
+// O Select do Radix usa captura de ponteiro e rolagem até a opção, que o jsdom também não tem.
+Element.prototype.hasPointerCapture ??= () => false
+Element.prototype.releasePointerCapture ??= () => undefined
+Element.prototype.scrollIntoView ??= () => undefined

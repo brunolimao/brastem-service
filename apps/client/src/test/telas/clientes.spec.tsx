@@ -34,6 +34,35 @@ describe('Clientes: lista', () => {
     expect(tela.ultimo('GET /clientes').query.has('campo')).toBe(false)
   })
 
+  it('clicar no cabeçalho ordena no servidor e guarda a ordem na URL (R-UX-06)', async () => {
+    const tela = abrirTela('/clientes?page=2', {
+      api: { 'GET /clientes': pagina([clienteListado()], 60, 2) },
+    })
+    await screen.findByText('João da Silva')
+    expect(tela.ultimo('GET /clientes').query.get('pageSize')).toBe('25')
+
+    fireEvent.click(screen.getByRole('button', { name: /^Nome/ }))
+    await waitFor(() => expect(tela.busca()).toMatchObject({ ordem: 'nome', direcao: 'asc' }))
+    // A ordem mudou: volta para a primeira página.
+    expect(tela.busca().page).toBeUndefined()
+    await waitFor(() => expect(tela.ultimo('GET /clientes').query.get('ordem')).toBe('nome'))
+    expect(tela.ultimo('GET /clientes').query.get('direcao')).toBe('asc')
+
+    fireEvent.click(screen.getByRole('button', { name: /^Nome/ }))
+    await waitFor(() => expect(tela.busca()).toMatchObject({ ordem: 'nome', direcao: 'desc' }))
+    // Ações (editar/excluir) não é coluna de dado: não ordena.
+    expect(screen.queryByRole('button', { name: /^Ações/ })).toBeNull()
+  })
+
+  it('ordem desconhecida na URL é ignorada (não vai ao servidor)', async () => {
+    const tela = abrirTela('/clientes?ordem=senha&direcao=lado', {
+      api: { 'GET /clientes': pagina([]) },
+    })
+    await screen.findByText('Nenhum registro encontrado')
+    expect(tela.ultimo('GET /clientes').query.has('ordem')).toBe(false)
+    expect(tela.ultimo('GET /clientes').query.has('direcao')).toBe(false)
+  })
+
   it('campo inválido na URL é ignorado em vez de virar erro', async () => {
     const tela = abrirTela('/clientes?campo=senha&busca=x', {
       api: { 'GET /clientes': pagina([]) },

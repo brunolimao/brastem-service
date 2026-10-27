@@ -34,3 +34,6 @@ export interface Caixa {
 /** "À vista" ou "2/3". */
 export const rotuloParcela = (item: Pick<ItemCaixa, 'numero' | 'totalParcelas'>) =>
   item.totalParcelas === 0 ? 'À vista' : `${item.numero}/${item.totalParcelas}`
+
+/** Colunas da lista que o servidor sabe ordenar (as mesmas chaves das colunas da tabela). */
+export const ORDENAVEIS_CAIXA = ['id', 'data', 'valor', 'tipo'] as const

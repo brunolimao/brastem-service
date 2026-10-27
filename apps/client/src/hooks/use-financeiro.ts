@@ -1,12 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { Periodo } from '@/libs/periodo'
+import type { OpcoesDeLista } from '@/models/pagina.model'
 import { type BuscaPagamentos, financeiroService } from '@/services/financeiro.service'
 
-export const useCaixa = (periodo: Periodo, page?: number) =>
+export const useCaixa = (periodo: Periodo, opcoes: OpcoesDeLista = {}) =>
   useQuery({
-    queryKey: ['caixa', periodo, page],
-    queryFn: () => financeiroService.caixa(periodo, page),
+    queryKey: ['caixa', periodo, opcoes],
+    queryFn: () => financeiroService.caixa(periodo, opcoes),
     placeholderData: keepPreviousData,
   })
 

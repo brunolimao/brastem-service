@@ -8,17 +8,22 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCaixa, useRemoverTransacao } from '@/hooks/use-financeiro'
+import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
+import { ordenacaoDaUrl, ordenacaoNaUrl, urlDaOrdenacao } from '@/libs/ordenacao'
 import { resolverPeriodo } from '@/libs/periodo'
 import { buscaDePeriodo, numeroPositivo } from '@/libs/search-params'
 import { cn } from '@/libs/utils'
-import { type ItemCaixa, rotuloParcela } from '@/models/caixa.model'
+import { type ItemCaixa, ORDENAVEIS_CAIXA, rotuloParcela } from '@/models/caixa.model'
 import { ROTULO_TIPO_PAGAMENTO } from '@/models/pagamento.model'
 import { ROTULO_CATEGORIA } from '@/models/transacao.model'
 
 export const Route = createFileRoute('/_app/caixa/')({
-  validateSearch: buscaDePeriodo.extend({ page: numeroPositivo }),
+  validateSearch: buscaDePeriodo.extend({
+    page: numeroPositivo,
+    ...ordenacaoNaUrl(ORDENAVEIS_CAIXA),
+  }),
   beforeLoad: () => {
     if (useSessionStore.getState().usuario?.role !== 'admin') throw redirect({ to: '/' })
   },
@@ -86,10 +91,11 @@ const colunas: Coluna<ItemCaixa>[] = [
 const SEM_DADOS: ItemCaixa[] = []
 
 function CaixaPage() {
-  const { inicio, fim, page } = Route.useSearch()
+  const { inicio, fim, page, ordem, direcao } = Route.useSearch()
   const periodo = resolverPeriodo(inicio, fim)
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isLoading } = useCaixa(periodo, page)
+  const pageSize = usePreferenciasStore((estado) => estado.linhasPorPagina)
+  const { data, isLoading } = useCaixa(periodo, { page, pageSize, ordem, direcao })
 
   const formas = data
     ? Object.entries(data.formas).map(([tipo, quantidade]) => ({
@@ -156,9 +162,16 @@ function CaixaPage() {
         dados={data?.itens ?? SEM_DADOS}
         carregando={isLoading}
         mensagemVazia="Nenhuma movimentação neste período"
+        ordenaveis={ORDENAVEIS_CAIXA}
+        ordenacao={ordenacaoDaUrl({ ordem, direcao })}
+        aoOrdenar={(nova) =>
+          navigate({
+            search: (anterior) => ({ ...anterior, ...urlDaOrdenacao(nova, ORDENAVEIS_CAIXA) }),
+          })
+        }
         paginacao={{
           page: page ?? 1,
-          pageSize: data?.pageSize ?? 20,
+          pageSize,
           total: data?.quantidade ?? 0,
           aoMudarPagina: (novaPagina) =>
             navigate({ search: (anterior) => ({ ...anterior, page: novaPagina }) }),

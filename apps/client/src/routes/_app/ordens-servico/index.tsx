@@ -8,11 +8,14 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useOrdensServico, useRemoverOrdemServico } from '@/hooks/use-ordens-servico'
+import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
+import { ordenacaoDaUrl, ordenacaoNaUrl, urlDaOrdenacao } from '@/libs/ordenacao'
 import { numeroPositivo, textoDeBusca, umDos } from '@/libs/search-params'
 import {
   CAMPOS_BUSCA_OS,
+  ORDENAVEIS_OS,
   type OrdemServicoListada,
   ROTULO_STATUS,
 } from '@/models/ordem-servico.model'
@@ -24,6 +27,7 @@ export const Route = createFileRoute('/_app/ordens-servico/')({
     page: numeroPositivo,
     clienteId: z.number().int().optional().catch(undefined),
     aparelhoId: z.number().int().optional().catch(undefined),
+    ...ordenacaoNaUrl(ORDENAVEIS_OS),
   }),
   component: OrdensServicoPage,
 })
@@ -98,9 +102,19 @@ const colunas: Coluna<OrdemServicoListada>[] = [
 const SEM_DADOS: OrdemServicoListada[] = []
 
 function OrdensServicoPage() {
-  const { busca, campo, page, clienteId, aparelhoId } = Route.useSearch()
+  const { busca, campo, page, clienteId, aparelhoId, ordem, direcao } = Route.useSearch()
   const navigate = useNavigate({ from: Route.fullPath })
-  const { data, isLoading } = useOrdensServico({ busca, campo, page, clienteId, aparelhoId })
+  const pageSize = usePreferenciasStore((estado) => estado.linhasPorPagina)
+  const { data, isLoading } = useOrdensServico({
+    busca,
+    campo,
+    page,
+    pageSize,
+    ordem,
+    direcao,
+    clienteId,
+    aparelhoId,
+  })
   const filtrada = clienteId !== undefined || aparelhoId !== undefined
 
   return (
@@ -145,7 +159,14 @@ function OrdensServicoPage() {
         colunas={colunas}
         dados={data?.items ?? SEM_DADOS}
         carregando={isLoading}
-        classeDaLinha={(ordem) => (ordem.clienteNegativado ? 'text-destructive' : undefined)}
+        classeDaLinha={(linha) => (linha.clienteNegativado ? 'text-destructive' : undefined)}
+        ordenaveis={ORDENAVEIS_OS}
+        ordenacao={ordenacaoDaUrl({ ordem, direcao })}
+        aoOrdenar={(nova) =>
+          navigate({
+            search: (anterior) => ({ ...anterior, ...urlDaOrdenacao(nova, ORDENAVEIS_OS) }),
+          })
+        }
         paginacao={
           data && {
             page: data.page,

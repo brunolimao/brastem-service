@@ -167,3 +167,14 @@ export const mostrarPagamentos = (
   form.status === 'FECHADO' ||
   reaisParaCentavos(form.taxaDeslocamento) > 0 ||
   form.pagamentos.length > 0
+
+/** Colunas da lista que o servidor sabe ordenar (as mesmas chaves das colunas da tabela). */
+export const ORDENAVEIS_OS = [
+  'id',
+  'abertura',
+  'valor',
+  'status',
+  'solucionado',
+  'clienteNome',
+  'aparelhoNome',
+] as const

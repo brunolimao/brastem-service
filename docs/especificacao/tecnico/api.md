@@ -47,6 +47,9 @@ mensagens em português. Com o app em desenvolvimento, a documentação interati
 
 Restrições que valem para todas: R-SEG-02 (só pedidos locais) e R-SEG-03 (só JSON).
 
+Listagens paginadas aceitam `page`, `pageSize` (até 100), `ordem` (uma coluna da lista fixa de cada
+listagem; outra responde 400) e `direcao` (`asc`/`desc`). Ver R-UX-06 e R-UX-07.
+
 ## Testes
 
 - `apps/server/src/common/validation/messages.spec.ts` — mensagens de validação em português, com o caminho do campo.
