@@ -5,5 +5,7 @@ import { RelatoriosService } from './relatorios.service.js'
 @Module({
   controllers: [RelatoriosController],
   providers: [RelatoriosService],
+  // O Início (painel) usa o mesmo cálculo de faturamento.
+  exports: [RelatoriosService],
 })
 export class RelatoriosModule {}
