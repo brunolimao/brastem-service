@@ -1,10 +1,13 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { toast } from 'sonner'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { aparelhoVazio, clienteVazio } from '@/models/cliente.model'
+import { TEMPO_LIMITE_CEP_MS } from '@/services/viacep.service'
 import { ClienteFormulario } from './cliente-form'
 
 const navegar = vi.fn()
 vi.mock('@tanstack/react-router', () => ({ useNavigate: () => navegar }))
+vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }))
 
 const renderizar = () => {
   const valores = clienteVazio()
@@ -97,5 +100,73 @@ describe('ClienteFormulario: atalhos de OS salvam antes de sair', () => {
     expect(await screen.findByText('Informe o nome')).toBeInTheDocument()
     expect(aoSalvar).not.toHaveBeenCalled()
     expect(navegar).not.toHaveBeenCalled()
+  })
+})
+
+describe('ClienteFormulario: endereço pelo CEP (R-CLI-02)', () => {
+  /** ViaCEP falso: cada CEP fica pendente até o teste responder. */
+  const respostas = new Map<string, (corpo: object) => void>()
+  const pedidos: { url: string; signal?: AbortSignal | null }[] = []
+
+  beforeEach(() => {
+    respostas.clear()
+    pedidos.length = 0
+    vi.mocked(toast.error).mockClear()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, init?: RequestInit) => {
+        pedidos.push({ url, signal: init?.signal })
+        return new Promise((resolver) => {
+          respostas.set(url.split('/')[4] ?? '', (corpo) =>
+            resolver(new Response(JSON.stringify(corpo))),
+          )
+        })
+      }),
+    )
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  const digitarCep = (cep: string) =>
+    fireEvent.change(screen.getByLabelText('CEP'), { target: { value: cep } })
+  const valor = (rotulo: string) => (screen.getByLabelText(rotulo) as HTMLInputElement).value
+  const responder = async (cep: string, logradouro: string) => {
+    await act(async () => {
+      respostas.get(cep)?.({ logradouro, bairro: 'Centro', localidade: 'Lavras', uf: 'mg' })
+    })
+  }
+
+  it('preenche endereço, bairro, cidade e UF; a consulta tem tempo limite', async () => {
+    renderizar()
+    digitarCep('37200000')
+    await responder('37200000', 'Rua A')
+    expect(valor('Endereço')).toBe('RUA A')
+    expect(valor('Cidade')).toBe('LAVRAS')
+    expect(valor('UF')).toBe('MG')
+    expect(pedidos[0]?.signal).toBeInstanceOf(AbortSignal)
+    expect(TEMPO_LIMITE_CEP_MS).toBe(8000)
+  })
+
+  it('descarta a resposta de um CEP que já foi trocado na tela', async () => {
+    renderizar()
+    digitarCep('37200000')
+    digitarCep('37200001')
+    await responder('37200001', 'Rua Nova')
+    await responder('37200000', 'Rua Velha')
+    expect(valor('Endereço')).toBe('RUA NOVA')
+  })
+
+  it('sem resposta a tempo, avisa que não deu para consultar', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new DOMException('tempo esgotado', 'TimeoutError'))),
+    )
+    renderizar()
+    digitarCep('37200000')
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith('Não foi possível consultar o CEP'),
+    )
+    expect(valor('Endereço')).toBe('')
   })
 })

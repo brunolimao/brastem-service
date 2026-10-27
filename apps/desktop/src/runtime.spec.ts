@@ -16,7 +16,7 @@ describe('segredo do login', () => {
     rmSync(pasta, { recursive: true, force: true })
   })
 
-  it('cria um segredo forte na primeira vez e reutiliza nas próximas', () => {
+  it('cria um segredo forte na primeira vez e reutiliza nas próximas (R-SEG-08)', () => {
     const primeiro = carregarOuCriarSegredo(join(pasta, 'dados'))
     expect(primeiro.length).toBeGreaterThanOrEqual(32)
     expect(carregarOuCriarSegredo(join(pasta, 'dados'))).toBe(primeiro)
@@ -54,7 +54,7 @@ describe('porta', () => {
 })
 
 describe('ambiente do servidor embutido', () => {
-  it('escuta só em 127.0.0.1, em produção e sem Swagger', () => {
+  it('escuta só em 127.0.0.1, em produção e sem Swagger (R-SEG-01)', () => {
     const ambiente = montarAmbiente({
       pastaDados: 'C:/dados',
       pastaInterface: 'C:/client',

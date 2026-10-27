@@ -44,11 +44,16 @@ export function ClienteFormulario({
     },
   })
 
-  /** Ao completar 8 dígitos, preenche o endereço pelo ViaCEP (sem sobrescrever se o CEP não existir). */
+  /**
+   * Ao completar 8 dígitos, preenche o endereço pelo ViaCEP (sem sobrescrever se o CEP não existir).
+   * A resposta de um CEP que já foi trocado na tela é descartada (R-CLI-02).
+   */
   const preencherPeloCep = async (cep: string) => {
-    if (apenasDigitos(cep).length !== 8) return
+    const digitos = apenasDigitos(cep)
+    if (digitos.length !== 8) return
     try {
-      const endereco = await buscarCep(apenasDigitos(cep))
+      const endereco = await buscarCep(digitos)
+      if (apenasDigitos(form.getFieldValue('cep')) !== digitos) return
       if (!endereco) {
         toast.error('CEP não encontrado')
         return

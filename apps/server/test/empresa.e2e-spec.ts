@@ -30,7 +30,7 @@ describe('dados da empresa (e2e)', () => {
     expect(res.body).toEqual({ nome: '', cnpj: '', telefone: '', endereco: '', cep: '' })
   })
 
-  it('o administrador salva e qualquer usuário logado lê (para imprimir a OS)', async () => {
+  it('o administrador salva e qualquer usuário logado lê (para imprimir a OS) (R-CFG-02)', async () => {
     const salvo = await admin
       .put('/api/empresa')
       .send({

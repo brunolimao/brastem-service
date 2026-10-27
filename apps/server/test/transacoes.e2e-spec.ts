@@ -66,7 +66,7 @@ describe('receitas e despesas (e2e)', () => {
   })
 
   describe('listar', () => {
-    it('período inclui o primeiro e o último dia; mais recentes primeiro', async () => {
+    it('período inclui o primeiro e o último dia; mais recentes primeiro (R-DAD-04)', async () => {
       const resposta = await admin
         .get('/api/transacoes')
         .query({ inicio: '2026-09-01', fim: '2026-09-30' })

@@ -14,7 +14,7 @@ describe('falha ao iniciar (e2e)', () => {
     vi.restoreAllMocks()
   })
 
-  it('devolve o erro para quem chamou, sem encerrar o processo', async () => {
+  it('devolve o erro para quem chamou, sem encerrar o processo (R-ATU-06)', async () => {
     // No app desktop o processo é o Electron: um process.exit fechava o app sem nenhum aviso, e ele
     // não chegava a mostrar a tela de erro com "Procurar atualização".
     const sair = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)

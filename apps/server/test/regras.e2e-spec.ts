@@ -67,7 +67,7 @@ describe('regras de negócio (e2e)', () => {
     await app.close()
   })
 
-  it('usuários duplicados criados ao mesmo tempo: um 201 e um 409 (nunca 500)', async () => {
+  it('usuários duplicados criados ao mesmo tempo: um 201 e um 409 (nunca 500) (R-USU-01)', async () => {
     const dados = { usuario: 'joana', senha: 'senha-segura-2', role: 'usuario' }
     const respostas = await Promise.all([
       admin.post('/api/usuarios').send(dados),
@@ -77,7 +77,7 @@ describe('regras de negócio (e2e)', () => {
   })
 
   describe('busca de OS', () => {
-    it('"Todos" (sem campo) procura em todos os campos em vez de devolver tudo', async () => {
+    it('"Todos" (sem campo) procura em todos os campos em vez de devolver tudo (R-OS-06)', async () => {
       await criarOs({
         status: 'FECHADO',
         fechamento: '2026-10-02',
@@ -95,7 +95,7 @@ describe('regras de negócio (e2e)', () => {
       expect(nada.body.total).toBe(0)
     })
 
-    it('abertura aceita dd/MM/yyyy e MM/yyyy', async () => {
+    it('abertura aceita dd/MM/yyyy e MM/yyyy (R-OS-06)', async () => {
       const dia = await admin
         .get('/api/ordens-servico')
         .query({ busca: '15/09/2026', campo: 'abertura' })
@@ -111,7 +111,7 @@ describe('regras de negócio (e2e)', () => {
   })
 
   describe('garantia e reabertura da OS', () => {
-    it('a garantia do aparelho é a mais longa entre as OS, e editar uma OS antiga não a encurta', async () => {
+    it('a garantia do aparelho é a mais longa entre as OS, e editar uma OS antiga não a encurta (R-GAR-02)', async () => {
       const antiga = await criarOs({
         status: 'FECHADO',
         fechamento: '2026-01-10',
@@ -124,7 +124,7 @@ describe('regras de negócio (e2e)', () => {
       expect(await garantiaDoAparelho()).toBe('2026-08-30')
     })
 
-    it('null limpa a garantia; reabrir limpa fechamento, solução e garantia', async () => {
+    it('null limpa a garantia; reabrir limpa fechamento, solução e garantia (R-OS-03, R-OS-04)', async () => {
       const os = await criarOs({
         status: 'FECHADO',
         fechamento: '2026-10-20',
@@ -152,7 +152,7 @@ describe('regras de negócio (e2e)', () => {
       })
     })
 
-    it('não deixa uma OS fechada sem data de fechamento', async () => {
+    it('não deixa uma OS fechada sem data de fechamento (R-OS-02)', async () => {
       const os = await criarOs({ status: 'FECHADO', fechamento: '2026-10-20' })
       const res = await admin
         .patch(`/api/ordens-servico/${os.id}`)
@@ -161,7 +161,7 @@ describe('regras de negócio (e2e)', () => {
       expect(res.body.message).toContain('data de fechamento')
     })
 
-    it('excluir a OS recalcula a garantia do aparelho', async () => {
+    it('excluir a OS recalcula a garantia do aparelho (R-OS-09)', async () => {
       const os = await criarOs({ status: 'FECHADO', fechamento: '2027-01-01', garantiaDias: 365 })
       expect(await garantiaDoAparelho()).toBe('2028-01-01')
       await admin.delete(`/api/ordens-servico/${os.id}`).expect(204)
@@ -169,8 +169,33 @@ describe('regras de negócio (e2e)', () => {
     })
   })
 
+  it('OS de atendimento em garantia não conta no valor faturado do relatório (R-OS-07)', async () => {
+    // Março de 2025: nenhuma outra OS do teste cai nesse mês.
+    await criarOs({ abertura: '2025-03-10', valor: 20000, taxaDeslocamento: 3000 })
+    await criarOs({
+      abertura: '2025-03-11',
+      valor: 50000,
+      isGarantia: true,
+      status: 'FECHADO',
+      fechamento: '2025-03-12',
+    })
+
+    const { kpis } = (
+      await admin
+        .get('/api/relatorios')
+        .query({ inicio: '2025-03-01', fim: '2025-03-31' })
+        .expect(200)
+    ).body
+    expect(kpis).toMatchObject({
+      valorTotal: 23000,
+      valorFechado: 0,
+      ordensEmGarantia: 1,
+      totalOrdens: 2,
+    })
+  })
+
   describe('validação devolve 400, nunca 500', () => {
-    it('null em campo obrigatório', async () => {
+    it('null em campo obrigatório (R-DAD-07)', async () => {
       const os = await criarOs({})
       const res = await admin
         .patch(`/api/ordens-servico/${os.id}`)
@@ -180,7 +205,7 @@ describe('regras de negócio (e2e)', () => {
       await admin.patch(`/api/clientes/${clienteId}`).send({ cidade: null }).expect(400)
     })
 
-    it('data que não existe no calendário', async () => {
+    it('data que não existe no calendário (R-DAD-02)', async () => {
       const res = await admin
         .post('/api/ordens-servico')
         .send({ clienteId, aparelhoId, valor: 0, abertura: '2026-02-30', status: 'ABERTO' })
@@ -189,7 +214,7 @@ describe('regras de negócio (e2e)', () => {
     })
   })
 
-  it('transação: a soma dos pagamentos precisa fechar com o valor', async () => {
+  it('transação: a soma dos pagamentos precisa fechar com o valor (R-TRA-02)', async () => {
     const base = {
       tipo: 'receita',
       categoria: 'venda',
@@ -215,7 +240,39 @@ describe('regras de negócio (e2e)', () => {
       .expect(201)
   })
 
-  it('a data de cadastro do cliente pode ser corrigida (como no sistema antigo)', async () => {
+  it('o código do aparelho é a posição na lista e é renumerado ao salvar (R-APA-01)', async () => {
+    const criado = await admin
+      .post('/api/clientes')
+      .send({
+        nome: 'José',
+        aparelhos: [{ nome: 'Fogão' }, { nome: 'Lavadora' }, { nome: 'Freezer' }],
+      })
+      .expect(201)
+    type Aparelho = { id: number; nome: string }
+    const [fogao, , freezer] = criado.body.aparelhos as [Aparelho, Aparelho, Aparelho]
+    expect(criado.body.aparelhos.map((a: { ordem: number }) => a.ordem)).toEqual([1, 2, 3])
+
+    const editado = await admin
+      .patch(`/api/clientes/${criado.body.id}`)
+      .send({ aparelhos: [freezer, fogao].map(({ id, nome }) => ({ id, nome })) })
+      .expect(200)
+    expect(
+      editado.body.aparelhos.map((a: { nome: string; ordem: number }) => [a.ordem, a.nome]),
+    ).toEqual([
+      [1, 'Freezer'],
+      [2, 'Fogão'],
+    ])
+  })
+
+  it('telefone sem número é recusado (R-TEL-01)', async () => {
+    const res = await admin
+      .post('/api/clientes')
+      .send({ nome: 'Ana', telefones: [{ nome: 'Casa', telefone: '' }] })
+      .expect(400)
+    expect(JSON.stringify(res.body.message)).toContain('telefone')
+  })
+
+  it('a data de cadastro do cliente pode ser corrigida (como no sistema antigo) (R-CLI-04, R-DAD-03)', async () => {
     const res = await admin
       .patch(`/api/clientes/${clienteId}`)
       .send({ dataCadastro: '2024-02-14' })
@@ -225,7 +282,7 @@ describe('regras de negócio (e2e)', () => {
     await admin.patch(`/api/clientes/${clienteId}`).send({ dataCadastro: '2024-02-30' }).expect(400)
   })
 
-  it('caixa e usuários vêm paginados; o total do caixa vale para o período inteiro', async () => {
+  it('caixa e usuários vêm paginados; o total do caixa vale para o período inteiro (R-CX-05)', async () => {
     for (let dia = 1; dia <= 25; dia++) {
       await admin
         .post('/api/transacoes')

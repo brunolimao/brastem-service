@@ -239,7 +239,7 @@ describe('BackupLista (R-CFG-05, R-CFG-06)', () => {
     },
   )
 
-  it('restaura de um arquivo escolhido no computador, depois de confirmar (R-BKP-10)', async () => {
+  it('restaura de um arquivo escolhido no computador, depois de confirmar (R-BKP-10, R-CFG-07)', async () => {
     respostas['GET /backup/arquivos'] = lista
     respostas['POST /backup/restaurar/arquivo'] = { reiniciando: true }
     renderizar(<BackupLista />)

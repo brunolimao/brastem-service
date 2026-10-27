@@ -16,7 +16,7 @@ import { decodificarDump, lerDump } from './dump-parser.js'
 import { migrarDoDump } from './migrar.js'
 
 describe('conversores', () => {
-  it('converte dinheiro em centavos', () => {
+  it('converte dinheiro em centavos (R-IMPT-03)', () => {
     expect(dinheiroParaCentavos('300.00')).toBe(30000)
     expect(dinheiroParaCentavos('116.66666666666667')).toBe(11667)
     expect(dinheiroParaCentavos('1.250,75')).toBe(125075)
@@ -24,21 +24,21 @@ describe('conversores', () => {
     expect(dinheiroParaCentavos('abc')).toBe(0)
   })
 
-  it('converte data e hora do horário de Brasília (como o sistema antigo gravava) para UTC', () => {
+  it('converte data e hora do horário de Brasília (como o sistema antigo gravava) para UTC (R-IMPT-03)', () => {
     // 22h30 em Brasília já é dia 15 em UTC; o relatório volta para o dia local com 'localtime'.
     expect(dataHoraParaIso('2024-02-14 22:30:00')).toBe('2024-02-15T01:30:00.000Z')
     expect(dataHoraParaIso('2024-02-14 00:00:00')).toBe('2024-02-14T03:00:00.000Z')
     expect(dataHoraParaIso('lixo')).toBe('1970-01-01T00:00:00.000Z')
   })
 
-  it('converte datas dos dois formatos antigos e rejeita lixo', () => {
+  it('converte datas dos dois formatos antigos e rejeita lixo (R-IMPT-03)', () => {
     expect(dataParaIso('2024-02-14 00:00:00')).toBe('2024-02-14')
     expect(dataParaIso('31/12/2026')).toBe('2026-12-31')
     expect(dataParaIso('Invalid date')).toBeNull()
     expect(dataParaIso('')).toBeNull()
   })
 
-  it('aplica os mesmos baldes do relatório antigo para valores desconhecidos', () => {
+  it('aplica os mesmos baldes do relatório antigo para valores desconhecidos (R-IMPT-04)', () => {
     expect(recomendacaoLegado('xyz')).toBe('porta')
     expect(statusLegado('qualquer').valor).toBe('APROVADO')
     expect(tipoPagamentoLegado('Pix ').valor).toBe('pix')
@@ -74,7 +74,7 @@ describe('migração', () => {
     return db
   }
 
-  it('corrige a garantia que o sistema antigo zerava ("90 DIAS") e mantém a que só existia lá', async () => {
+  it('corrige a garantia que o sistema antigo zerava ("90 DIAS") e mantém a que só existia lá (R-IMPT-07)', async () => {
     const db = novoBanco()
     const os = (id: number, aparelho: number, garantia: string, fechamento: string) => ({
       id,
@@ -112,7 +112,22 @@ describe('migração', () => {
     expect(relatorio.avisos.join(' ')).toContain('garantia recalculada')
   })
 
-  it('importa mantendo ids, converte tipos e ignora órfãos', async () => {
+  it('falha no meio não deixa nada pela metade: nem usuários nem clientes (R-IMPT-08)', async () => {
+    const db = novoBanco()
+    // Dois clientes com o mesmo código: o segundo estoura depois que o usuário e o primeiro já entraram.
+    const dump = {
+      Usuarios: [{ usuario: 'antigo', senha: 'senha-antiga', role: 'admin' }],
+      Clientes: [
+        { id: 1, nome: 'Maria' },
+        { id: 1, nome: 'Repetida' },
+      ],
+    }
+    await expect(migrarDoDump(db, dump)).rejects.toThrow()
+    expect(db.select().from(schema.usuarios).all()).toEqual([])
+    expect(db.select().from(schema.clientes).all()).toEqual([])
+  })
+
+  it('importa mantendo ids, converte tipos e ignora órfãos (R-IMPT-02, R-IMPT-05)', async () => {
     const db = novoBanco()
     const relatorio = await migrarDoDump(db, lerDump(dumpExemplo))
 
@@ -149,7 +164,7 @@ describe('migração', () => {
     })
   })
 
-  it('acerta os centavos das parcelas para fechar com o valor do pagamento', async () => {
+  it('acerta os centavos das parcelas para fechar com o valor do pagamento (R-IMPT-03)', async () => {
     const db = novoBanco()
     const relatorio = await migrarDoDump(db, lerDump(dumpExemplo))
 
@@ -169,7 +184,7 @@ describe('migração', () => {
     expect(relatorio.totais).toEqual({ ordensServico: 35000, pagamentos: 36000, parcelas: 36000 })
   })
 
-  it('faz hash das senhas antigas, que continuam valendo no login', async () => {
+  it('faz hash das senhas antigas, que continuam valendo no login (R-IMPT-06, R-USU-03)', async () => {
     const db = novoBanco()
     await migrarDoDump(db, lerDump(dumpExemplo))
 

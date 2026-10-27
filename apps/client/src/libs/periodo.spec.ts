@@ -17,7 +17,7 @@ describe('períodos', () => {
     expect(periodoDoAno(referencia)).toEqual({ inicio: '2026-01-01', fim: '2026-12-31' })
   })
 
-  it('usa as datas da URL e completa a que faltar com o mês atual', () => {
+  it('usa as datas da URL e completa a que faltar com o mês atual (R-CX-02, R-REL-06, R-PAG-06)', () => {
     expect(resolverPeriodo('2026-09-01', '2026-09-15', referencia)).toEqual({
       inicio: '2026-09-01',
       fim: '2026-09-15',

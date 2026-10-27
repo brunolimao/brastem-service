@@ -29,7 +29,7 @@ describe('pastaAceitaRenomear', () => {
   })
 })
 
-describe('escolherPastaDeCache', () => {
+describe('escolherPastaDeCache (R-ATU-08)', () => {
   it('usa a primeira candidata que funciona, respeitando a ordem de preferência', () => {
     const testadas: string[] = []
     const escolhida = escolherPastaDeCache(['A', 'B', 'C'], (pasta) => {

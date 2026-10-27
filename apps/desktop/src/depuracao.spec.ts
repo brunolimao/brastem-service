@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { pedeDepuracao } from './depuracao'
 
-describe('pedeDepuracao', () => {
+describe('pedeDepuracao (R-SEG-14)', () => {
   it.each([
     ['--remote-debugging-port=9222'],
     ['--remote-debugging-port'],

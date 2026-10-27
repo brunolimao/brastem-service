@@ -72,3 +72,7 @@ Política de privacidade publicada (exigida pelo Google): [docs/privacidade.md](
 - `apps/server/test/auth.e2e-spec.ts` — sessão em cookies, renovação e reuso (R-SEG-05).
 - `apps/server/test/limites.e2e-spec.ts` — limite de tentativas de login (R-SEG-07).
 - `apps/desktop/src/links-externos.spec.ts`, `depuracao.spec.ts` — R-SEG-13, R-SEG-14.
+- `apps/desktop/src/runtime.spec.ts` — servidor só em 127.0.0.1, segredo do login por instalação (R-SEG-01, R-SEG-08).
+- `apps/server/src/common/logger/logger.module.spec.ts` — o log guarda só o caminho, sem o `code` do Google, e esconde cookies e senha (R-SEG-11).
+- `apps/server/test/dominio.e2e-spec.ts` — só campos de busca permitidos (R-SEG-09); `backup.e2e-spec.ts` — restauração por nome, nunca caminho (R-SEG-10).
+- Sem teste automatizado: R-SEG-04 (a CSP só vale em produção; conferida no app instalado), R-SEG-12 (cuidado ao commitar) e R-SEG-15 (ver R-ATU-05).

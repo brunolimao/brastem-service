@@ -59,7 +59,7 @@ describe('api', () => {
     await expect(api('/x')).rejects.toMatchObject({ status: 0 })
   })
 
-  it('renova a sessão num 401 e repete a chamada', async () => {
+  it('renova a sessão num 401 e repete a chamada (R-ACE-04)', async () => {
     fetchMock
       .mockResolvedValueOnce(resposta(401, { message: 'expirou' }))
       .mockResolvedValueOnce(resposta(200))

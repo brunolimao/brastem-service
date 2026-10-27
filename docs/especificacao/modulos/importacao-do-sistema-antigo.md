@@ -69,6 +69,7 @@ Também existe o script `pnpm --filter @brastem/server migrate:legacy -- <dump.s
 - `apps/server/src/legacy/legacy.spec.ts` — leitura do dump, conversões, órfãos, garantia (R-IMPT-02 a R-IMPT-07).
 - `apps/server/test/importacao.e2e-spec.ts` — importação pela API, senhas antigas valendo, recusa com usuários (R-IMPT-01, R-IMPT-06).
 - `apps/server/src/legacy/acentos.spec.ts` e `apps/server/test/importacao.e2e-spec.ts` (dump do PowerShell) — R-IMPT-09.
+- `apps/server/src/legacy/legacy.spec.ts` — falha no meio da importação não deixa nada gravado (R-IMPT-08).
 
 ## Limitações conhecidas
 

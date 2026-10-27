@@ -104,7 +104,7 @@ describe('aplicarRestauracaoPendente', () => {
     expect(ler(banco)).toBe('atual')
   })
 
-  it('troca o banco pelo pendente e guarda o antigo em backups/antes-da-restauracao-*', () => {
+  it('troca o banco pelo pendente e guarda o antigo em backups/antes-da-restauracao-* (R-BKP-07)', () => {
     criarBanco(banco, 'atual')
     criarBanco(join(pasta, NOME_RESTAURACAO_PENDENTE), 'restaurado')
 
@@ -116,7 +116,7 @@ describe('aplicarRestauracaoPendente', () => {
     expect(ler(guardado)).toBe('atual')
   })
 
-  it('guarda o banco antigo completo num arquivo só, com o que estava só no -wal (fechamento abrupto)', () => {
+  it('guarda o banco antigo completo num arquivo só, com o que estava só no -wal (fechamento abrupto) (R-BKP-07)', () => {
     // Estado de um app fechado à força: a última alteração ainda está só no -wal.
     const origem = join(pasta, 'origem.sqlite')
     criarBanco(origem, 'antigo')
@@ -194,7 +194,50 @@ describe('migrarSchema', () => {
     sqlite.close()
   })
 
-  it('banco existente com migração pendente: guarda uma cópia antes de migrar', () => {
+  it('cria índices nas colunas de vínculo e de data (R-DAD-10)', () => {
+    const { sqlite, db } = abrir()
+    migrarSchema(db)
+    const indexadas = (tabela: string) =>
+      (
+        sqlite.prepare(`select name from pragma_index_list('${tabela}')`).all() as {
+          name: string
+        }[]
+      ).flatMap(({ name }) =>
+        (
+          sqlite.prepare(`select name from pragma_index_info('${name}')`).all() as {
+            name: string
+          }[]
+        ).map((coluna) => `${tabela}.${coluna.name}`),
+      )
+    const colunas = [
+      'telefones',
+      'aparelhos',
+      'ordens_servico',
+      'pagamentos',
+      'parcelas',
+      'transacoes',
+      'refresh_tokens',
+    ].flatMap(indexadas)
+    expect(colunas).toEqual(
+      expect.arrayContaining([
+        'telefones.cliente_id',
+        'aparelhos.cliente_id',
+        'ordens_servico.cliente_id',
+        'ordens_servico.aparelho_id',
+        'ordens_servico.abertura',
+        'pagamentos.ordem_servico_id',
+        'pagamentos.transacao_id',
+        'pagamentos.data',
+        'parcelas.pagamento_id',
+        'parcelas.data',
+        'transacoes.data',
+        'refresh_tokens.usuario_id',
+      ]),
+    )
+    sqlite.close()
+  })
+
+  it('banco existente com migração pendente: guarda uma cópia antes de migrar (R-DAD-08, R-ATU-09)', () => {
     const { sqlite, db } = abrir()
     // Banco da versão anterior: todas as migrações menos a última.
     migrarSchema(db, new Date(), criarPastaSemAUltimaMigracao(pasta))
@@ -215,7 +258,7 @@ describe('migrarSchema', () => {
     sqlite.close()
   })
 
-  it('não apaga dados em cascata quando uma migração recria uma tabela', () => {
+  it('não apaga dados em cascata quando uma migração recria uma tabela (R-DAD-08)', () => {
     const { sqlite, db } = abrir()
     migrarSchema(db)
     sqlite
@@ -267,7 +310,7 @@ describe('migrarSchema', () => {
     sqlite.close()
   })
 
-  it('recusa um banco gravado por uma versão mais nova do app', () => {
+  it('recusa um banco gravado por uma versão mais nova do app (R-DAD-08)', () => {
     const { sqlite, db } = abrir()
     migrarSchema(db)
     sqlite.prepare('update __drizzle_migrations set created_at = created_at + 1000000000').run()

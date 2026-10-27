@@ -55,7 +55,7 @@ describe('atualizador', () => {
     expect(await atualizador.verificar()).toBe('atualizado')
   })
 
-  it('baixa sozinho, instala ao fechar e verifica logo ao abrir e a cada 4 horas', () => {
+  it('baixa sozinho, instala ao fechar e verifica logo ao abrir e a cada 4 horas (R-ATU-02)', () => {
     const { falso, repetir } = preparar()
     expect(falso.autoDownload).toBe(true)
     expect(falso.autoInstallOnAppQuit).toBe(true)
@@ -63,7 +63,7 @@ describe('atualizador', () => {
     expect(repetir).toHaveBeenCalledWith(expect.any(Function), 4 * 60 * 60 * 1000)
   })
 
-  it('quando a atualização baixa e o usuário aceita, instala mostrando o progresso e reabre o app', async () => {
+  it('quando a atualização baixa e o usuário aceita, instala mostrando o progresso e reabre o app (R-ATU-04)', async () => {
     const { falso, eventos, perguntarReiniciar, aoMudarEstado } = preparar()
     eventos.emit('update-downloaded', { version: '2.1.0' })
     await vi.waitFor(() => expect(falso.quitAndInstall).toHaveBeenCalledWith(false, true))
@@ -72,7 +72,7 @@ describe('atualizador', () => {
     expect(aoMudarEstado).toHaveBeenCalledWith({ tipo: 'instalando', versao: '2.1.0' })
   })
 
-  it('quando o usuário escolhe "depois", não reinicia (instala ao fechar)', async () => {
+  it('quando o usuário escolhe "depois", não reinicia (instala ao fechar) (R-ATU-04)', async () => {
     const { falso, eventos, perguntarReiniciar } = preparar()
     perguntarReiniciar.mockResolvedValueOnce(false)
     eventos.emit('update-downloaded', { version: '2.1.0' })
@@ -80,7 +80,7 @@ describe('atualizador', () => {
     expect(falso.quitAndInstall).not.toHaveBeenCalled()
   })
 
-  it('falha de rede vira só um registro e nunca derruba o app', async () => {
+  it('falha de rede vira só um registro e nunca derruba o app (R-ATU-07)', async () => {
     const { falso, registrar, atualizador } = preparar()
     falso.checkForUpdates.mockRejectedValueOnce(new Error('getaddrinfo ENOTFOUND github.com'))
     expect(await atualizador.verificar()).toBe('erro')
@@ -107,7 +107,7 @@ describe('atualizador', () => {
     expect(cancelar).toHaveBeenCalledOnce()
   })
 
-  it('avisa cada etapa: procurando, baixando com progresso, pronta, e some se não há nada novo', () => {
+  it('avisa cada etapa: procurando, baixando com progresso, pronta, e some se não há nada novo (R-ATU-03)', () => {
     const { falso, eventos } = criarAutoUpdaterFalso()
     const aoMudarEstado = vi.fn()
     iniciarAtualizador({

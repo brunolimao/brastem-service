@@ -27,7 +27,7 @@ describe('acesso só pelo próprio computador (e2e)', () => {
     expect(res.body).toEqual({ versao: 'desenvolvimento' })
   })
 
-  it('DNS rebinding: Host que não é o computador local é recusado', async () => {
+  it('DNS rebinding: Host que não é o computador local é recusado (R-SEG-02)', async () => {
     await request(app.getHttpServer())
       .post('/api/auth/setup')
       .set('Host', 'site-malicioso.com:47831')
@@ -35,7 +35,7 @@ describe('acesso só pelo próprio computador (e2e)', () => {
       .expect(403)
   })
 
-  it('pedido de outra origem (site aberto no navegador) é recusado', async () => {
+  it('pedido de outra origem (site aberto no navegador) é recusado (R-SEG-02)', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/setup')
       .set('Origin', 'https://site-malicioso.com')
@@ -50,7 +50,7 @@ describe('acesso só pelo próprio computador (e2e)', () => {
       .expect(403)
   })
 
-  it('formulário HTML (urlencoded) não cria o admin: a API só aceita JSON', async () => {
+  it('formulário HTML (urlencoded) não cria o admin: a API só aceita JSON (R-SEG-03)', async () => {
     await request(app.getHttpServer())
       .post('/api/auth/setup')
       .type('form')
@@ -58,7 +58,7 @@ describe('acesso só pelo próprio computador (e2e)', () => {
       .expect(400)
   })
 
-  it('importação só aceita o arquivo como application/octet-stream', async () => {
+  it('importação só aceita o arquivo como application/octet-stream (R-SEG-03)', async () => {
     await request(app.getHttpServer())
       .post('/api/import/legacy')
       .set('Content-Type', 'text/plain')
@@ -74,7 +74,7 @@ describe('acesso só pelo próprio computador (e2e)', () => {
       .expect(201)
   })
 
-  it('depois do primeiro usuário, a importação é recusada antes de receber o arquivo', async () => {
+  it('depois do primeiro usuário, a importação é recusada antes de receber o arquivo (R-IMPT-01)', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/import/legacy')
       .set('Content-Type', 'application/octet-stream')
@@ -83,7 +83,7 @@ describe('acesso só pelo próprio computador (e2e)', () => {
     expect(res.body.message).toContain('primeiro uso')
   })
 
-  it('usuário excluído perde o acesso na hora (não espera o token vencer)', async () => {
+  it('usuário excluído perde o acesso na hora (não espera o token vencer) (R-USU-04, R-PERM-02, R-SEG-06)', async () => {
     const admin = request.agent(app.getHttpServer())
     await admin.post('/api/auth/login').send(credenciais).expect(200)
     await admin

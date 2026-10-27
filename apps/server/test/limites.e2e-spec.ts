@@ -21,7 +21,7 @@ describe('limite de tentativas de login (e2e)', () => {
     await app.close()
   })
 
-  it('a partir da 6ª tentativa no mesmo minuto, recusa com 429 e mensagem em português', async () => {
+  it('a partir da 6ª tentativa no mesmo minuto, recusa com 429 e mensagem em português (R-ACE-03, R-SEG-07)', async () => {
     const tentar = () =>
       request(app.getHttpServer())
         .post('/api/auth/login')

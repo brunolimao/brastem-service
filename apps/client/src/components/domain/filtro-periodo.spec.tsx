@@ -14,7 +14,7 @@ const de = () => screen.getByLabelText('De') as HTMLInputElement
 const ate = () => screen.getByLabelText('Até') as HTMLInputElement
 
 describe('FiltroPeriodo', () => {
-  it('pesquisa o período digitado, com as duas datas incluídas', () => {
+  it('pesquisa o período digitado, com as duas datas incluídas (R-DAD-04)', () => {
     const aoMudar = vi.fn()
     render(<FiltroPeriodo periodo={OUTUBRO} aoMudar={aoMudar} />)
 

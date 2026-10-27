@@ -63,7 +63,7 @@ describe('depois de gravar, as telas afetadas recarregam', () => {
     expect(invalidadas()).toEqual(['clientes'])
   })
 
-  it('editar cliente recarrega tudo: remover um aparelho leva as OS e os pagamentos dele', async () => {
+  it('editar cliente recarrega tudo: remover um aparelho leva as OS e os pagamentos dele (R-APA-02)', async () => {
     await gravar(() => useAtualizarCliente(1), {} as never)
     expect(invalidadas()).toEqual(TODAS)
   })

@@ -21,7 +21,7 @@ beforeEach(() => vi.useFakeTimers())
 afterEach(() => vi.useRealTimers())
 
 describe('BackupAgendador', () => {
-  it('confere 1 minuto depois de abrir e depois de hora em hora', async () => {
+  it('confere 1 minuto depois de abrir e depois de hora em hora (R-BKP-01)', async () => {
     const { agendador, executarSeNecessario } = montar()
     agendador.onApplicationBootstrap()
 

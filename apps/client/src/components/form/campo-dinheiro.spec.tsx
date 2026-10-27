@@ -16,7 +16,7 @@ const digitarESair = (texto: string) => {
   fireEvent.blur(valor())
 }
 
-describe('CampoDinheiro', () => {
+describe('CampoDinheiro (R-DAD-01)', () => {
   it.each([
     ['1.250', '1.250,00'],
     ['1250,5', '1.250,50'],

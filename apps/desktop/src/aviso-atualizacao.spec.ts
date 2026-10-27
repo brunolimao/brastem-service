@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { progressoDaBarra, scriptDoAviso, textoDoAviso } from './aviso-atualizacao'
 
-describe('aviso de atualização', () => {
+describe('aviso de atualização (R-ATU-03)', () => {
   it('descreve cada etapa e some quando não há nada a dizer', () => {
     expect(textoDoAviso({ tipo: 'verificando' })).toBe('Procurando atualizações…')
     expect(textoDoAviso({ tipo: 'baixando', versao: '2.1.0', percentual: 42 })).toBe(

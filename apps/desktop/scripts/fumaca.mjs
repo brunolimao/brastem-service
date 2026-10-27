@@ -1,4 +1,4 @@
-// Teste de fumaça do app empacotado: abre o executável de verdade, com dados vazios numa pasta
+// Teste de fumaça do app empacotado (R-TST-05, R-ATU-01, R-ATU-10): abre o executável de verdade, com dados vazios numa pasta
 // temporária, e só passa se a janela carregar o sistema (o JavaScript da interface roda e faz pedidos
 // ao servidor embutido). Pega o que os testes unitários não pegam: janela em branco, servidor que não
 // sobe, arquivo faltando no instalador, travas (fuses) quebrando a abertura.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { podeAbrirFora } from './links-externos'
 
-describe('podeAbrirFora', () => {
+describe('podeAbrirFora (R-SEG-13)', () => {
   it('abre só o login do Google, em https', () => {
     expect(podeAbrirFora('https://accounts.google.com/o/oauth2/v2/auth?client_id=x')).toBe(true)
     expect(podeAbrirFora('http://accounts.google.com/')).toBe(false)

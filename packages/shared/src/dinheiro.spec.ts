@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { reaisParaCentavos } from './dinheiro.js'
 
-describe('reaisParaCentavos', () => {
+describe('reaisParaCentavos (R-DAD-01, R-PAG-07)', () => {
   it.each([
     ['150', 15000],
     ['150,5', 15050],

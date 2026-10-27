@@ -19,19 +19,19 @@ describe('auth e usuários (e2e)', () => {
 
   const http = () => request(app.getHttpServer())
 
-  it('exige login nas rotas protegidas', async () => {
+  it('exige login nas rotas protegidas (R-PERM-01)', async () => {
     const res = await http().get('/api/usuarios').expect(401)
     expect(res.body.message).toBe('Favor fazer o login!')
   })
 
-  it('informa que precisa de configuração inicial e cria o primeiro admin uma única vez', async () => {
+  it('informa que precisa de configuração inicial e cria o primeiro admin uma única vez (R-ACE-01)', async () => {
     expect((await http().get('/api/auth/setup')).body).toEqual({ needsSetup: true })
     await http().post('/api/auth/setup').send(admin).expect(201)
     expect((await http().get('/api/auth/setup')).body).toEqual({ needsSetup: false })
     await http().post('/api/auth/setup').send(admin).expect(403)
   })
 
-  it('rejeita credenciais inválidas com 401', async () => {
+  it('rejeita credenciais inválidas com 401 (R-ACE-02)', async () => {
     const res = await http()
       .post('/api/auth/login')
       .send({ usuario: 'admin', senha: 'errada' })
@@ -47,7 +47,7 @@ describe('auth e usuários (e2e)', () => {
     expect(res.body.message).toContain('O campo "senha" deve ter no mínimo 8 caracteres')
   })
 
-  it('faz login com cookies httpOnly, renova e sai', async () => {
+  it('faz login com cookies httpOnly, renova e sai (R-ACE-04, R-SEG-05)', async () => {
     const agent = request.agent(app.getHttpServer())
 
     const login = await agent.post('/api/auth/login').send(admin).expect(200)
@@ -63,7 +63,7 @@ describe('auth e usuários (e2e)', () => {
     await agent.get('/api/auth/me').expect(401)
   })
 
-  it('reapresentar um refresh token já usado derruba as sessões', async () => {
+  it('reapresentar um refresh token já usado derruba as sessões (R-SEG-05)', async () => {
     const agent = request.agent(app.getHttpServer())
     const login = await agent.post('/api/auth/login').send(admin)
     const old = (login.headers['set-cookie'] as unknown as string[]).find((c) =>
@@ -77,7 +77,7 @@ describe('auth e usuários (e2e)', () => {
     await agent.post('/api/auth/refresh').expect(401)
   })
 
-  it('só admin gerencia usuários e ninguém apaga a si mesmo', async () => {
+  it('só admin gerencia usuários e ninguém apaga a si mesmo (R-PERM-04, R-USU-02)', async () => {
     const agent = request.agent(app.getHttpServer())
     const me = (await agent.post('/api/auth/login').send(admin)).body as { id: number }
 

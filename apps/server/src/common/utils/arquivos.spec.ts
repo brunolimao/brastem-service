@@ -6,7 +6,7 @@ import { moverArquivo } from './arquivos.js'
 
 const erro = (code: string) => Object.assign(new Error(code), { code })
 
-describe('moverArquivo', () => {
+describe('moverArquivo (R-BKP-09)', () => {
   let pasta: string
 
   beforeEach(() => {

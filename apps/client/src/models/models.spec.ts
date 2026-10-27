@@ -68,7 +68,7 @@ describe('cliente', () => {
     expect(payload.aparelhos[0]).not.toHaveProperty('chave')
   })
 
-  it('limpa o motivo quando o cliente não está negativado', () => {
+  it('limpa o motivo quando o cliente não está negativado (R-CLI-03)', () => {
     expect(formParaPayloadCliente(clienteParaForm(clienteApi)).motivo).toBe('')
     const negativado = {
       ...clienteParaForm(clienteApi),

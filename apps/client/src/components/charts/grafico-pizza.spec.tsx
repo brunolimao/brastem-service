@@ -86,7 +86,7 @@ describe('agruparMenores', () => {
     ])
   })
 
-  it('com mais, junta o resto em "Outros" sem perder nada do total', () => {
+  it('com mais, junta o resto em "Outros" sem perder nada do total (R-REL-05)', () => {
     const dados = cidades(10)
     const agrupado = agruparMenores(dados)
     expect(agrupado).toHaveLength(7)

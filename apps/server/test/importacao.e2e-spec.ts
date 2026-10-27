@@ -34,7 +34,7 @@ describe('importação do sistema antigo (e2e)', () => {
     expect(semDados.body.message).toBe('Não encontrei os dados do sistema antigo neste arquivo.')
   })
 
-  it('importa antes do primeiro uso e as senhas antigas continuam valendo', async () => {
+  it('importa antes do primeiro uso e as senhas antigas continuam valendo (R-IMPT-06)', async () => {
     expect((await request(app.getHttpServer()).get('/api/auth/setup')).body).toEqual({
       needsSetup: true,
     })
@@ -76,7 +76,7 @@ describe('importação do sistema antigo (e2e)', () => {
     }
   })
 
-  it('não deixa importar de novo depois que o sistema já tem usuários', async () => {
+  it('não deixa importar de novo depois que o sistema já tem usuários (R-IMPT-01)', async () => {
     const res = await importar(Buffer.from(dumpExemplo, 'utf8')).expect(403)
     expect(res.body.message).toBe(
       'A importação só pode ser feita no primeiro uso, antes de criar usuários.',

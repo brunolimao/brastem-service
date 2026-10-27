@@ -18,7 +18,7 @@ const abrirComAtalho = () => fireEvent.keyDown(window, { key: 'k', ctrlKey: true
 const campo = () => screen.getByRole('combobox', { name: 'Buscar cliente ou OS' })
 const digitar = (texto: string) => fireEvent.change(campo(), { target: { value: texto } })
 
-describe('busca rápida (Ctrl+K)', () => {
+describe('busca rápida (Ctrl+K) (R-UX-01)', () => {
   it('abre com Ctrl+K de qualquer tela e acha clientes e OS', async () => {
     const tela = abrirTela('/', { api })
     await esperarTitulo('Olá, ana')

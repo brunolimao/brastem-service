@@ -32,7 +32,7 @@ describe('criarAtualizador', () => {
     rmSync(base, { recursive: true, force: true })
   })
 
-  it('pula a pasta que não aceita renomear e guarda o cache na seguinte', () => {
+  it('pula a pasta que não aceita renomear e guarda o cache na seguinte (R-ATU-08)', () => {
     // Um arquivo no lugar da pasta faz o teste de rename falhar, como uma pasta criptografada (EFS) faria.
     const recusa = join(base, 'nao-e-pasta')
     writeFileSync(recusa, 'x')

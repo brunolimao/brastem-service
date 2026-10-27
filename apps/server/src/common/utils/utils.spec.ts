@@ -8,13 +8,13 @@ describe('dividirEmParcelas', () => {
     expect(dividirEmParcelas(30000, 3)).toEqual([10000, 10000, 10000])
   })
 
-  it('joga o resto dos centavos na última parcela e mantém a soma', () => {
+  it('joga o resto dos centavos na última parcela e mantém a soma (R-PAG-03)', () => {
     const partes = dividirEmParcelas(10000, 3)
     expect(partes).toEqual([3333, 3333, 3334])
     expect(partes.reduce((a, b) => a + b, 0)).toBe(10000)
   })
 
-  it('funciona com valores negativos (despesas)', () => {
+  it('funciona com valores negativos (despesas) (R-PAG-04)', () => {
     const partes = dividirEmParcelas(-10000, 3)
     expect(partes.reduce((a, b) => a + b, 0)).toBe(-10000)
   })
@@ -37,7 +37,7 @@ describe('reaisParaCentavos', () => {
 })
 
 describe('datas', () => {
-  it('soma meses sem estourar o fim do mês', () => {
+  it('soma meses sem estourar o fim do mês (R-PAG-02)', () => {
     expect(somarMeses('2026-01-31', 1)).toBe('2026-02-28')
     expect(somarMeses('2026-10-01', 3)).toBe('2027-01-01')
   })

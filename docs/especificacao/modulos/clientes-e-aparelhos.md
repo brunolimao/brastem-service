@@ -65,7 +65,8 @@ Todos os usuários cadastram e editam. Só o administrador exclui um cliente.
   número (com ou sem pontuação) também é comparado só pelos dígitos: "31999991111" encontra "(31) 99999-1111" e
   "12345678901" encontra "123.456.789-01". Texto com letras ("Rua 7") busca como está.
 - **R-CLI-02**: o CEP com 8 dígitos consulta o ViaCEP e preenche endereço, bairro, cidade e UF; se o CEP não
-  existir, avisa e não apaga o que já estava digitado.
+  existir, avisa e não apaga o que já estava digitado. Se o ViaCEP não responder em 8 s, avisa que não deu
+  para consultar. Se o CEP mudar enquanto a consulta anda, a resposta do CEP antigo é descartada.
 - **R-CLI-03**: o motivo só é guardado quando o cliente está marcado como negativado.
 - **R-CLI-04**: a data de cadastro pode ser corrigida na edição (como no sistema antigo); é gravada ao
   meio-dia UTC para continuar no mesmo dia no horário de Brasília.
@@ -108,9 +109,11 @@ Todos os usuários cadastram e editam. Só o administrador exclui um cliente.
 - `apps/server/test/dominio.e2e-spec.ts` — cadastro, busca por telefone, edição das listas, exclusão em cascata (R-CLI-01, R-CLI-05, R-CLI-06).
 - `apps/server/test/regras.e2e-spec.ts` — busca só pelos dígitos (R-CLI-01); data de cadastro corrigível e data inválida (R-CLI-04).
 - `apps/server/src/common/utils/utils.spec.ts` — o que conta como "texto que é só número" (R-CLI-01).
-- `apps/client/src/components/domain/cliente-form.spec.tsx` — confirmação ao remover aparelho e atalhos que salvam antes (R-APA-02, R-CLI-07).
+- `apps/client/src/components/domain/cliente-form.spec.tsx` — confirmação ao remover aparelho, atalhos que salvam antes e CEP trocado no meio da consulta (R-APA-02, R-CLI-02, R-CLI-07).
 - `apps/client/src/components/domain/busca-lista.spec.tsx` — busca em _Todos_ por padrão e caixa acompanhando a URL.
 - `apps/client/src/hooks/hooks.spec.tsx` — salvar cliente recarrega OS, caixa e relatórios (R-APA-02).
+- `apps/server/test/regras.e2e-spec.ts` — código do aparelho renumerado ao salvar, telefone sem número recusado (R-APA-01, R-TEL-01).
+- `apps/client/src/models/models.spec.ts` — motivo só com cliente negativado (R-CLI-03).
 
 ## Limitações conhecidas
 

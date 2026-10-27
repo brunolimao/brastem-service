@@ -40,7 +40,9 @@ Como e onde testar cada camada: skill `testes`. A cobertura mínima de cada paco
 ### Server (`apps/server/src`)
 
 `common/{config,database,logger,auth,filters,interceptors,pipes,validation,utils}` e `modules/<modulo>/`
-com `x.module.ts`, `x.controller.ts`, `x.service.ts`, `dto/`, `x.service.spec.ts`. DTOs com mensagens de validação em pt-BR.
+com `x.module.ts`, `x.controller.ts`, `x.service.ts` e `dto/`. DTOs com mensagens de validação em pt-BR.
+As rotas são testadas de ponta a ponta em `test/*.e2e-spec.ts` (servidor de verdade, banco em memória); `x.service.spec.ts`
+só para o que não dá para provocar pela API (ex.: falha no meio de uma transação) ou funções puras (ex.: `garantia.spec.ts`).
 Rotas sob `/api`; documentar com decorators do Swagger.
 
 ### Client (`apps/client/src`)
@@ -53,7 +55,7 @@ Visual: tema azul da logo, destaque `#FF6347`, componentes shadcn sem estilo ad 
 ## App desktop (apps/desktop)
 
 - Electron sobe o servidor Nest dentro do próprio processo, em `127.0.0.1` (porta 47831 ou outra livre), e abre uma janela nesse endereço. O servidor entrega o front (`CLIENT_DIR`), então front e API ficam na mesma origem.
-- Dados em `%APPDATA%Brastem-Servicedados` (SQLite, logs, `segredo.key` gerado na primeira abertura). `BRASTEM_PASTA_DADOS` troca essa pasta (testes).
+- Dados em `%APPDATA%\Brastem-Service\dados` (SQLite, logs, `segredo.key` gerado na primeira abertura). `BRASTEM_PASTA_DADOS` troca essa pasta (testes).
 - `pnpm --filter @brastem/desktop start` roda o app; `... dist` gera o instalador em `apps/desktop/release`. `pnpm preparar` monta `.stage` (server via `pnpm deploy --config.node-linker=hoisted` + front). Atenção: `pnpm stage` é comando do próprio pnpm 12, por isso o script se chama `preparar`.
 - O electron-builder descarta `node_modules` em `extraResources`; elas entram pelo gancho `scripts/depois-de-empacotar.cjs`. O `better-sqlite3` 13 traz binário pronto (`prebuilds/win32-x64.node`), então não há recompilação.
 - O ícone do app fica em `apps/desktop/recursos/icon.png` (a pasta `build/` é ignorada pelo git, então o instalador do CI saía com o ícone do Electron; há teste que confere). Atualização: o aviso de procurando/baixando/instalando vem de `aviso-atualizacao.ts`; o instalador é "um clique" (`oneClick`, sem escolher pasta) e a atualização usa `quitAndInstall(false, true)`, para o Windows mostrar a janela de progresso até o app reabrir; o app avisa "instalando" antes de fechar.

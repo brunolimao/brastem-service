@@ -3,7 +3,7 @@ import { carregarComNovasTentativas } from './carregamento'
 
 const semEspera = { dormir: async () => undefined }
 
-describe('carregarComNovasTentativas', () => {
+describe('carregarComNovasTentativas (R-ATU-10)', () => {
   it('carrega de primeira quando dá certo', async () => {
     const carregar = vi.fn(async () => undefined)
     expect(await carregarComNovasTentativas(carregar, 'http://127.0.0.1:47831', semEspera)).toBe(

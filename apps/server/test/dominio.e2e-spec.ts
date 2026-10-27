@@ -29,7 +29,7 @@ describe('domínio (e2e)', () => {
     await app.close()
   })
 
-  it('cadastra cliente com telefones e aparelhos e busca por telefone', async () => {
+  it('cadastra cliente com telefones e aparelhos e busca por telefone (R-CLI-01)', async () => {
     const res = await admin
       .post('/api/clientes')
       .send({
@@ -54,12 +54,12 @@ describe('domínio (e2e)', () => {
     expect(busca.body.items[0].nome).toBe('João da Silva')
   })
 
-  it('só aceita campos de busca permitidos', async () => {
+  it('só aceita campos de busca permitidos (R-SEG-09)', async () => {
     const res = await admin.get('/api/clientes').query({ busca: 'x', campo: 'senha' }).expect(400)
     expect(res.body.message).toContain('O campo "campo" possui um valor inválido')
   })
 
-  it('edita a lista de telefones: atualiza, cria e remove', async () => {
+  it('edita a lista de telefones: atualiza, cria e remove (R-CLI-06)', async () => {
     const atual = (await admin.get(`/api/clientes/${clienteId}`).expect(200)).body
     const res = await admin
       .patch(`/api/clientes/${clienteId}`)
@@ -75,7 +75,7 @@ describe('domínio (e2e)', () => {
     expect(res.body.aparelhos).toHaveLength(2)
   })
 
-  it('gera OS fechada com pagamentos parcelados e estende a garantia do aparelho', async () => {
+  it('gera OS fechada com pagamentos parcelados e estende a garantia do aparelho (R-PAG-01, R-PAG-02, R-GAR-01)', async () => {
     const res = await admin
       .post('/api/ordens-servico')
       .send({
@@ -112,7 +112,7 @@ describe('domínio (e2e)', () => {
     expect(cliente.aparelhos[0].garantiaAte).toBe('2026-12-30')
   })
 
-  it('valida regras da OS', async () => {
+  it('valida regras da OS (R-OS-01, R-OS-02)', async () => {
     const semFechamento = await admin
       .post('/api/ordens-servico')
       .send({ clienteId, aparelhoId, status: 'FECHADO', valor: 100, abertura: '2026-10-01' })
@@ -137,7 +137,7 @@ describe('domínio (e2e)', () => {
     expect(aparelhoAlheio.body.message).toBe('Este aparelho não pertence ao cliente informado')
   })
 
-  it('lança despesa, que entra negativa no caixa', async () => {
+  it('lança despesa, que entra negativa no caixa (R-PAG-04, R-TRA-04, R-CX-03)', async () => {
     await admin
       .post('/api/transacoes')
       .send({
@@ -155,7 +155,7 @@ describe('domínio (e2e)', () => {
       .expect(400)
   })
 
-  it('caixa inclui as duas pontas do período e conta as formas de pagamento', async () => {
+  it('caixa inclui as duas pontas do período e conta as formas de pagamento (R-CX-01, R-CX-02, R-CX-04, R-DAD-04)', async () => {
     const outubro = (
       await admin.get('/api/caixa').query({ inicio: '2026-10-01', fim: '2026-10-02' }).expect(200)
     ).body
@@ -174,7 +174,7 @@ describe('domínio (e2e)', () => {
     })
   })
 
-  it('relatório consolida OS e clientes novos', async () => {
+  it('relatório consolida OS e clientes novos (R-REL-01, R-REL-02, R-REL-03, R-REL-04)', async () => {
     const outubro = (
       await admin
         .get('/api/relatorios')
@@ -190,7 +190,7 @@ describe('domínio (e2e)', () => {
     expect(novos.recomendacaoClientes.internet).toBe(1)
   })
 
-  it('edita a OS substituindo os pagamentos e guardando relatado/identificado', async () => {
+  it('edita a OS substituindo os pagamentos e guardando relatado/identificado (R-OS-05)', async () => {
     const res = await admin
       .patch(`/api/ordens-servico/${osId}`)
       .send({
@@ -208,7 +208,7 @@ describe('domínio (e2e)', () => {
     expect(novembro.total).toBe(0)
   })
 
-  it('usuário comum não acessa caixa, relatórios nem exclusões', async () => {
+  it('usuário comum não acessa caixa, relatórios nem exclusões (R-PERM-03)', async () => {
     await admin
       .post('/api/usuarios')
       .send({ usuario: 'maria', senha: 'outra-senha-1', role: 'usuario' })
@@ -225,7 +225,7 @@ describe('domínio (e2e)', () => {
     await maria.get('/api/clientes').expect(200)
   })
 
-  it('apagar o cliente remove aparelhos, OS, pagamentos e parcelas', async () => {
+  it('apagar o cliente remove aparelhos, OS, pagamentos e parcelas (R-CLI-05, R-DAD-06)', async () => {
     await admin.delete(`/api/clientes/${clienteId}`).expect(204)
     await admin.get(`/api/ordens-servico/${osId}`).expect(404)
     await admin.get(`/api/clientes/${clienteId}`).expect(404)

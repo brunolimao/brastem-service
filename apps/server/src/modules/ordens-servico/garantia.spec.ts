@@ -31,7 +31,7 @@ describe('recalcularGarantia', () => {
     db.insert(aparelhos).values({ id: 1, clienteId: 1, nome: 'Geladeira' }).run()
   })
 
-  it('usa a garantia mais longa entre as OS fechadas (fechamento + dias)', () => {
+  it('usa a garantia mais longa entre as OS fechadas (fechamento + dias) (R-GAR-01, R-GAR-02)', () => {
     os('FECHADO', '2026-01-10', 30)
     os('FECHADO', '2026-06-01', 90)
     os('ABERTO', null, null)
@@ -39,12 +39,12 @@ describe('recalcularGarantia', () => {
     expect(garantia()).toBe('2026-08-30')
   })
 
-  it('sem OS com garantia, o aparelho fica sem garantia', () => {
+  it('sem OS com garantia, o aparelho fica sem garantia (R-GAR-04)', () => {
     os('FECHADO', '2026-01-10', null)
     expect(recalcularGarantia(db, 1)).toBeNull()
   })
 
-  it('nunca fica abaixo da garantia que veio do sistema antigo', () => {
+  it('nunca fica abaixo da garantia que veio do sistema antigo (R-GAR-03)', () => {
     db.update(aparelhos)
       .set({ garantiaImportada: '2027-03-01', garantiaAte: '2027-03-01' })
       .where(eq(aparelhos.id, 1))

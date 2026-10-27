@@ -72,3 +72,4 @@ Como testar uma atualização sem publicar: ver "App desktop" no [AGENTS.md](../
 - `apps/desktop/scripts/fumaca.mjs` — o executável gerado abre e a janela carrega o sistema; roda no
   _Release_ antes de publicar (R-ATU-01, R-ATU-10, R-TST-05).
 - Ciclo real (manual, com servidor local): 2.0.5 → 2.0.7 → 2.0.8 e 2.0.100 (sem iniciar) → 2.0.101, em 26/10/2026.
+- R-ATU-05 (SHA-512) é feito pelo electron-updater; sem teste automatizado próprio, conferido no ciclo real acima.

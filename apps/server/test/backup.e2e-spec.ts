@@ -75,7 +75,7 @@ describe('backup e restauração (e2e)', () => {
     expect(existsSync(join(dados, 'restauracao-pendente.sqlite'))).toBe(false)
   })
 
-  it('faz o backup local compactado e registra o estado', async () => {
+  it('faz o backup local compactado e registra o estado (R-BKP-02)', async () => {
     const antes = await admin.get('/api/backup/estado').expect(200)
     expect(antes.body).toMatchObject({
       ultimoBackup: null,
@@ -92,7 +92,7 @@ describe('backup e restauração (e2e)', () => {
     expect(arquivosLocais().some((nome) => nome.endsWith('.tmp'))).toBe(false)
   })
 
-  it('guarda só os 7 backups locais mais recentes', async () => {
+  it('guarda só os 7 backups locais mais recentes (R-BKP-03)', async () => {
     mkdirSync(pastaBackups, { recursive: true })
     for (let dia = 1; dia <= 9; dia++) {
       writeFileSync(join(pastaBackups, `brastem-2020-01-0${dia}-120000.sqlite.gz`), 'x')
@@ -136,7 +136,7 @@ describe('backup e restauração (e2e)', () => {
       expect(invalido.body.message).toContain('O campo "clientId" deve ter no mínimo 10 caracteres')
     })
 
-    it('conecta pelo fluxo OAuth com PKCE e rejeita retorno com state desconhecido', async () => {
+    it('conecta pelo fluxo OAuth com PKCE e rejeita retorno com state desconhecido (R-BKP-05)', async () => {
       await admin
         .post('/api/backup/google/credenciais')
         .send({
@@ -186,7 +186,7 @@ describe('backup e restauração (e2e)', () => {
       })
     })
 
-    it('a conexão continua depois de fechar e abrir o app (como numa atualização de versão)', async () => {
+    it('a conexão continua depois de fechar e abrir o app (como numa atualização de versão) (R-BKP-11)', async () => {
       // Outra instância do servidor na mesma pasta de dados: é o que acontece quando o app
       // atualizado abre. A conexão fica em dados/integracoes/google.json, que a atualização não toca.
       // (Nos testes o banco é em memória, então a instância nova começa sem usuários.)
@@ -204,7 +204,7 @@ describe('backup e restauração (e2e)', () => {
       }
     })
 
-    it('envia o backup para a pasta do Drive e limpa os mais antigos além de 30', async () => {
+    it('envia o backup para a pasta do Drive e limpa os mais antigos além de 30 (R-BKP-03)', async () => {
       for (let i = 1; i <= 31; i++) {
         google.arquivos.push({
           id: `velho-${String(i).padStart(2, '0')}-xxxxxxxx`,
@@ -249,7 +249,7 @@ describe('backup e restauração (e2e)', () => {
       expect(depois.ultimoErro).toBeNull()
     })
 
-    it('só faz backup automático quando passou das 24 horas', async () => {
+    it('só faz backup automático quando passou das 24 horas (R-BKP-01)', async () => {
       const { BackupService } = await import('../src/modules/backup/backup.service.js')
       const servico = app.get(BackupService)
       const antes = arquivosLocais().length
@@ -302,7 +302,7 @@ describe('backup e restauração (e2e)', () => {
   describe('restauração', () => {
     const pendente = () => join(dados, 'restauracao-pendente.sqlite')
 
-    it('prepara a troca do banco com um backup válido, sem mexer no banco em uso', async () => {
+    it('prepara a troca do banco com um backup válido, sem mexer no banco em uso (R-BKP-06)', async () => {
       const nome = await nomeDoUltimoBackup()
 
       const res = await admin
@@ -347,7 +347,7 @@ describe('backup e restauração (e2e)', () => {
       return nome
     }
 
-    it('lista e restaura a cópia que o app guarda antes de atualizar o banco', async () => {
+    it('lista e restaura a cópia que o app guarda antes de atualizar o banco (R-BKP-08)', async () => {
       const nome = await copiaAntesDaMigracao()
       const lista = (await admin.get('/api/backup/arquivos').expect(200)).body.local as {
         id: string
@@ -360,7 +360,7 @@ describe('backup e restauração (e2e)', () => {
       rmSync(join(pastaBackups, nome))
     })
 
-    it('recusa backup gravado por uma versão mais nova do app', async () => {
+    it('recusa backup gravado por uma versão mais nova do app (R-BKP-06)', async () => {
       const nome = await copiaAntesDaMigracao()
       const banco = new Database(join(pastaBackups, nome))
       banco.exec('update __drizzle_migrations set created_at = created_at + 100000000000')
@@ -543,7 +543,7 @@ describe('backup e restauração (e2e)', () => {
       })
     })
 
-    it('recusa arquivo que não é um backup do sistema, nome com caminho e arquivo inexistente', async () => {
+    it('recusa arquivo que não é um backup do sistema, nome com caminho e arquivo inexistente (R-BKP-06, R-SEG-10)', async () => {
       writeFileSync(
         join(pastaBackups, 'brastem-2022-02-02-020202.sqlite.gz'),
         'isto não é um banco',

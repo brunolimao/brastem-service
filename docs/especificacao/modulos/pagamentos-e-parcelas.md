@@ -71,7 +71,9 @@ Os pagamentos são criados e substituídos pelas rotas da OS e das transações 
 
 - `apps/server/test/dominio.e2e-spec.ts` — parcelamento numa OS, despesa negativa (R-PAG-02 a R-PAG-04).
 - `apps/server/src/common/utils/utils.spec.ts` — divisão em parcelas (R-PAG-03).
-- `apps/server/test/regras.e2e-spec.ts` — busca _Todos_ (R-PAG-06).
+- `apps/server/test/regras.e2e-spec.ts` — busca _Todos_ filtra pelo texto.
+- `apps/client/src/libs/periodo.spec.ts` — sem datas na URL vale o mês atual (R-PAG-06).
+- `apps/server/src/modules/ordens-servico/ordens-servico.service.spec.ts` — pagamentos que falham desfazem a OS ou o lançamento (R-PAG-05).
 - `packages/shared/src/dinheiro.spec.ts` — leitura de valores (R-PAG-07).
 
 ## Limitações conhecidas
