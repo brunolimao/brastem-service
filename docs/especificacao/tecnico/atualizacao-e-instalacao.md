@@ -15,8 +15,11 @@
 
 ## Regras
 
-- **R-ATU-01**: Abertura: a janela abre na hora com "Iniciando o Brastem-Service…" e mostra o sistema quando o
-  servidor interno fica pronto. Só uma janela por vez: abrir de novo traz a existente para a frente.
+- **R-ATU-01**: Abertura: a janela abre na hora com "Iniciando o Brastem-Service…" (e o aviso de que pode levar
+  alguns segundos, principalmente depois de uma atualização) e mostra o sistema quando o servidor interno fica
+  pronto. A janela só aparece com esse aviso já desenhado e o servidor só começa a subir depois disso: subir o
+  servidor ocupa o processo principal (backup e migração do banco depois de uma atualização) e, antes, a janela
+  podia ficar só com o fundo azul até o fim. Só uma janela por vez: abrir de novo traz a existente para a frente.
 - **R-ATU-02**: Procura: o app procura versão nova ao abrir e a cada 4 horas, em silêncio; _Ajuda → Verificar
   atualizações_ (tecla Alt mostra o menu) procura na hora e responde com uma mensagem.
 - **R-ATU-03**: Aviso de andamento: no canto da janela aparecem "Procurando atualizações…", "Baixando a
@@ -55,12 +58,13 @@ Como testar uma atualização sem publicar: ver "App desktop" no [AGENTS.md](../
 
 ## Onde está no código
 
-- `apps/desktop/src/` (`main.ts`, `atualizador.ts`, `criar-atualizador.ts`, `cache-atualizacao.ts`, `aviso-atualizacao.ts`)
+- `apps/desktop/src/` (`main.ts`, `atualizador.ts`, `criar-atualizador.ts`, `cache-atualizacao.ts`, `aviso-atualizacao.ts`, `tela-de-espera.ts`)
 - `apps/desktop/electron-builder.yml`, `.github/workflows/release.yml`
 
 ## Testes
 
 - `apps/desktop/src/carregamento.spec.ts` — novas tentativas e desistência (R-ATU-10).
+- `apps/desktop/src/tela-de-espera.spec.ts` — texto da espera, janela só aparece desenhada, servidor só depois, limites de tempo (R-ATU-01).
 - `apps/desktop/src/atualizador.spec.ts` — procura, aviso de cada etapa, instalação ao aceitar (R-ATU-02 a R-ATU-04).
 - `apps/desktop/src/aviso-atualizacao.spec.ts`, `cache-atualizacao.spec.ts`, `criar-atualizador.spec.ts` (R-ATU-03, R-ATU-08).
 - `apps/server/test/sistema.e2e-spec.ts` e `apps/client/src/components/domain/atualizacao-card.spec.tsx` e `apps/client/src/test/telas/administracao.spec.tsx` — botão Procurar atualização em Configurações (R-ATU-11).

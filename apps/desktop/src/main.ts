@@ -8,6 +8,7 @@ import { criarAtualizador } from './criar-atualizador'
 import { pedeDepuracao } from './depuracao'
 import { podeAbrirFora } from './links-externos'
 import { carregarOuCriarSegredo, escolherPorta, montarAmbiente } from './runtime'
+import { mostrarTelaDeEspera, paginaSimples } from './tela-de-espera'
 
 /** Mesmo nome emitido pelo servidor (RestauracaoService). */
 const EVENTO_REINICIAR = 'brastem:reiniciar'
@@ -124,30 +125,14 @@ function mostrarAtualizacao(estado: EstadoAtualizacao) {
   janela.webContents.executeJavaScript(scriptDoAviso(estado)).catch(() => undefined)
 }
 
-/** Página simples (sem servidor) para a janela: espera ao abrir ou aviso de falha. O texto é fixo do app. */
-const paginaSimples = (
-  texto: string,
-  girando: boolean,
-  link?: { rotulo: string; endereco: string },
-) =>
-  `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html><meta charset="utf-8"><title>Brastem-Service</title>
-<style>
-  html,body{height:100%;margin:0;background:#0b1220;color:#fff;font:500 15px system-ui,sans-serif}
-  body{display:grid;place-items:center;text-align:center;padding:0 24px}
-  .anel{width:36px;height:36px;margin:0 auto 16px;border:4px solid rgba(255,255,255,.2);border-top-color:#FF6347;border-radius:50%;animation:g 1s linear infinite}
-  @keyframes g{to{transform:rotate(360deg)}}
-  a{display:inline-block;margin-top:16px;padding:8px 16px;border-radius:6px;background:#FF6347;color:#fff;text-decoration:none}
-</style>
-<div>${girando ? '<div class="anel"></div>' : ''}${texto}${link ? `<br><a href="${link.endereco}">${link.rotulo}</a>` : ''}</div>`)}`
-
-/** Tela de espera: o servidor pode levar alguns segundos (ou mais, logo após instalar uma atualização). */
-const TELA_DE_ESPERA = paginaSimples('Iniciando o Brastem-Service…', true)
-
 /** Origem do app depois que o servidor sobe; a janela não navega para fora dela. */
 let origemDoApp: string | undefined
 
-/** Abre a janela já, com a tela de espera, e só depois carrega o app (ver `carregarApp`). */
-function abrirJanela() {
+/**
+ * Abre a janela com a tela de espera e resolve quando ela já está desenhada na tela; só então o servidor
+ * sobe (ver `mostrarTelaDeEspera`) e, depois, o app carrega (ver `carregarApp`).
+ */
+function abrirJanela(): Promise<void> {
   janela = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -155,6 +140,8 @@ function abrirJanela() {
     minHeight: 650,
     autoHideMenuBar: true,
     backgroundColor: '#0b1220',
+    // Aparece só com o "Iniciando…" já desenhado, nunca como um quadro azul vazio.
+    show: false,
     title: 'Brastem-Service',
     icon: app.isPackaged ? join(raiz, 'icone.png') : join(__dirname, '..', 'recursos', 'icon.png'),
     webPreferences: {
@@ -181,7 +168,7 @@ function abrirJanela() {
     if (new URL(url).origin !== origemDoApp) evento.preventDefault()
   })
 
-  void janela.loadURL(TELA_DE_ESPERA)
+  return mostrarTelaDeEspera(janela)
 }
 
 /**
@@ -199,8 +186,7 @@ async function carregarApp(endereco: string) {
   if (!carregou && !alvo.isDestroyed()) {
     void alvo.loadURL(
       paginaSimples('Não foi possível abrir o Brastem-Service.', false, {
-        rotulo: 'Tentar de novo',
-        endereco,
+        link: { rotulo: 'Tentar de novo', endereco },
       }),
     )
   }
@@ -267,7 +253,7 @@ if (!app.requestSingleInstanceLock()) {
         app.relaunch()
         app.quit()
       })
-      abrirJanela()
+      const telaDeEspera = abrirJanela()
       // Antes do servidor: se esta versão não conseguir iniciar, ainda dá para receber a correção.
       atualizador = iniciarAtualizador({
         empacotado: app.isPackaged,
@@ -292,6 +278,8 @@ if (!app.requestSingleInstanceLock()) {
           return response === 0
         },
       })
+      // Só com o "Iniciando…" na tela: subir o servidor trava este processo por alguns segundos.
+      await telaDeEspera
       await carregarApp(await iniciarServidor())
     })
     // Se até a tela de erro falhar, ao menos não fica um processo aberto sem janela.
