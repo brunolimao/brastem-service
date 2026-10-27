@@ -4,3 +4,17 @@ pre-commit:
       glob: "*.{ts,tsx,js,json,css}"
       run: pnpm biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
       stage_fixed: true
+
+# Antes de enviar ao GitHub: o mesmo que o CI confere, só nos pacotes que mudaram desde o origin/main
+# (o turbo reaproveita o que já passou). Pular numa emergência: `git push --no-verify`.
+pre-push:
+  parallel: true
+  commands:
+    lint:
+      run: pnpm lint
+    regras:
+      run: pnpm regras
+    sem-uso:
+      run: pnpm sem-uso
+    tipos-e-testes:
+      run: pnpm turbo run typecheck test --filter="...[origin/main]"

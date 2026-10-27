@@ -54,6 +54,7 @@ describe('Configurações', () => {
       'Backup automático',
       'Restaurar um backup',
       'Começar do zero',
+      'Suporte',
     ]) {
       expect(screen.queryByText(deAdmin)).toBeNull()
     }
@@ -94,5 +95,7 @@ describe('Configurações', () => {
     expect(await screen.findByText('Nenhum backup ainda')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Apagar todos os dados' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Procurar atualização' })).toBeInTheDocument()
+    // Diagnóstico para o suporte, só do administrador (R-CFG-10).
+    expect(screen.getByRole('button', { name: 'Gerar diagnóstico' })).toBeInTheDocument()
   })
 })

@@ -40,7 +40,7 @@
   nada), como gerar uma OS, _Lançar receita/despesa_ no caixa.
 - **R-UX-11**: As listas (clientes, OS, pagamentos, caixa, usuários, relatórios) reabrem no ponto em que ficaram
   (busca, página, ordem, período) ao voltar pelo menu ou pelo _Voltar_ da ficha. Vale enquanto o app está aberto.
-- **R-UX-12**: Início, de cima para baixo: atalhos; os números do dia e do mês (OS em andamento, abertas hoje,
+- **R-UX-12**: Início, de cima para baixo: o aviso de backup atrasado, se houver (R-BKP-14); atalhos; os números do dia e do mês (OS em andamento, abertas hoje,
   fechadas no mês, clientes novos no mês e, só para o administrador, faturamento e caixa do mês, com os mesmos
   cálculos de Relatórios e Caixa); o gráfico das OS em andamento por status; as 5 OS paradas há mais tempo
   (com os dias desde a abertura; data futura conta como hoje), com link para cada uma; as fichas recentes.

@@ -37,5 +37,3 @@ export const appConfig = registerAs('app', () => {
     },
   }
 })
-
-export type AppConfig = ReturnType<typeof appConfig>

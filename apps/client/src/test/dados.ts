@@ -1,5 +1,6 @@
 // Dados inventados para os testes (o repositório é público: nada de cliente ou loja de verdade).
 import { TIPOS_PAGAMENTO } from '@brastem/shared'
+import type { EstadoBackup } from '@/models/backup.model'
 import type { Caixa, ItemCaixa } from '@/models/caixa.model'
 import type { ClienteDetalhe, ClienteListado } from '@/models/cliente.model'
 import type { OrdemServicoDetalhe, OrdemServicoListada } from '@/models/ordem-servico.model'
@@ -227,5 +228,16 @@ export const painel = (dados: Partial<Painel> = {}): Painel => ({
       dias: 1,
     },
   ],
+  ...dados,
+})
+
+/** Situação do backup; sem nada informado, nunca rodou e não há erro (o Início não avisa). */
+export const estadoBackup = (dados: Partial<EstadoBackup> = {}): EstadoBackup => ({
+  google: { configurado: false, conectado: false, email: null, origemCredenciais: null },
+  ultimoBackup: null,
+  ultimoEnvioDrive: null,
+  ultimoErro: null,
+  pendenteDrive: false,
+  proximoBackup: null,
   ...dados,
 })

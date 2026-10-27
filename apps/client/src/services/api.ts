@@ -18,6 +18,8 @@ interface Opcoes {
   /** Arquivo enviado como bytes crus (application/octet-stream) em vez de JSON. */
   arquivo?: Blob
   query?: Record<string, ValorQuery>
+  /** A resposta é um arquivo (ex.: o .zip do diagnóstico): devolve o `Blob` em vez de ler JSON. */
+  respostaEmArquivo?: boolean
 }
 
 let aoExpirarSessao: (() => void) | undefined
@@ -62,7 +64,7 @@ const ROTAS_DE_AUTENTICACAO = ['/auth/login', '/auth/refresh', '/auth/setup']
 
 export async function api<T>(
   caminho: string,
-  { method = 'GET', body, arquivo, query }: Opcoes = {},
+  { method = 'GET', body, arquivo, query, respostaEmArquivo }: Opcoes = {},
 ) {
   const enviar = () =>
     fetch(`/api${caminho}${montarQuery(query)}`, {
@@ -93,5 +95,6 @@ export async function api<T>(
 
   if (!resposta.ok) throw await lerErro(resposta)
   if (resposta.status === 204) return undefined as T
+  if (respostaEmArquivo) return (await resposta.blob()) as T
   return (await resposta.json()) as T
 }

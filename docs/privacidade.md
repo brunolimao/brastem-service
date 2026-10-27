@@ -11,6 +11,11 @@ Todos os dados do sistema (clientes, ordens de serviço, pagamentos etc.) ficam 
 quem usa o aplicativo**, em um arquivo local. O desenvolvedor do aplicativo **não recebe, não armazena e
 não tem acesso** a esses dados.
 
+O botão _Gerar diagnóstico_ (em Configurações) só **salva um arquivo no computador**; nada é enviado
+sozinho. O arquivo traz versões, a situação do banco e do backup, a quantidade de registros e os registros
+técnicos (logs) dos últimos dias, sem dados de clientes, da empresa, senhas ou a conta do Google. Quem decide
+se e para quem enviar é o administrador.
+
 ## Integração opcional com o Google Drive
 
 Se, e somente se, o usuário conectar o Google Drive em _Configurações_, o aplicativo:

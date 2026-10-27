@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { credenciaisGoogleSchema, juntarBackups } from './backup.model'
+import { estadoBackup } from '@/test/dados'
+import { avisoDeBackup, credenciaisGoogleSchema, juntarBackups } from './backup.model'
 import { rotuloParcela } from './caixa.model'
 import {
   clienteFormSchema,
@@ -280,5 +281,69 @@ describe('backup', () => {
         clientSecret: 'GOCSPX-segredo',
       }).success,
     ).toBe(true)
+  })
+})
+
+describe('aviso de backup no Início (R-BKP-14)', () => {
+  const agora = new Date('2026-10-27T12:00:00.000Z')
+  const backup = (criadoEm: string) => ({
+    criadoEm,
+    arquivo: 'brastem.sqlite.gz',
+    tamanho: 1,
+    origem: 'automatico' as const,
+  })
+  const conectado = {
+    configurado: true,
+    conectado: true,
+    email: null,
+    origemCredenciais: 'app' as const,
+  }
+
+  it('em dia: backup das últimas 48 horas, ou app recém-instalado sem erro, não avisa', () => {
+    expect(avisoDeBackup(estadoBackup(), agora)).toBeNull()
+    const recente = estadoBackup({ ultimoBackup: backup('2026-10-25T13:00:00.000Z') })
+    expect(avisoDeBackup(recente, agora)).toBeNull()
+  })
+
+  it('backup com mais de 48 horas avisa a data e o último erro', () => {
+    const aviso = avisoDeBackup(
+      estadoBackup({
+        ultimoBackup: backup('2026-10-24T12:00:00.000Z'),
+        ultimoErro: { em: '2026-10-26T12:00:00.000Z', mensagem: 'Disco cheio' },
+      }),
+      agora,
+    )
+    expect(aviso?.titulo).toBe('Backup atrasado')
+    expect(aviso?.descricao).toBe(
+      'O último backup é de 24/10/2026 (há 3 dias). Último erro: Disco cheio',
+    )
+  })
+
+  it('backup que nunca rodou por erro avisa', () => {
+    const aviso = avisoDeBackup(
+      estadoBackup({ ultimoErro: { em: '2026-10-27T11:00:00.000Z', mensagem: 'Sem permissão' } }),
+      agora,
+    )
+    expect(aviso?.titulo).toBe('O backup automático não está funcionando')
+  })
+
+  it('backups que não chegam ao Drive há mais de 48 horas avisam; dentro do prazo, não', () => {
+    const parado = estadoBackup({
+      google: conectado,
+      ultimoBackup: backup('2026-10-27T10:00:00.000Z'),
+      pendenteDrive: true,
+      ultimoEnvioDrive: '2026-10-20T10:00:00.000Z',
+    })
+    expect(avisoDeBackup(parado, agora)?.descricao).toBe(
+      'O último envio foi em 20/10/2026 (há 7 dias). Os backups continuam no computador.',
+    )
+    expect(
+      avisoDeBackup({ ...parado, ultimoEnvioDrive: '2026-10-26T10:00:00.000Z' }, agora),
+    ).toBeNull()
+    expect(avisoDeBackup({ ...parado, ultimoEnvioDrive: null }, agora)?.titulo).toBe(
+      'Backups não estão chegando ao Google Drive',
+    )
+    // Sem Drive conectado, ficar só no computador é o esperado.
+    expect(avisoDeBackup({ ...parado, google: estadoBackup().google }, agora)).toBeNull()
   })
 })

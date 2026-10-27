@@ -17,3 +17,10 @@ coverage
 
 # Saídas de builds de teste do instalador (ex.: electron-builder -c.directories.output=release-teste)
 release-*/
+
+# Testes de mutação (Stryker) e de imagem (Playwright): relatórios e arquivos temporários.
+reports/
+.stryker-tmp/
+test-results/
+playwright-report/
+apps/client/visual/.sessao.json

@@ -1,7 +1,7 @@
 import { fireEvent, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { MAXIMO_RECENTES, useRecentesStore } from '@/hooks/use-recentes'
-import { clienteDetalhe, ordemDetalhe, painel } from '../dados'
+import { clienteDetalhe, estadoBackup, ordemDetalhe, painel } from '../dados'
 import { ADMIN, abrirTela, COMUM, esperarCaminho, esperarTitulo } from '../tela'
 
 const atalhos = () =>
@@ -130,5 +130,31 @@ describe('Início (R-UX-03)', () => {
     expect(useRecentesStore.getState().porUsuario[ADMIN.id]?.[0]?.titulo).toBe(
       `Cliente ${MAXIMO_RECENTES + 2}`,
     )
+  })
+})
+
+describe('Início: aviso de backup atrasado (R-BKP-14)', () => {
+  const atrasado = estadoBackup({
+    ultimoBackup: {
+      criadoEm: '2020-01-01T12:00:00.000Z',
+      arquivo: 'brastem.sqlite.gz',
+      tamanho: 1,
+      origem: 'automatico',
+    },
+  })
+
+  it('o administrador vê o aviso, com o caminho para Configurações', async () => {
+    const tela = abrirTela('/', { api: { 'GET /backup/estado': atrasado } })
+    expect(await screen.findByText('Backup atrasado')).toBeInTheDocument()
+    expect(screen.getByText(/O último backup é de 01\/01\/2020/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('link', { name: 'Ver o backup em Configurações' }))
+    await esperarCaminho(tela, '/configuracoes')
+  })
+
+  it('usuário comum não vê aviso nem pergunta pelo backup (é coisa do administrador)', async () => {
+    const tela = abrirTela('/', { usuario: COMUM, api: { 'GET /backup/estado': atrasado } })
+    await screen.findByText('OS em andamento')
+    expect(screen.queryByText('Backup atrasado')).toBeNull()
+    expect(tela.pedidos('GET /backup/estado')).toHaveLength(0)
   })
 })

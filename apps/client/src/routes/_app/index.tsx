@@ -10,6 +10,7 @@ import {
   Wallet,
 } from 'lucide-react'
 import { GraficoPizza } from '@/components/charts/grafico-pizza'
+import { AvisoBackup } from '@/components/domain/aviso-backup'
 import { Indicador } from '@/components/domain/indicador'
 import { PageHeader } from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
@@ -50,6 +51,7 @@ function InicioPage() {
   return (
     <>
       <PageHeader titulo={`Olá, ${usuario?.usuario ?? ''}`} descricao="O que vamos fazer agora?" />
+      {admin && <AvisoBackup />}
       <Card>
         <CardHeader>
           <CardTitle>Atalhos</CardTitle>

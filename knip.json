@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "apps/server": {
+      "ignoreDependencies": ["pino-roll", "pino-pretty"]
+    },
+    "apps/desktop": {
+      "entry": ["src/main.ts", "scripts/*.{mjs,cjs}"]
+    }
+  },
+  "ignoreExportsUsedInFile": true,
+  "rules": {
+    "duplicates": "error"
+  },
+  "ignore": ["apps/client/src/components/ui/**"]
+}

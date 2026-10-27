@@ -30,4 +30,3 @@ export const primeiroAcessoSchema = z
     message: 'As senhas não conferem',
     path: ['confirmarSenha'],
   })
-export type PrimeiroAcessoInput = z.infer<typeof primeiroAcessoSchema>

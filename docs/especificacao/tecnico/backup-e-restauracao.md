@@ -46,6 +46,10 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
   começar do zero), a tela de primeiro acesso oferece _Restaurar um backup_, sem login. Mesmas conferências
   de R-BKP-10; os usuários do backup voltam junto. Depois do primeiro usuário, a rota recusa sem nem receber
   o arquivo.
+- **R-BKP-14**: Aviso de backup atrasado: no Início, o administrador vê um alerta, com o caminho para
+  Configurações, quando o último backup tem mais de 48 horas, quando nenhum backup foi feito e já houve erro,
+  ou quando o Drive está conectado e há backup esperando para subir sem envio nas últimas 48 horas. Cada caso
+  mostra o último erro, se houver. O usuário comum não vê o aviso nem consulta o backup.
 
 ## Onde está no código
 
@@ -53,6 +57,7 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
   `google-oauth.service.ts`, `google-drive.client.ts`)
 - `apps/server/src/common/database/connection.ts` (`aplicarRestauracaoPendente`)
 - `apps/server/src/common/utils/arquivos.ts` (`moverArquivo`, R-BKP-09)
+- `apps/client/src/models/backup.model.ts` (`avisoDeBackup`) e `components/domain/aviso-backup.tsx` (R-BKP-14)
 
 ## Testes
 
@@ -60,3 +65,4 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
 - `apps/server/src/common/database/connection.spec.ts` — troca do banco na abertura, cópia antiga completa mesmo com `-wal` pendente (R-BKP-06, R-BKP-07).
 - `apps/server/src/common/utils/arquivos.spec.ts` — R-BKP-09.
 - `apps/server/src/modules/backup/backup.agendador.spec.ts` — 1 minuto depois de abrir e de hora em hora; falha não derruba o app (R-BKP-01).
+- `apps/client/src/models/models.spec.ts` e `apps/client/src/test/telas/inicio.spec.tsx` — quando o Início avisa do backup, e só para o administrador (R-BKP-14).

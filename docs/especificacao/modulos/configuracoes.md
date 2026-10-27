@@ -21,6 +21,7 @@ Só o administrador.
   - **Aparência**: tamanho da letra (R-UX-05).
   - **Impressão da OS**: _Modelo novo_ ou _Igual ao sistema antigo_, neste computador (R-IMP-03).
   - **Atualizações**: versão instalada e _Procurar atualização_ (R-ATU-11).
+  - **Suporte**: _Gerar diagnóstico_, que salva um .zip para mandar ao suporte (R-CFG-10).
   - **Backup automático**: último backup (quando, se foi automático ou manual, tamanho), onde está (computador
     e/ou Drive), próximo automático e o botão _Fazer backup agora_.
   - **Google Drive**: chaves do app do Google (Client ID e chave secreta), _Conectar ao Google Drive_, conta
@@ -60,6 +61,11 @@ Só o administrador.
 - **R-CFG-09**: a tela abre para todos; o usuário comum vê só **Aparência**, **Impressão da OS** e **Atualizações**. Dados da empresa, backup,
   restauração e começar do zero nem aparecem para ele (e a tela não consulta essas rotas, que o servidor
   recusa a quem não é administrador).
+- **R-CFG-10**: _Gerar diagnóstico_ (só administrador) salva `diagnostico-brastem-AAAA-MM-DD.zip` com
+  `diagnostico.json` (versão do app, do Windows, do Node e do Electron; memória; tamanho e migrações do banco;
+  quantidade de registros por tabela; situação do backup) e os 3 registros (logs) diários mais recentes. Não leva
+  dados de clientes nem da empresa, senhas, chaves nem o e-mail da conta do Google. O arquivo fica no computador:
+  o próprio administrador decide se e para quem envia.
 
 ## Permissões
 
@@ -83,11 +89,12 @@ Só o administrador.
 | `POST /api/backup/restaurar/arquivo` (corpo: o arquivo, `application/octet-stream`)                   | restaura de um arquivo (R-CFG-07) | administrador                    |
 | `POST /api/backup/google/credenciais`, `GET /api/backup/google/conectar`, `DELETE /api/backup/google` | Google Drive                      | administrador                    |
 | `GET /api/backup/google/callback`                                                                     | retorno da autorização do Google  | público (protegido pelo `state`) |
+| `GET /api/sistema/diagnostico`                                                                        | .zip para o suporte (R-CFG-10)    | administrador                    |
 
 ## Onde está no código
 
-- Server: `apps/server/src/modules/empresa/`, `modules/backup/`
-- Client: `routes/_app/configuracoes.tsx`, `components/domain/empresa-card.tsx`, `aparencia-card.tsx`, `seletor-modelo-impressao.tsx`, `atualizacao-card.tsx`, `backup-*.tsx`
+- Server: `apps/server/src/modules/empresa/`, `modules/backup/`, `modules/sistema/diagnostico.service.ts`
+- Client: `routes/_app/configuracoes.tsx`, `components/domain/empresa-card.tsx`, `aparencia-card.tsx`, `seletor-modelo-impressao.tsx`, `atualizacao-card.tsx`, `diagnostico-card.tsx`, `backup-*.tsx`
 
 ## Testes
 
@@ -97,3 +104,4 @@ Só o administrador.
 - `apps/client/src/components/domain/apagar-tudo-card.spec.tsx` — consequências claras, senha obrigatória, senha errada não sai do sistema (R-CFG-08).
 - `apps/client/src/components/domain/backup.spec.tsx` — cartões de backup e Google Drive, lista e confirmação de restauração, restaurar de um arquivo (R-CFG-03 a R-CFG-07).
 - `apps/client/src/components/domain/usuario-e-empresa.spec.tsx` — dados da empresa começam vazios e saem com máscara (R-CFG-01).
+- `apps/server/test/sistema.e2e-spec.ts` e `apps/client/src/components/domain/diagnostico-card.spec.tsx` — conteúdo do .zip, nada de dados de clientes nem e-mail, só administrador, download com a data no nome (R-CFG-10).

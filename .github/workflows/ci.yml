@@ -29,7 +29,20 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      # Arquivos, exportações e dependências sem uso.
+      - run: pnpm sem-uso
       - run: pnpm typecheck
       # Testes com a cobertura mínima de cada pacote (R-TST-04).
       - run: pnpm test:cobertura
+      # Toda regra da especificação tem teste que a cite (R-TST-03).
+      - run: pnpm test:scripts
+      - run: pnpm regras
       - run: pnpm build
+      # Fotos das telas e da OS impressa comparadas com as aprovadas (R-TST-08). Usa o Edge do Windows.
+      - run: pnpm --filter @brastem/client visual
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fotos-diferentes
+          path: apps/client/playwright-report/
+          if-no-files-found: ignore

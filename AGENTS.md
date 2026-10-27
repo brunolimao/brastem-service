@@ -14,7 +14,9 @@ Todo texto de interface, mensagem de erro e validação é em **pt-BR**.
 ## Comandos (na raiz)
 
 `pnpm dev` · `pnpm build` · `pnpm test` · `pnpm test:cobertura` · `pnpm typecheck` · `pnpm lint` · `pnpm lint:fix`
-Antes de concluir qualquer tarefa: lint, typecheck e test devem passar.
+· `pnpm regras` (toda regra tem teste) · `pnpm sem-uso` (knip) · `pnpm semear` (app de demonstração com dados
+inventados) · `pnpm --filter @brastem/client visual` (comparação de imagens; precisa do build)
+Antes de concluir qualquer tarefa: lint, typecheck e test devem passar. O lefthook confere o mesmo antes do push.
 
 ## Testes: obrigatórios em toda mudança
 

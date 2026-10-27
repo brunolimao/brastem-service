@@ -17,5 +17,6 @@ import { RestauracaoService } from './restauracao.service.js'
     GoogleDriveClient,
     RestauracaoService,
   ],
+  exports: [BackupService],
 })
 export class BackupModule {}

@@ -5,6 +5,7 @@ import { AtualizacaoCard } from '@/components/domain/atualizacao-card'
 import { BackupGoogleCard } from '@/components/domain/backup-google-card'
 import { BackupLista } from '@/components/domain/backup-lista'
 import { BackupStatusCard } from '@/components/domain/backup-status-card'
+import { DiagnosticoCard } from '@/components/domain/diagnostico-card'
 import { EmpresaCard } from '@/components/domain/empresa-card'
 import { ImpressaoCard } from '@/components/domain/seletor-modelo-impressao'
 import { PageHeader } from '@/components/layout/page-header'
@@ -54,6 +55,7 @@ function ConfiguracoesDoAdministrador() {
       <AparenciaCard />
       <ImpressaoCard />
       <AtualizacaoCard />
+      <DiagnosticoCard />
       {estado ? (
         <>
           <BackupStatusCard estado={estado} />

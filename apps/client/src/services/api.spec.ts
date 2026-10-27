@@ -45,6 +45,17 @@ describe('api', () => {
     expect(opcoes?.headers).toEqual({ 'content-type': 'application/octet-stream' })
   })
 
+  it('devolve o arquivo (Blob) quando a resposta é um arquivo', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(new Uint8Array([80, 75, 3, 4]), {
+        headers: { 'content-type': 'application/zip' },
+      }),
+    )
+    const arquivo = await api<Blob>('/sistema/diagnostico', { respostaEmArquivo: true })
+    expect(arquivo).toBeInstanceOf(Blob)
+    expect(new Uint8Array(await arquivo.arrayBuffer())).toEqual(new Uint8Array([80, 75, 3, 4]))
+  })
+
   it('transforma erro da API em ApiError com todas as mensagens', async () => {
     fetchMock.mockResolvedValueOnce(
       resposta(400, { message: ['Campo A inválido', 'Campo B inválido'] }),

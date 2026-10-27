@@ -22,15 +22,12 @@ export const periodoDoAno = (referencia = new Date()): Periodo => ({
   fim: iso(endOfYear(referencia)),
 })
 
-/** Período mostrado quando a URL não traz datas: o mês atual. */
-export const periodoPadrao = periodoDoMes
-
-/** Usa as datas da URL quando existirem; a que faltar vem do período padrão. */
+/** Usa as datas da URL quando existirem; a que faltar vem do período padrão, o mês atual. */
 export const resolverPeriodo = (
   inicio?: string,
   fim?: string,
   referencia = new Date(),
 ): Periodo => {
-  const padrao = periodoPadrao(referencia)
+  const padrao = periodoDoMes(referencia)
   return { inicio: inicio ?? padrao.inicio, fim: fim ?? padrao.fim }
 }
