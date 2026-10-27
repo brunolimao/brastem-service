@@ -42,6 +42,8 @@ beforeEach(() => {
     'fetch',
     vi.fn(async (url: string) => {
       if (url.startsWith('/api/sistema')) return new Response(JSON.stringify({ versao }))
+      if (url.startsWith('/api/sistema/procurar-atualizacao'))
+        return new Response(JSON.stringify({ iniciado: true }), { status: 202 })
       if (url.startsWith('/api/auth/logout'))
         return logoutOk ? new Response(null, { status: 204 }) : new Response('{}', { status: 500 })
       return new Response('{}', { status: 404 })
@@ -165,5 +167,24 @@ describe('AppSidebar: tamanho da letra (R-UX-05)', () => {
     // O próprio store não passa dos limites (atalho, preferência antiga...), não só o botão.
     act(() => usePreferenciasStore.getState().mudarLetra(-1))
     expect(usePreferenciasStore.getState().tamanhoDeLetra).toBe(0)
+  })
+})
+
+describe('AppSidebar: procurar atualização (R-ATU-11)', () => {
+  it('no app instalado, o botão pede ao app para procurar agora', async () => {
+    renderizar('usuario')
+    fireEvent.click(await screen.findByRole('button', { name: 'Procurar atualização' }))
+    await waitFor(() =>
+      expect(vi.mocked(fetch).mock.calls.map(([url]) => url)).toContain(
+        '/api/sistema/procurar-atualizacao',
+      ),
+    )
+  })
+
+  it('em desenvolvimento não aparece', async () => {
+    versao = 'desenvolvimento'
+    renderizar('usuario')
+    await screen.findByText('Desenvolvimento')
+    expect(screen.queryByRole('button', { name: 'Procurar atualização' })).toBeNull()
   })
 })

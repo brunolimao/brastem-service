@@ -11,6 +11,8 @@ import { carregarOuCriarSegredo, escolherPorta, montarAmbiente } from './runtime
 
 /** Mesmo nome emitido pelo servidor (RestauracaoService). */
 const EVENTO_REINICIAR = 'brastem:reiniciar'
+/** O botão "Procurar atualização" da tela chega pelo servidor embutido (mesmo processo). */
+const EVENTO_PROCURAR_ATUALIZACAO = 'brastem:procurar-atualizacao'
 
 /** Onde baixar o instalador à mão quando a atualização automática não funciona. */
 const PAGINA_DE_DOWNLOADS = 'https://github.com/brunolimao/brastem-service/releases/latest'
@@ -258,6 +260,8 @@ if (!app.requestSingleInstanceLock()) {
     .whenReady()
     .then(async () => {
       Menu.setApplicationMenu(montarMenu())
+      // Botão "Procurar atualização" da tela: o mesmo que Ajuda → Verificar atualizações.
+      process.on(EVENTO_PROCURAR_ATUALIZACAO, () => void verificarAtualizacaoAgora())
       // A tela de backup prepara a troca do banco e pede para reiniciar; a troca acontece ao abrir de novo.
       process.on(EVENTO_REINICIAR, () => {
         app.relaunch()

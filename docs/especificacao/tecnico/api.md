@@ -44,6 +44,7 @@ mensagens em português. Com o app em desenvolvimento, a documentação interati
 | POST       | `/import/legacy`                                                                            | público, só sem usuários         | [importação](../modulos/importacao-do-sistema-antigo.md) |
 | POST       | `/backup/restaurar/inicial`                                                                 | público, só sem usuários         | [backup](backup-e-restauracao.md)                        |
 | GET        | `/sistema`                                                                                  | público (versão do app)          | [acesso](../modulos/acesso-e-usuarios.md)                |
+| POST       | `/sistema/procurar-atualizacao`                                                             | logado                           | [atualização](atualizacao-e-instalacao.md)               |
 
 Restrições que valem para todas: R-SEG-02 (só pedidos locais) e R-SEG-03 (só JSON).
 

@@ -37,6 +37,8 @@
   um executável novo, logo após instalar ou atualizar, o serviço de rede do Chromium cai e reinicia), a janela
   tenta de novo até 6 vezes (esperas de 0,5 s a 5 s) e, se não conseguir, mostra "Não foi possível abrir o
   Brastem-Service" com _Tentar de novo_. Se o serviço de rede cair com o app aberto, a janela recarrega.
+- **R-ATU-11**: Procurar atualização pela tela: no rodapé do menu, embaixo da versão, _Procurar atualização_ faz o
+  mesmo que _Ajuda → Verificar atualizações_ (o app responde numa janela). Só aparece no app instalado.
 
 ## Publicação de uma versão (para o desenvolvedor)
 
@@ -60,6 +62,7 @@ Como testar uma atualização sem publicar: ver "App desktop" no [AGENTS.md](../
 - `apps/desktop/src/carregamento.spec.ts` — novas tentativas e desistência (R-ATU-10).
 - `apps/desktop/src/atualizador.spec.ts` — procura, aviso de cada etapa, instalação ao aceitar (R-ATU-02 a R-ATU-04).
 - `apps/desktop/src/aviso-atualizacao.spec.ts`, `cache-atualizacao.spec.ts`, `criar-atualizador.spec.ts` (R-ATU-03, R-ATU-08).
+- `apps/server/test/sistema.e2e-spec.ts` e `apps/client/src/components/layout/app-sidebar.spec.tsx` — botão Procurar atualização (R-ATU-11).
 - `apps/server/test/inicio.e2e-spec.ts` — falha ao iniciar volta para o app, sem fechá-lo (R-ATU-06).
 - `apps/desktop/scripts/fumaca.mjs` — o executável gerado abre e a janela carrega o sistema; roda no
   _Release_ antes de publicar (R-ATU-01, R-ATU-10, R-TST-05).
