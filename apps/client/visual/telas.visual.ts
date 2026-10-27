@@ -1,5 +1,17 @@
 import { expect, type Page, test } from '@playwright/test'
 
+/**
+ * O que muda de um Windows para outro sem ser defeito: o traço dos ícones (SVG) e o campo de data, que o
+ * navegador escreve no formato do sistema (27/10/2026 aqui, 10/27/2026 no CI). Ficam cobertos na foto.
+ */
+const fotoDaTela = async (page: Page, nome: string) => {
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+  await expect(page).toHaveScreenshot(nome, {
+    fullPage: true,
+    mask: [page.locator('svg[class*="lucide"]'), page.locator('input[type=date]')],
+  })
+}
+
 /** Fotos das telas e da OS impressa (R-TST-08). Dados de `scripts/semear.mjs`, todos inventados. */
 const ordem = () => process.env.ORDEM_PARA_IMPRIMIR
 
@@ -36,7 +48,7 @@ for (const tema of ['light', 'dark'] as const) {
       await expect(
         page.getByRole('cell', { name: 'Cliente Impressão Exemplo', exact: true }),
       ).toBeVisible()
-      await expect(page).toHaveScreenshot(`clientes-${tema}.png`, { fullPage: true })
+      await fotoDaTela(page, `clientes-${tema}.png`)
     })
 
     test('ficha do cliente', async ({ page }) => {
@@ -44,7 +56,7 @@ for (const tema of ['light', 'dark'] as const) {
       await expect(page.getByLabel('Nome', { exact: true })).toHaveValue(
         'Cliente Impressão Exemplo',
       )
-      await expect(page).toHaveScreenshot(`cliente-${tema}.png`, { fullPage: true })
+      await fotoDaTela(page, `cliente-${tema}.png`)
     })
   })
 }

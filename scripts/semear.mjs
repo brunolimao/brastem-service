@@ -108,6 +108,8 @@ export async function semear(api, hoje = new Date().toISOString().slice(0, 10)) 
     telefones: [{ telefone: '31999991111' }],
     aparelhos: [{ nome: 'Geladeira', marca: 'Marca Exemplo', modelo: 'GX-44', pnc: '123456' }],
   })
+  // Data de cadastro fixa: a ficha mostra essa data, e a foto da tela não pode mudar com o dia.
+  await api(`/clientes/${impressao.id}`, 'PATCH', { dataCadastro: hoje })
   const ordensDoAparelho = []
   for (let i = 1; i <= 7; i++) {
     const os = await api('/ordens-servico', 'POST', {
