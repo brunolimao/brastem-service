@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { TransacaoFormulario } from '@/components/domain/transacao-form'
 import { PageHeader } from '@/components/layout/page-header'
 import { useCriarTransacao } from '@/hooks/use-financeiro'
+import { buscaLembrada } from '@/hooks/use-listas-lembradas'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { formParaPayloadTransacao } from '@/models/transacao.model'
 
@@ -21,10 +22,10 @@ function DespesaPage() {
       />
       <TransacaoFormulario
         tipo="despesa"
-        aoCancelar={() => navigate({ to: destino() })}
+        aoCancelar={() => navigate({ to: destino(), search: buscaLembrada(destino()) })}
         aoSalvar={async (valores) => {
           await criar.mutateAsync(formParaPayloadTransacao('despesa', valores))
-          await navigate({ to: destino() })
+          await navigate({ to: destino(), search: buscaLembrada(destino()) })
         }}
       />
     </>

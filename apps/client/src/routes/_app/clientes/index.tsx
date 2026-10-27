@@ -97,6 +97,23 @@ function ClientesPage() {
         colunas={colunas}
         dados={data?.items ?? SEM_DADOS}
         carregando={isLoading}
+        mensagemVazia={busca ? `Nenhum cliente encontrado para "${busca}"` : 'Nenhum cliente ainda'}
+        acaoVazia={
+          busca ? (
+            <Button
+              variant="outline"
+              onClick={() => navigate({ search: { busca: undefined, campo: undefined } })}
+            >
+              Limpar busca
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link to="/clientes/novo">
+                <Plus /> Cadastrar cliente
+              </Link>
+            </Button>
+          )
+        }
         classeDaLinha={(cliente) => (cliente.negativado ? 'text-destructive' : undefined)}
         ordenaveis={ORDENAVEIS_CLIENTE}
         ordenacao={ordenacaoDaUrl({ ordem, direcao })}

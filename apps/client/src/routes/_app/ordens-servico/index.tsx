@@ -159,6 +159,30 @@ function OrdensServicoPage() {
         colunas={colunas}
         dados={data?.items ?? SEM_DADOS}
         carregando={isLoading}
+        mensagemVazia={
+          busca ? `Nenhuma ordem de serviço encontrada para "${busca}"` : 'Nenhuma ordem de serviço'
+        }
+        acaoVazia={
+          busca ? (
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate({
+                  search: (anterior) => ({ ...anterior, busca: undefined, campo: undefined }),
+                })
+              }
+            >
+              Limpar busca
+            </Button>
+          ) : (
+            <p className="text-sm">
+              Para gerar uma OS, abra a ficha do cliente e clique em "Gerar OS" no aparelho.{' '}
+              <Link to="/clientes" className="text-primary underline-offset-4 hover:underline">
+                Ir para os clientes
+              </Link>
+            </p>
+          )
+        }
         classeDaLinha={(linha) => (linha.clienteNegativado ? 'text-destructive' : undefined)}
         ordenaveis={ORDENAVEIS_OS}
         ordenacao={ordenacaoDaUrl({ ordem, direcao })}

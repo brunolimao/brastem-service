@@ -1,6 +1,6 @@
 import { type ColumnDef, type RowData, tableFeatures, useTable } from '@tanstack/react-table'
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -43,6 +43,8 @@ interface DataTableProps<TData extends RowData> {
   dados: TData[]
   carregando?: boolean
   mensagemVazia?: string
+  /** Próximo passo sugerido quando a lista está vazia (ex.: botão "Cadastrar cliente"). */
+  acaoVazia?: ReactNode
   /** Paginação feita pelo servidor. Sem ela, a tabela pagina sozinha os `dados` recebidos. */
   paginacao?: Paginacao
   /**
@@ -69,6 +71,7 @@ export function DataTable<TData extends RowData>({
   dados,
   carregando,
   mensagemVazia = 'Nenhum registro encontrado',
+  acaoVazia,
   paginacao,
   ordenacao: ordenacaoDoServidor,
   aoOrdenar,
@@ -177,7 +180,10 @@ export function DataTable<TData extends RowData>({
                   colSpan={colunas.length}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  {mensagemVazia}
+                  <div className="grid justify-items-center gap-3">
+                    <span>{mensagemVazia}</span>
+                    {acaoVazia}
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (

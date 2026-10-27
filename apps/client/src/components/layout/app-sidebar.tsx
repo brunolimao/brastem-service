@@ -22,6 +22,7 @@ import { Fragment, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useLogout } from '@/hooks/use-auth'
+import { buscaLembrada } from '@/hooks/use-listas-lembradas'
 import { TAMANHOS_DE_LETRA, usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { useVersao } from '@/hooks/use-sistema'
@@ -167,6 +168,7 @@ export function AppSidebar() {
                   ))}
                 <Link
                   to={item.to}
+                  search={buscaLembrada(item.to)}
                   activeOptions={{ exact: item.exato }}
                   title={recolhido ? item.rotulo : undefined}
                   className={cn(

@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { AvisoSairSemSalvar } from '@/components/layout/aviso-sair-sem-salvar'
+import { useLembrarListas } from '@/hooks/use-listas-lembradas'
 import { carregarSessao, useSessionStore } from '@/hooks/use-session-store'
 
 export const Route = createFileRoute('/_app')({
@@ -10,7 +11,12 @@ export const Route = createFileRoute('/_app')({
       throw redirect({ to: '/login', search: { redirect: location.href } })
     }
   },
-  component: () => (
+  component: LayoutDoApp,
+})
+
+function LayoutDoApp() {
+  useLembrarListas()
+  return (
     <div className="fixed inset-0 flex overflow-hidden print:static print:block print:overflow-visible">
       <AppSidebar />
       <AvisoSairSemSalvar />
@@ -20,5 +26,5 @@ export const Route = createFileRoute('/_app')({
         </div>
       </main>
     </div>
-  ),
-})
+  )
+}

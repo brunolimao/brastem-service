@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtualizarCliente, useCliente } from '@/hooks/use-clientes'
+import { buscaLembrada } from '@/hooks/use-listas-lembradas'
 import { useRegistrarRecente } from '@/hooks/use-recentes'
 import { formatarData } from '@/libs/formatters'
 import { clienteParaForm, formParaPayloadCliente } from '@/models/cliente.model'
@@ -46,7 +47,7 @@ function EditarClientePage() {
         key={`${cliente.id}-${cliente.telefones.length}-${cliente.aparelhos.map((a) => a.id).join(',')}`}
         valoresIniciais={clienteParaForm(cliente)}
         clienteId={cliente.id}
-        aoCancelar={() => navigate({ to: '/clientes' })}
+        aoCancelar={() => navigate({ to: '/clientes', search: buscaLembrada('/clientes') })}
         aoSalvar={(valores) => atualizar.mutateAsync(formParaPayloadCliente(valores))}
       />
     </>

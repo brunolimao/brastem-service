@@ -162,6 +162,20 @@ function CaixaPage() {
         dados={data?.itens ?? SEM_DADOS}
         carregando={isLoading}
         mensagemVazia="Nenhuma movimentação neste período"
+        acaoVazia={
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link to="/caixa/despesa">
+                <Minus /> Lançar despesa
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/caixa/receita">
+                <Plus /> Lançar receita
+              </Link>
+            </Button>
+          </div>
+        }
         ordenaveis={ORDENAVEIS_CAIXA}
         ordenacao={ordenacaoDaUrl({ ordem, direcao })}
         aoOrdenar={(nova) =>

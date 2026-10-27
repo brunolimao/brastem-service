@@ -50,6 +50,17 @@ describe('Caixa (R-CX-01 a R-CX-04)', () => {
     expect(within(despesa as HTMLElement).getByText(/Transporte/)).toBeInTheDocument()
   })
 
+  it('período sem movimento sugere lançar receita ou despesa (R-UX-10)', async () => {
+    abrirTela('/caixa', { api: { 'GET /caixa': caixa([]) } })
+    expect(await screen.findByText('Nenhuma movimentação neste período')).toBeInTheDocument()
+    const tabela = screen.getByRole('table')
+    expect(within(tabela).getByRole('link', { name: /Lançar receita/ })).toHaveAttribute(
+      'href',
+      '/caixa/receita',
+    )
+    expect(within(tabela).getByRole('link', { name: /Lançar despesa/ })).toBeInTheDocument()
+  })
+
   it('saldo negativo fica em vermelho', async () => {
     abrirTela('/caixa', { api: { 'GET /caixa': caixa([gasolina]) } })
     // O mesmo valor aparece no saldo (parágrafo grande) e na linha da tabela.

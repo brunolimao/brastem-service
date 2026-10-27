@@ -32,6 +32,10 @@
   diálogo aberto, só o do diálogo) e **Esc** volta (mas, com diálogo ou lista aberta, o Esc só fecha esse).
   Salvar com erro rola até o primeiro campo errado e põe o cursor nele.
 - **R-UX-09**: Botões só com ícone (editar, excluir, imprimir, parcelas...) mostram o que fazem ao parar o mouse.
+- **R-UX-10**: Lista vazia sugere o próximo passo: _Cadastrar cliente_, _Limpar busca_ (quando a busca não achou
+  nada), como gerar uma OS, _Lançar receita/despesa_ no caixa.
+- **R-UX-11**: As listas (clientes, OS, pagamentos, caixa, usuários, relatórios) reabrem no ponto em que ficaram
+  (busca, página, ordem, período) ao voltar pelo menu ou pelo _Voltar_ da ficha. Vale enquanto o app está aberto.
 
 ## Onde está no código
 
@@ -41,6 +45,7 @@
 - `apps/client/src/components/layout/app-sidebar.tsx`, `apps/client/src/hooks/use-preferencias-store.ts`
 - `apps/client/src/components/data-table/data-table.tsx`, `apps/client/src/libs/ordenacao.ts`; no servidor, `ordenar` em `apps/server/src/common/utils/pagination.ts`
 - `apps/client/src/components/form/botao-salvar.tsx`, `apps/client/src/components/form/botao-voltar.tsx`, `apps/client/src/components/ui/button.tsx`
+- `apps/client/src/hooks/use-listas-lembradas.ts` (lembrar listas), `acaoVazia` do `DataTable`
 
 ## Testes
 
@@ -50,3 +55,4 @@
 - `apps/client/src/components/layout/app-sidebar.spec.tsx` — menu recolhível, Ctrl+B, tamanho da letra e limites (R-UX-04, R-UX-05).
 - `apps/client/src/components/data-table/data-table.spec.tsx`, `apps/client/src/test/telas/clientes.spec.tsx`, `apps/server/test/ordenacao.e2e-spec.ts` — ordenar na tela e no servidor, colunas permitidas, linhas por página (R-UX-06, R-UX-07).
 - `apps/client/src/test/telas/atalhos.spec.tsx` — Ctrl+S, foco no erro, Esc, dois formulários na tela, dicas (R-UX-08, R-UX-09).
+- `apps/client/src/test/telas/clientes.spec.tsx`, `apps/client/src/test/telas/financeiro.spec.tsx` — lista vazia com ação, limpar busca, lista que reabre no mesmo ponto (R-UX-10, R-UX-11).

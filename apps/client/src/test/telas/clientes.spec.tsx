@@ -58,7 +58,7 @@ describe('Clientes: lista', () => {
     const tela = abrirTela('/clientes?ordem=senha&direcao=lado', {
       api: { 'GET /clientes': pagina([]) },
     })
-    await screen.findByText('Nenhum registro encontrado')
+    await screen.findByText('Nenhum cliente ainda')
     expect(tela.ultimo('GET /clientes').query.has('ordem')).toBe(false)
     expect(tela.ultimo('GET /clientes').query.has('direcao')).toBe(false)
   })
@@ -67,9 +67,48 @@ describe('Clientes: lista', () => {
     const tela = abrirTela('/clientes?campo=senha&busca=x', {
       api: { 'GET /clientes': pagina([]) },
     })
-    await screen.findByText('Nenhum registro encontrado')
+    await screen.findByText('Nenhum cliente encontrado para "x"')
     expect(tela.ultimo('GET /clientes').query.has('campo')).toBe(false)
     expect(tela.ultimo('GET /clientes').query.get('busca')).toBe('x')
+  })
+
+  it('lista vazia sugere o próximo passo: cadastrar cliente (R-UX-10)', async () => {
+    abrirTela('/clientes', { api: { 'GET /clientes': pagina([]) } })
+    expect(await screen.findByText('Nenhum cliente ainda')).toBeInTheDocument()
+    const tabela = screen.getByRole('table')
+    expect(within(tabela).getByRole('link', { name: /Cadastrar cliente/ })).toHaveAttribute(
+      'href',
+      '/clientes/novo',
+    )
+  })
+
+  it('busca sem resultado oferece limpar a busca', async () => {
+    const tela = abrirTela('/clientes?busca=xyz&campo=nome', {
+      api: { 'GET /clientes': pagina([]) },
+    })
+    fireEvent.click(await screen.findByRole('button', { name: 'Limpar busca' }))
+    await waitFor(() => expect(tela.busca().busca).toBeUndefined())
+    expect(tela.busca().campo).toBeUndefined()
+  })
+
+  it('a lista reabre no ponto em que ficou ao voltar da ficha ou pelo menu (R-UX-11)', async () => {
+    const tela = abrirTela('/clientes?busca=joão&page=2&ordem=nome', {
+      api: {
+        'GET /clientes': pagina([clienteListado()], 60, 2),
+        'GET /clientes/7': clienteDetalhe(),
+      },
+    })
+    fireEvent.click(await screen.findByRole('link', { name: 'Editar João da Silva' }))
+    await esperarTitulo('João da Silva')
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar' }))
+    await esperarCaminho(tela, '/clientes')
+    expect(tela.busca()).toMatchObject({ busca: 'joão', page: 2, ordem: 'nome' })
+
+    await tela.router.navigate({ to: '/' })
+    await esperarTitulo('Olá, ana')
+    fireEvent.click(screen.getByRole('link', { name: 'Clientes' }))
+    await esperarCaminho(tela, '/clientes')
+    expect(tela.busca()).toMatchObject({ busca: 'joão', page: 2, ordem: 'nome' })
   })
 
   it('pagina no servidor e guarda a página na URL', async () => {
