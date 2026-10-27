@@ -27,6 +27,18 @@ export default defineConfig({
   },
   use: {
     channel: 'msedge',
+    // O serrilhado das letras depende do ClearType e da tela de cada Windows: a foto do CI saía diferente
+    // da local em centenas de pixels. Letras em tons de cinza, sem subpixel, e cores em sRGB fixo deixam
+    // a foto igual em qualquer computador.
+    launchOptions: {
+      args: [
+        '--disable-lcd-text',
+        '--disable-font-subpixel-positioning',
+        '--font-render-hinting=none',
+        '--force-color-profile=srgb',
+        '--force-device-scale-factor=1',
+      ],
+    },
     baseURL: 'http://127.0.0.1:3410',
     storageState: 'visual/.sessao.json',
     viewport: { width: 1280, height: 900 },
