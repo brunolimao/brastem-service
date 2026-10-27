@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
@@ -33,8 +33,7 @@ let versao = '2.1.0'
 let logoutOk = true
 
 beforeEach(() => {
-  usePreferenciasStore.setState({ menuRecolhido: false, tamanhoDeLetra: 1 })
-  document.documentElement.style.fontSize = ''
+  usePreferenciasStore.setState({ menuRecolhido: false })
   navegar.mockReset()
   versao = '2.1.0'
   logoutOk = true
@@ -81,7 +80,7 @@ describe('AppSidebar: menu conforme o papel (R-PERM-03)', () => {
     ])
   })
 
-  it('usuário comum não vê caixa, pagamentos, relatórios nem administração', () => {
+  it('usuário comum não vê caixa, pagamentos, relatórios nem usuários', () => {
     renderizar('usuario')
     expect(itensDoMenu()).toEqual([
       'Início',
@@ -89,7 +88,12 @@ describe('AppSidebar: menu conforme o papel (R-PERM-03)', () => {
       'Ordens de serviço',
       'Lançar receita',
       'Lançar despesa',
+      // Configurações abre para todos, só com a Aparência (R-CFG-09).
+      'Configurações',
     ])
+    expect(screen.queryByRole('link', { name: 'Usuários' })).toBeNull()
+    // O grupo se chama "Sistema": nada de "Administração" para quem não é administrador.
+    expect(screen.getByText('Sistema')).toBeInTheDocument()
     expect(screen.queryByText('Administração')).toBeNull()
   })
 })
@@ -142,31 +146,6 @@ describe('AppSidebar: menu recolhível (R-UX-04)', () => {
     expect(menu()).toHaveAttribute('data-recolhido', 'true')
     fireEvent.keyDown(window, { key: 'B', ctrlKey: true })
     expect(menu()).toHaveAttribute('data-recolhido', 'false')
-  })
-})
-
-describe('AppSidebar: tamanho da letra (R-UX-05)', () => {
-  it('A+ e A− mudam o tamanho de todo o sistema, dentro de um limite', () => {
-    renderizar('usuario')
-    const maior = screen.getByRole('button', { name: 'Aumentar a letra' })
-    const menor = screen.getByRole('button', { name: 'Diminuir a letra' })
-
-    fireEvent.click(maior)
-    expect(document.documentElement.style.fontSize).toBe('112.5%')
-    fireEvent.click(maior)
-    expect(document.documentElement.style.fontSize).toBe('125%')
-    expect(maior).toBeDisabled()
-
-    fireEvent.click(menor)
-    fireEvent.click(menor)
-    fireEvent.click(menor)
-    expect(document.documentElement.style.fontSize).toBe('87.5%')
-    expect(menor).toBeDisabled()
-    expect(usePreferenciasStore.getState().tamanhoDeLetra).toBe(0)
-
-    // O próprio store não passa dos limites (atalho, preferência antiga...), não só o botão.
-    act(() => usePreferenciasStore.getState().mudarLetra(-1))
-    expect(usePreferenciasStore.getState().tamanhoDeLetra).toBe(0)
   })
 })
 

@@ -1,8 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { cn } from 'cn'
 import {
-  AArrowDown,
-  AArrowUp,
   BarChart3,
   ClipboardList,
   CreditCard,
@@ -23,7 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useLogout } from '@/hooks/use-auth'
 import { buscaLembrada } from '@/hooks/use-listas-lembradas'
-import { TAMANHOS_DE_LETRA, usePreferenciasStore } from '@/hooks/use-preferencias-store'
+import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { useProcurarAtualizacao, useVersao } from '@/hooks/use-sistema'
 import { ROTULO_ROLE } from '@/models/usuario.model'
@@ -86,13 +84,13 @@ const itens: ItemMenu[] = [
     somenteAdmin: true,
     grupo: 'Financeiro',
   },
-  { to: '/usuarios', rotulo: 'Usuários', icone: Users, somenteAdmin: true, grupo: 'Administração' },
+  { to: '/usuarios', rotulo: 'Usuários', icone: Users, somenteAdmin: true, grupo: 'Sistema' },
   {
     to: '/configuracoes',
     rotulo: 'Configurações',
     icone: Settings,
-    somenteAdmin: true,
-    grupo: 'Administração',
+    somenteAdmin: false,
+    grupo: 'Sistema',
   },
 ]
 
@@ -103,12 +101,7 @@ export function AppSidebar() {
   const { data: versao } = useVersao()
   const procurar = useProcurarAtualizacao()
 
-  const {
-    menuRecolhido: recolhido,
-    alternarMenu,
-    tamanhoDeLetra,
-    mudarLetra,
-  } = usePreferenciasStore()
+  const { menuRecolhido: recolhido, alternarMenu } = usePreferenciasStore()
 
   const sair = () => logout.mutate(undefined, { onSettled: () => navigate({ to: '/login' }) })
 
@@ -219,26 +212,6 @@ export function AppSidebar() {
           )}
         </div>
         <div className={cn('flex items-center', recolhido && 'flex-col')}>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Diminuir a letra"
-            title="Diminuir a letra"
-            disabled={tamanhoDeLetra === 0}
-            onClick={() => mudarLetra(-1)}
-          >
-            <AArrowDown />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Aumentar a letra"
-            title="Aumentar a letra"
-            disabled={tamanhoDeLetra === TAMANHOS_DE_LETRA.length - 1}
-            onClick={() => mudarLetra(1)}
-          >
-            <AArrowUp />
-          </Button>
           <ThemeToggle />
           <Button
             variant="ghost"

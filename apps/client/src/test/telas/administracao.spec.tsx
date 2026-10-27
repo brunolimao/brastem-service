@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { pagina, usuario } from '../dados'
-import { abrirTela, esperarTitulo } from '../tela'
+import { abrirTela, COMUM, esperarTitulo } from '../tela'
 
 describe('Usuários', () => {
   const usuarios = pagina([usuario(), usuario({ id: 2, usuario: 'bruno', role: 'usuario' })])
@@ -38,6 +38,28 @@ describe('Usuários', () => {
 })
 
 describe('Configurações', () => {
+  it('usuário comum vê só a Aparência, sem nada do administrador (R-CFG-09)', async () => {
+    const tela = abrirTela('/configuracoes', { usuario: COMUM })
+    await esperarTitulo('Configurações')
+    expect(screen.getByText('Aparência')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Maior' })).toBeInTheDocument()
+    for (const deAdmin of [
+      'Dados da empresa',
+      'Backup automático',
+      'Restaurar um backup',
+      'Começar do zero',
+    ]) {
+      expect(screen.queryByText(deAdmin)).toBeNull()
+    }
+    // Nem pergunta ao servidor o que é só do administrador.
+    expect(
+      tela
+        .pedidos()
+        .map((p) => p.rota)
+        .filter((r) => /empresa|backup/.test(r)),
+    ).toEqual([])
+  })
+
   it('carrega os dados da empresa e o estado do backup', async () => {
     abrirTela('/configuracoes', {
       api: {

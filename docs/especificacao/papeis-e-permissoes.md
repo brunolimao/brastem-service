@@ -36,6 +36,7 @@
 | Pagamentos (tela de consulta e parcelas)                | sim           | não                                            |
 | Relatórios                                              | sim           | não                                            |
 | Usuários (listar, cadastrar, excluir)                   | sim           | não                                            |
+| Configurações: aparência (tamanho da letra)             | sim           | sim                                            |
 | Configurações: ver/salvar dados da empresa              | sim           | não (a impressão da OS lê os dados para todos) |
 | Configurações: backup, restauração e Google Drive       | sim           | não                                            |
 

@@ -20,8 +20,8 @@
   repetir. Ficam guardadas neste computador, separadas por usuário.
 - **R-UX-04**: Menu recolhível: o botão no topo do menu (ou **Ctrl+B**) deixa só os ícones, com o nome ao parar o
   mouse; a escolha fica guardada neste computador.
-- **R-UX-05**: Tamanho da letra: **A−** e **A+** no rodapé do menu mudam o tamanho de todo o sistema (87,5% a 125%),
-  guardado neste computador.
+- **R-UX-05**: Tamanho da letra: em _Configurações → Aparência_ (Menor, Normal, Maior, Bem maior: 87,5% a 125%),
+  vale para todo o sistema e fica guardado neste computador. Disponível para todos (R-CFG-09).
 - **R-UX-06**: Ordenar: clicar no cabeçalho de uma coluna ordena a tabela (crescente → decrescente → ordem
   padrão), com seta indicando o sentido. Listas grandes ordenam no servidor (vale para todas as páginas, e a
   ordem fica na URL); só colunas de dado ordenam (não "Ações"). Texto em ordem do português (acentos e
@@ -52,7 +52,8 @@
 - `apps/client/src/test/telas/busca-rapida.spec.tsx` — Ctrl+K, resultados, setas e Enter, mínimo de letras (R-UX-01).
 - `apps/client/src/test/telas/sair-sem-salvar.spec.tsx` — pergunta, continuar editando, sair, desfazer à mão, depois de salvar (R-UX-02).
 - `apps/client/src/test/telas/inicio.spec.tsx` — atalhos por papel, busca, fichas recentes por usuário (R-UX-03).
-- `apps/client/src/components/layout/app-sidebar.spec.tsx` — menu recolhível, Ctrl+B, tamanho da letra e limites (R-UX-04, R-UX-05).
+- `apps/client/src/components/layout/app-sidebar.spec.tsx` — menu recolhível e Ctrl+B (R-UX-04).
+- `apps/client/src/components/domain/aparencia-card.spec.tsx` — tamanho da letra e limites (R-UX-05).
 - `apps/client/src/components/data-table/data-table.spec.tsx`, `apps/client/src/test/telas/clientes.spec.tsx`, `apps/server/test/ordenacao.e2e-spec.ts` — ordenar na tela e no servidor, colunas permitidas, linhas por página (R-UX-06, R-UX-07).
 - `apps/client/src/test/telas/atalhos.spec.tsx` — Ctrl+S, foco no erro, Esc, dois formulários na tela, dicas (R-UX-08, R-UX-09).
 - `apps/client/src/test/telas/clientes.spec.tsx`, `apps/client/src/test/telas/financeiro.spec.tsx` — lista vazia com ação, limpar busca, lista que reabre no mesmo ponto (R-UX-10, R-UX-11).

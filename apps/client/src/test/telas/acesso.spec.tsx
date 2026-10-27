@@ -225,7 +225,7 @@ describe('restaurar um backup no primeiro acesso (R-BKP-13)', () => {
 })
 
 describe('telas só do administrador (R-PERM-03)', () => {
-  it.each(['/caixa', '/pagamentos', '/relatorios', '/usuarios', '/configuracoes'])(
+  it.each(['/caixa', '/pagamentos', '/relatorios', '/usuarios'])(
     'usuário comum em %s volta para o início',
     async (url) => {
       const tela = abrirTela(url, { usuario: COMUM })

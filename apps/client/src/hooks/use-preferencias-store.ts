@@ -18,7 +18,7 @@ interface PreferenciasState {
   alternarMenu: () => void
   /** Posição em TAMANHOS_DE_LETRA. */
   tamanhoDeLetra: number
-  mudarLetra: (passo: 1 | -1) => void
+  definirTamanhoDeLetra: (indice: number) => void
   /** Vale para todas as tabelas (a escolha numa vale para as outras). */
   linhasPorPagina: LinhasPorPagina
   definirLinhasPorPagina: (linhas: LinhasPorPagina) => void
@@ -31,15 +31,12 @@ export const usePreferenciasStore = create<PreferenciasState>()(
       menuRecolhido: false,
       alternarMenu: () => set((estado) => ({ menuRecolhido: !estado.menuRecolhido })),
       tamanhoDeLetra: PADRAO,
-      mudarLetra: (passo) =>
-        set((estado) => {
-          const tamanhoDeLetra = Math.min(
-            Math.max(estado.tamanhoDeLetra + passo, 0),
-            TAMANHOS_DE_LETRA.length - 1,
-          )
-          aplicarTamanhoDeLetra(tamanhoDeLetra)
-          return { tamanhoDeLetra }
-        }),
+      definirTamanhoDeLetra: (indice) => {
+        // Nunca fora da lista (preferência antiga, valor inválido...).
+        const tamanhoDeLetra = Math.min(Math.max(indice, 0), TAMANHOS_DE_LETRA.length - 1)
+        aplicarTamanhoDeLetra(tamanhoDeLetra)
+        set({ tamanhoDeLetra })
+      },
       linhasPorPagina: 25,
       definirLinhasPorPagina: (linhasPorPagina) => set({ linhasPorPagina }),
     }),

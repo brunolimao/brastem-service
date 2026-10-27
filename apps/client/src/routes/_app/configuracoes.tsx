@@ -1,5 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { ApagarTudoCard } from '@/components/domain/apagar-tudo-card'
+import { AparenciaCard } from '@/components/domain/aparencia-card'
 import { BackupGoogleCard } from '@/components/domain/backup-google-card'
 import { BackupLista } from '@/components/domain/backup-lista'
 import { BackupStatusCard } from '@/components/domain/backup-status-card'
@@ -10,25 +11,37 @@ import { useEstadoBackup } from '@/hooks/use-backup'
 import { useEmpresa } from '@/hooks/use-empresa'
 import { useSessionStore } from '@/hooks/use-session-store'
 
-export const Route = createFileRoute('/_app/configuracoes')({
-  beforeLoad: () => {
-    if (useSessionStore.getState().usuario?.role !== 'admin') throw redirect({ to: '/' })
-  },
-  component: ConfiguracoesPage,
-})
+// Aberta a todos: o usuário comum vê só a Aparência; o resto é do administrador (R-CFG-09).
+export const Route = createFileRoute('/_app/configuracoes')({ component: ConfiguracoesPage })
 
 function ConfiguracoesPage() {
-  const { data: estado } = useEstadoBackup()
-  const { data: empresa } = useEmpresa()
+  const admin = useSessionStore((estado) => estado.usuario?.role === 'admin')
 
   return (
     <>
       <PageHeader
         titulo="Configurações"
-        descricao="Dados da empresa, backup, restauração e começar do zero."
+        descricao={
+          admin
+            ? 'Dados da empresa, aparência, backup, restauração e começar do zero.'
+            : 'Aparência do sistema neste computador.'
+        }
       />
+      {admin ? <ConfiguracoesDoAdministrador /> : <AparenciaCard />}
+    </>
+  )
+}
+
+/** Só montado para o administrador: nem as consultas de empresa e backup acontecem para os outros. */
+function ConfiguracoesDoAdministrador() {
+  const { data: estado } = useEstadoBackup()
+  const { data: empresa } = useEmpresa()
+
+  return (
+    <>
       {/* A key refaz o formulário se os dados chegarem depois. */}
       {empresa && <EmpresaCard key={JSON.stringify(empresa)} empresa={empresa} />}
+      <AparenciaCard />
       {estado ? (
         <>
           <BackupStatusCard estado={estado} />
