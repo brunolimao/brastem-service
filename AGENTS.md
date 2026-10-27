@@ -93,4 +93,6 @@ skill `especificacao` (modelo em `docs/especificacao/_modelo-modulo.md`). Cite o
 
 ## Skills do projeto (`.claude/skills`)
 
+Ficam só no computador de desenvolvimento (ignoradas pelo git, fora do repositório público).
+
 `testes` · `especificacao` · `novo-modulo-server` · `nova-tela-client` · `verificar`

@@ -48,7 +48,7 @@
 
 - `apps/*/vitest.config.ts`, `apps/client/vite.config.ts`, `packages/shared/vitest.config.ts` (cobertura e mínimos)
 - `.github/workflows/ci.yml`, `.github/workflows/release.yml`
-- Skill `.claude/skills/testes/SKILL.md` (como testar cada tipo de mudança)
+- Skill `.claude/skills/testes/SKILL.md` (como testar cada tipo de mudança; só local, fora do repositório)
 
 ## Testes
 

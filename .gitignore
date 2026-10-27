@@ -12,6 +12,8 @@ release
 data/
 coverage
 .claude/settings.local.json
+# Skills do Claude Code: ficam só neste computador, fora do repositório público.
+.claude/skills/
 
 # Saídas de builds de teste do instalador (ex.: electron-builder -c.directories.output=release-teste)
 release-*/
