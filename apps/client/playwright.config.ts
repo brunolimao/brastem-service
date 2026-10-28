@@ -16,12 +16,13 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   expect: {
     // Até 100 pixels de serrilhado diferente passam; uma porcentagem da tela deixaria passar a cor de
-    // um botão (o item ativo do menu é menos de 1% da foto). A tolerância de cor por pixel também é
-    // baixa: a padrão (0,2) aceita trocar o laranja do menu por um laranja mais claro, e 0,05 ainda
-    // aceitava tirar o fundo cinza do rodapé da tabela.
+    // um botão (o item ativo do menu é menos de 1% da foto). A tolerância de cor por pixel é baixa (a
+    // padrão, 0,2, aceita trocar o laranja do menu por um mais claro), mas não pode ser menor que 0,05:
+    // com 0,01 o CI reprovava por diferenças mínimas de tom. Cores sutis (o cinza do rodapé da tabela)
+    // são conferidas pelo valor exato, nos testes de `telas.visual.ts`.
     toHaveScreenshot: {
       maxDiffPixels: 100,
-      threshold: 0.01,
+      threshold: 0.05,
       animations: 'disabled',
       caret: 'hide',
     },
