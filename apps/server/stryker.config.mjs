@@ -15,6 +15,8 @@ export default {
     '!src/legacy/dump-exemplo.ts',
   ],
   coverageAnalysis: 'perTest',
+  // Saídas geradas não entram na cópia de trabalho do Stryker (a cobertura regravada no meio quebrava a cópia).
+  ignorePatterns: ['coverage', 'reports', 'dist'],
   // O TypeScript do projeto (7, nativo) não tem a API de compilador que o Stryker usa para reescrever o
   // tsconfig; o vitest não precisa disso (compila com SWC). Um nome que não existe desliga essa etapa.
   tsconfigFile: 'sem-tsconfig-para-o-stryker.json',

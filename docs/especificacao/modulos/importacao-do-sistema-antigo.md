@@ -71,6 +71,7 @@ Também existe o script `pnpm --filter @brastem/server migrate:legacy -- <dump.s
 - `apps/server/src/legacy/acentos.spec.ts` e `apps/server/test/importacao.e2e-spec.ts` (dump do PowerShell) — R-IMPT-09.
 - `apps/server/src/legacy/legacy.spec.ts` — falha no meio da importação não deixa nada gravado (R-IMPT-08).
 - `apps/server/src/legacy/migrar.spec.ts` — um caso de cada situação (órfãos, duplicados, valores fora do padrão, parcelas acertadas, mantidas ou regeradas): relatório, avisos e cada linha gravada (R-IMPT-02 a R-IMPT-07).
+- `apps/server/src/legacy/migrar-limites.spec.ts` — dump sem tabelas, teto de 200 avisos, acerto de centavos no limite, pagamento só do lançamento e contagem de garantias corrigidas (R-IMPT-03 a R-IMPT-07).
 
 ## Limitações conhecidas
 

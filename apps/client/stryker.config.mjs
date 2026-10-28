@@ -6,6 +6,8 @@ export default {
   vitest: { configFile: 'vite.config.ts' },
   mutate: ['src/libs/*.ts', 'src/models/*.ts', '!src/**/*.spec.ts'],
   coverageAnalysis: 'perTest',
+  // Saídas geradas não entram na cópia de trabalho do Stryker (a cobertura regravada no meio quebrava a cópia).
+  ignorePatterns: ['coverage', 'reports', 'dist'],
   // Ver o comentário igual em apps/server/stryker.config.mjs.
   tsconfigFile: 'sem-tsconfig-para-o-stryker.json',
   reporters: ['clear-text', 'progress', 'html'],

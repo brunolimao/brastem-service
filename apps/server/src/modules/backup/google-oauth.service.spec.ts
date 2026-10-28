@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { ConfigType } from '@nestjs/config'
@@ -98,8 +98,21 @@ describe('GoogleOauthService', () => {
       expect(new URL(servico.gerarUrlDeAutorizacao()).searchParams.get('client_id')).toBe('id-env')
 
       servico.salvarCredenciais('id-app', 'segredo-app')
-      expect(servico.estado()).toMatchObject({ configurado: true, origemCredenciais: 'app' })
+      // Configurado não é conectado: falta autorizar no Google.
+      expect(servico.estado()).toEqual({
+        configurado: true,
+        conectado: false,
+        email: null,
+        origemCredenciais: 'app',
+      })
       expect(new URL(servico.gerarUrlDeAutorizacao()).searchParams.get('client_id')).toBe('id-app')
+    })
+
+    it('credencial guardada pela metade não vale: usa a do ambiente', () => {
+      writeFileSync(join(pasta, 'google.json'), JSON.stringify({ clientId: 'só-o-id' }))
+      const servico = criar({ clientId: 'id-env', clientSecret: 'segredo-env' })
+      expect(servico.estado().origemCredenciais).toBe('ambiente')
+      expect(new URL(servico.gerarUrlDeAutorizacao()).searchParams.get('client_id')).toBe('id-env')
     })
 
     it('regravar as mesmas credenciais mantém a conexão; trocar qualquer uma desconecta', async () => {
@@ -210,6 +223,26 @@ describe('GoogleOauthService', () => {
       responder(USUARIO, { status: 401, corpo: {} })
       await servico.concluirAutorizacao('codigo', state)
       expect(servico.estado()).toMatchObject({ conectado: true, email: null })
+
+      // Sem internet na hora de ler o e-mail (o pedido falha): também conecta.
+      const outro = new URL(servico.gerarUrlDeAutorizacao()).searchParams.get('state') as string
+      responder(TOKEN, { corpo: { access_token: 'b', refresh_token: 'r2' } })
+      await servico.concluirAutorizacao('codigo', outro)
+      expect(salvos()).toMatchObject({ refreshToken: 'r2' })
+      expect(servico.estado().email).toBeNull()
+    })
+
+    it('resposta de erro do Google não vale, mesmo trazendo um token', async () => {
+      const servico = criar({ clientId: 'id', clientSecret: 'segredo' })
+      const state = new URL(servico.gerarUrlDeAutorizacao()).searchParams.get('state') as string
+      responder(TOKEN, {
+        status: 400,
+        corpo: { access_token: 'estranho', refresh_token: 'r', error: 'invalid_request' },
+      })
+      await expect(servico.concluirAutorizacao('codigo', state)).rejects.toMatchObject({
+        codigo: 'invalid_request',
+      })
+      expect(servico.estado().conectado).toBe(false)
     })
 
     it('recusa do Google vira erro com o código e o detalhe', async () => {
