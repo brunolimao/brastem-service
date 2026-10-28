@@ -1,12 +1,12 @@
-import { ROLES } from '@brastem/shared'
+import type { Role } from '@brastem/shared'
 import { z } from 'zod'
 
-export const sessaoUsuarioSchema = z.object({
-  id: z.number(),
-  usuario: z.string(),
-  role: z.enum(ROLES),
-})
-export type SessaoUsuario = z.infer<typeof sessaoUsuarioSchema>
+/** Quem está logado (resposta de `/auth/me` e do login). */
+export interface SessaoUsuario {
+  id: number
+  usuario: string
+  role: Role
+}
 
 export const loginSchema = z.object({
   usuario: z.string().min(1, 'Informe o usuário'),
