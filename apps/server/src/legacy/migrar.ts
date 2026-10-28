@@ -214,7 +214,7 @@ export async function migrarDoDump(db: Db, dump: DumpLegado): Promise<RelatorioM
         aparelhoDoCliente.get(aparelhoId) === undefined
       ) {
         resOrdens.ignorados += 1
-        aviso(`OS ${texto(o.id)} ignorada: sem cliente ou aparelho válido.`)
+        aviso(`OS ${texto(o.id) || '(sem código)'} ignorada: sem cliente ou aparelho válido.`)
         continue
       }
 

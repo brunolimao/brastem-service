@@ -19,7 +19,7 @@ export default defineConfig({
       exclude: ['src/**/*.spec.ts', 'src/main.ts'],
       reporter: ['text-summary', 'json-summary', 'html'],
       // Mínimo conferido no CI: só sobe (R-TST-04).
-      thresholds: { lines: 92, branches: 78 },
+      thresholds: { lines: 95, branches: 84 },
     },
   },
   plugins: [

@@ -32,7 +32,7 @@ export default defineConfig({
       ],
       reporter: ['text-summary', 'json-summary', 'html'],
       // Mínimo conferido no CI: só sobe (R-TST-04).
-      thresholds: { lines: 93, branches: 85 },
+      thresholds: { lines: 94, branches: 85 },
     },
   },
 })

@@ -65,4 +65,5 @@ A tela está em [modulos/configuracoes.md](../modulos/configuracoes.md).
 - `apps/server/src/common/database/connection.spec.ts` — troca do banco na abertura, cópia antiga completa mesmo com `-wal` pendente (R-BKP-06, R-BKP-07).
 - `apps/server/src/common/utils/arquivos.spec.ts` — R-BKP-09.
 - `apps/server/src/modules/backup/backup.agendador.spec.ts` — 1 minuto depois de abrir e de hora em hora; falha não derruba o app (R-BKP-01).
+- `apps/server/src/modules/backup/google-oauth.service.spec.ts` — credenciais do app e do ambiente, PKCE, autorização de uso único por 10 minutos, renovação do token, acesso revogado e desconectar (R-BKP-05, R-BKP-11).
 - `apps/client/src/models/models.spec.ts` e `apps/client/src/test/telas/inicio.spec.tsx` — quando o Início avisa do backup, e só para o administrador (R-BKP-14).
