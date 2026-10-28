@@ -118,4 +118,6 @@ Todos os usuários geram, editam e imprimem OS. Só o administrador exclui.
 ## Limitações conhecidas
 
 - Os pop-ups "ver cliente / ver aparelho" do sistema antigo viraram links e a coluna do aparelho na lista.
-- Depois de salvar, a edição volta sempre para a lista de OS do aparelho (o antigo voltava para a tela de origem).
+- _Voltar_ e _Salvar_ da edição levam à lista de OS como ela estava (busca, página, ordem, R-UX-11); se a lista
+  de OS ainda não foi aberta nesta sessão, à lista de OS do aparelho. O antigo voltava para a tela de origem
+  (ex.: a ficha do cliente).

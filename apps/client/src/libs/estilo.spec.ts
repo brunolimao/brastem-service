@@ -120,6 +120,18 @@ describe('botão contornado no modo claro (R-UX-14)', () => {
 })
 
 describe('cores de hover e destaque (R-UX-15)', () => {
+  it('o botão Buscar do menu mantém as cores do menu no hover, nos dois temas', () => {
+    const busca = ler('../components/layout/busca-rapida.tsx')
+    for (const classe of [
+      'hover:bg-sidebar-accent',
+      'hover:text-sidebar-foreground',
+      'dark:hover:bg-sidebar-accent',
+      'dark:hover:text-sidebar-foreground',
+    ]) {
+      expect(busca, classe).toContain(classe)
+    }
+  })
+
   const css = ler('../index.css')
   const tema = (nome: ':root' | '.dark') => css.split(`${nome} {`)[1]?.split('}')[0] ?? ''
 

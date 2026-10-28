@@ -1,4 +1,5 @@
 import { Printer } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { PagamentosCampos } from '@/components/domain/pagamentos-campos'
 import { BotaoVoltar } from '@/components/form/botao-voltar'
 import { useAppForm } from '@/components/form/form-hook'
@@ -21,6 +22,8 @@ interface OrdemServicoFormProps {
   aoConcluir?: () => void
   /** Só na edição: mostra o botão Imprimir, que salva antes o que foi alterado. */
   aoImprimir?: () => void
+  /** Cartões depois dos campos e antes da barra de Voltar/Salvar (ex.: últimos serviços do aparelho). */
+  depoisDosCampos?: ReactNode
 }
 
 export function OrdemServicoFormulario({
@@ -29,6 +32,7 @@ export function OrdemServicoFormulario({
   aoCancelar,
   aoConcluir,
   aoImprimir,
+  depoisDosCampos,
 }: OrdemServicoFormProps) {
   const form = useAppForm({
     defaultValues: valoresIniciais,
@@ -129,6 +133,9 @@ export function OrdemServicoFormulario({
           visivel && <PagamentosCampos form={form} fields={{ pagamentos: 'pagamentos' }} />
         }
       </form.Subscribe>
+
+      {/* Antes da barra: os botões ficam sempre por último na página, mesmo quando ela não rola. */}
+      {depoisDosCampos}
 
       <BarraAcoes>
         <BotaoVoltar aoVoltar={aoCancelar} />

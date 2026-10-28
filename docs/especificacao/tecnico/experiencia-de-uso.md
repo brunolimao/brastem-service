@@ -57,7 +57,8 @@
   (`--sidebar-primary`), escuro o bastante para o texto branco passar no contraste de acessibilidade (4,6:1).
 - **R-UX-16**: Nos formulários longos (cliente, OS, receita/despesa), _Voltar_ e _Salvar_ ficam numa barra
   flutuante, compacta e arredondada, no canto de baixo à direita: acompanha a rolagem sem uma faixa de ponta a
-  ponta cortando os campos. No fim do formulário ela fica embaixo do último cartão.
+  ponta cortando os campos. No fim do formulário ela fica embaixo do último cartão da página: na OS, os
+  _Últimos serviços neste aparelho_ vêm antes dela (em página curta, que não rola, os botões ficavam no meio).
 - **R-UX-17**: Tabelas compactas: cabeçalho em fundo cinza com letra pequena, linhas baixas, botões de ação
   pequenos e a paginação (quantidade, linhas por página, anterior/próxima) dentro do mesmo cartão da tabela,
   num rodapé com o mesmo fundo cinza do cabeçalho. Os cantos da tabela são menos arredondados (6 px) que os
@@ -83,7 +84,7 @@
 - `apps/client/src/components/data-table/data-table.spec.tsx`, `apps/client/src/test/telas/clientes.spec.tsx`, `apps/server/test/ordenacao.e2e-spec.ts` — ordenar na tela e no servidor, colunas permitidas, linhas por página (R-UX-06, R-UX-07).
 - `apps/client/src/test/telas/atalhos.spec.tsx` — Ctrl+S, foco no erro, Esc, dois formulários na tela, dicas estilizadas (R-UX-08, R-UX-09).
 - `apps/client/src/test/telas/administracao.spec.tsx` — dica do botão desabilitado de excluir a si mesmo (R-UX-09).
-- `apps/client/src/test/telas/clientes.spec.tsx`, `apps/client/src/test/telas/financeiro.spec.tsx` — lista vazia com ação, limpar busca, lista que reabre no mesmo ponto (R-UX-10, R-UX-11).
+- `apps/client/src/test/telas/clientes.spec.tsx`, `apps/client/src/test/telas/financeiro.spec.tsx`, `apps/client/src/test/telas/ordens.spec.tsx` — lista vazia com ação, limpar busca, lista que reabre no mesmo ponto, inclusive ao voltar da OS (R-UX-10, R-UX-11).
 - `apps/server/test/painel.e2e-spec.ts`, `apps/client/src/test/telas/inicio.spec.tsx` — resumo, gráfico, OS paradas, financeiro só para o administrador, ordem dos cartões (R-UX-12).
 - `apps/client/src/libs/estilo.spec.ts` — largura máxima do conteúdo e classes que deixam o conteúdo encolher e quebrar linha (R-UX-13). O jsdom não mede layout: o efeito foi conferido no app a 560 px e 700 px, rota por rota.
 - `apps/client/src/libs/estilo.spec.ts` — fundo dos campos e contraste do botão contornado (R-UX-14).

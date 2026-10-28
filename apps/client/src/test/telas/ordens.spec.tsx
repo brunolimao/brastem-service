@@ -115,7 +115,7 @@ describe('Ordens de serviço: gerar', () => {
 })
 
 describe('Ordens de serviço: editar e imprimir', () => {
-  it('mostra os outros serviços do aparelho e salva voltando para a lista dele', async () => {
+  it('mostra os outros serviços do aparelho e, sem lista de OS aberta antes, salva voltando para a lista dele', async () => {
     const tela = abrirTela('/ordens-servico/42', {
       api: {
         'GET /ordens-servico/42': ordemDetalhe(),
@@ -131,6 +131,12 @@ describe('Ordens de serviço: editar e imprimir', () => {
     )
     // A própria OS não aparece entre os "últimos serviços".
     expect(screen.queryByRole('link', { name: /OS 42 ·/ })).toBeNull()
+    // Os botões vêm depois dos últimos serviços: com a página curta, ficavam soltos no meio (R-UX-16).
+    expect(
+      screen
+        .getByText('Últimos serviços neste aparelho')
+        .compareDocumentPosition(screen.getByRole('button', { name: 'Salvar' })),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
 
     fireEvent.change(screen.getByLabelText('Garantia (dias)'), { target: { value: '' } })
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
@@ -142,6 +148,21 @@ describe('Ordens de serviço: editar e imprimir', () => {
       taxaDeslocamento: 5000,
       pagamentos: [expect.objectContaining({ valor: 35000, tipo: 'credito', parcelas: 3 })],
     })
+  })
+
+  it('Voltar da OS reabre a lista de OS como estava, com a busca e a página (R-UX-11)', async () => {
+    const tela = abrirTela('/ordens-servico?busca=compressor&page=2', {
+      api: {
+        'GET /ordens-servico': pagina([ordemListada()], 60, 2),
+        'GET /ordens-servico/42': ordemDetalhe(),
+      },
+    })
+    fireEvent.click(await screen.findByRole('link', { name: 'Editar OS 42' }))
+    await esperarTitulo('Ordem de serviço 42')
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar' }))
+    await esperarCaminho(tela, '/ordens-servico')
+    expect(tela.busca()).toMatchObject({ busca: 'compressor', page: 2 })
+    expect(tela.busca()).not.toHaveProperty('aparelhoId')
   })
 
   it('Imprimir sem alterações abre a impressão; lá, o botão chama a impressora', async () => {

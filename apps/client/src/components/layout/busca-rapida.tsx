@@ -97,7 +97,8 @@ export function BuscaRapida({ compacta = false }: { compacta?: boolean }) {
       ) : (
         <Button
           variant="outline"
-          className="w-full justify-start border-sidebar-border bg-transparent text-sidebar-foreground/80 hover:bg-sidebar-accent"
+          // As cores do menu nos dois temas: o contornado comum escurecia a letra no hover (R-UX-15).
+          className="w-full justify-start border-sidebar-border bg-transparent text-sidebar-foreground/80 shadow-none hover:bg-sidebar-accent hover:text-sidebar-foreground dark:border-sidebar-border dark:bg-transparent dark:hover:bg-sidebar-accent dark:hover:text-sidebar-foreground"
           onClick={abrir}
         >
           <Search /> Buscar
