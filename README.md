@@ -23,7 +23,7 @@ As convenções do projeto estão em [`AGENTS.md`](AGENTS.md).
 
 ## Desenvolvimento
 
-Requisitos: Node 22+ e pnpm (`npm i -g pnpm`).
+Requisitos: pnpm (`npm i -g pnpm`). O Node do projeto (24, o mesmo do Electron) o pnpm baixa sozinho.
 
 ```bash
 pnpm install

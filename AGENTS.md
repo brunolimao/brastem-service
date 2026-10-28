@@ -16,6 +16,8 @@ Todo texto de interface, mensagem de erro e validação é em **pt-BR**.
 `pnpm dev` · `pnpm build` · `pnpm test` · `pnpm test:cobertura` · `pnpm typecheck` · `pnpm lint` · `pnpm lint:fix`
 · `pnpm regras` (toda regra tem teste) · `pnpm sem-uso` (knip) · `pnpm semear` (app de demonstração com dados
 inventados) · `pnpm --filter @brastem/client visual` (comparação de imagens; precisa do build)
+Node: o mesmo em dev, CI e no app (o do Electron, hoje 24; `.node-version` + `devEngines` faz o pnpm baixá-lo e
+`engineStrict` recusa outro; R-TST-09). Dependências com versão, nunca `latest`.
 Antes de concluir qualquer tarefa: lint, typecheck e test devem passar. O lefthook confere o mesmo antes do push.
 
 ## Testes: obrigatórios em toda mudança

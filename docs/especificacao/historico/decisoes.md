@@ -98,3 +98,13 @@
   (mesmas posições e fonte), escolhido por computador (R-IMP-03).
 - **Consequência**: mudanças nos dados da OS precisam chegar aos dois modelos (`print-os.tsx` e
   `print-os-antigo.tsx`); o antigo só ganha o que existia lá.
+
+## D-16 · Node do Electron em todo lugar
+
+- **Contexto**: o desenvolvimento rodava no Node 25, o CI no 22 e o app instalado no 24 (embutido no
+  Electron 45): os testes passavam numa versão que nenhum cliente usa.
+- **Escolha**: a versão maior do Node do Electron vale para tudo: `.node-version` (workflows), `engines` e
+  `devEngines.runtime` no `package.json` (o pnpm baixa esse Node) e `engineStrict` no `pnpm-workspace.yaml`
+  (R-TST-09). Dependências com versão declarada, nunca `latest`.
+- **Consequência**: ninguém precisa instalar o Node certo; atualizar o Electron para um Node novo é trocar os três
+  juntos.

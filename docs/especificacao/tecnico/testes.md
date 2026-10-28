@@ -28,6 +28,11 @@
 - **R-TST-08**: Comparação de imagens: as fotos das telas principais (claro e escuro) e da OS impressa (os dois
   modelos) são comparadas com as aprovadas em `apps/client/visual/__fotos__`; mudança de layout ou de cor
   reprova (até 100 pixels de serrilhado passam). Mudança visual de propósito: conferir as fotos novas e aprová-las.
+- **R-TST-09**: Mesmo Node em todo lugar: desenvolvimento, CI e o app instalado (o Node embutido no Electron)
+  usam a mesma versão maior, escrita em `.node-version` (lido pelos workflows) e em `engines`/`devEngines` do
+  `package.json` da raiz. O pnpm baixa esse Node sozinho para os scripts (conferido pelo hash no lockfile) e,
+  com `engineStrict`, recusa instalar com outro. Ao atualizar o Electron, conferir o Node dele
+  (`ELECTRON_RUN_AS_NODE=1 electron -p process.versions.node`) e acompanhar os três.
 
 ## Camadas
 
@@ -81,5 +86,7 @@
   de clientes é fotografada com 10 linhas, para o rodapé caber.
 - Sem teste automatizado: R-TST-01, R-TST-02, R-TST-06 e R-TST-07 (regras de trabalho, conferidas na revisão)
   e R-TST-04 (o mínimo de cobertura é o próprio CI que confere).
+- Sem teste automatizado: R-TST-09 (quem barra é o próprio pnpm, com `ERR_PNPM_UNSUPPORTED_ENGINE`; validado
+  instalando com o Node 25 sem o `devEngines`, que é recusado, e com ele, que usa o Node 24).
 - O próprio teste de fumaça foi validado por mutação: com o `main.ts` anterior à correção da janela em branco
   (R-ATU-10), ele reprova com "tempo esgotado"; com a correção, passa em cerca de 20 s.

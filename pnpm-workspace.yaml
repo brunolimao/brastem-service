@@ -9,3 +9,5 @@ allowBuilds:
   "@swc/core": true
   "@scarf/scarf": false
   electron-winstaller: false
+# Recusa instalar com um Node fora de "engines" (o pnpm baixa o Node certo pelo devEngines do package.json).
+engineStrict: true
