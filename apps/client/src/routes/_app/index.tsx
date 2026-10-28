@@ -11,9 +11,9 @@ import {
 } from 'lucide-react'
 import { GraficoPizza } from '@/components/charts/grafico-pizza'
 import { AvisoBackup } from '@/components/domain/aviso-backup'
+import { EtiquetaStatus } from '@/components/domain/etiqueta-status'
 import { Indicador } from '@/components/domain/indicador'
 import { PageHeader } from '@/components/layout/page-header'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -208,7 +208,7 @@ function OsParadas({ paradas }: { paradas: Painel['paradas'] }) {
                   </div>
                   {/* Status e dias empilhados, sem largura fixa: cabem em tela estreita e com letra maior. */}
                   <div className="flex shrink-0 flex-col items-end gap-1">
-                    <Badge variant="secondary">{ROTULO_STATUS[os.status]}</Badge>
+                    <EtiquetaStatus status={os.status} />
                     <span className="whitespace-nowrap text-muted-foreground text-xs tabular-nums">
                       {os.dias === 0 ? 'hoje' : plural(os.dias, 'dia', 'dias')}
                     </span>

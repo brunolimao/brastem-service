@@ -18,7 +18,7 @@ Só o administrador.
 - _**Configurações**_ (menu › Sistema), em cartões agrupados em seções, com o backup no topo (R-CFG-11). O
   usuário comum vê só **Aparência**, **Impressão da OS** e **Atualizações** (R-CFG-09).
   - **Dados da empresa**: nome, CNPJ, telefone, endereço, CEP.
-  - **Aparência**: tamanho da letra (R-UX-05).
+  - **Aparência**: tamanho da letra (R-UX-05) e cores, entre 8 paletas (R-UX-19).
   - **Impressão da OS**: _Modelo novo_ ou _Igual ao sistema antigo_, neste computador (R-IMP-03).
   - **Atualizações**: versão instalada e _Procurar atualização_ (R-ATU-11).
   - **Suporte**: _Gerar diagnóstico_, que salva um .zip para mandar ao suporte (R-CFG-10).
@@ -76,7 +76,7 @@ Só o administrador.
 
 | Ação                                     | Administrador | Usuário comum     |
 | ---------------------------------------- | ------------- | ----------------- |
-| Aparência (tamanho da letra)             | sim           | sim               |
+| Aparência (tamanho da letra e cores)     | sim           | sim               |
 | Modelo de impressão da OS                | sim           | sim               |
 | Todo o resto desta tela                  | sim           | não (nem aparece) |
 | Ler os dados da empresa (pela impressão) | sim           | sim               |

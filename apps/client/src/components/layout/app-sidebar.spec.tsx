@@ -133,7 +133,15 @@ describe('AppSidebar: menu recolhível (R-UX-04)', () => {
     act(() => clientes.focus())
     expect(screen.getByRole('tooltip')).toHaveTextContent('Clientes')
     expect(within(clientes).getByText('Clientes')).toHaveClass('sr-only')
-    expect(screen.getByRole('button', { name: 'Buscar (Ctrl+K)' })).toBeInTheDocument()
+    // Uma dica só, à direita (duas dicas sobrepostas apareciam ao parar no Buscar).
+    const buscar = screen.getByRole('button', { name: 'Buscar (Ctrl+K)' })
+    act(() => buscar.focus())
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1)
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Buscar')
+    expect(document.querySelector('[data-slot=tooltip-content]')).toHaveAttribute(
+      'data-side',
+      'right',
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'Expandir menu (Ctrl+B)' }))
     expect(menu()).toHaveAttribute('data-recolhido', 'false')

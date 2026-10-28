@@ -4,8 +4,8 @@ import { z } from 'zod'
 import { type Coluna, DataTable } from '@/components/data-table/data-table'
 import { BotaoExcluir } from '@/components/domain/botao-excluir'
 import { BuscaLista } from '@/components/domain/busca-lista'
+import { EtiquetaStatus } from '@/components/domain/etiqueta-status'
 import { PageHeader } from '@/components/layout/page-header'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useOrdensServico, useRemoverOrdemServico } from '@/hooks/use-ordens-servico'
 import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
@@ -17,7 +17,6 @@ import {
   CAMPOS_BUSCA_OS,
   ORDENAVEIS_OS,
   type OrdemServicoListada,
-  ROTULO_STATUS,
 } from '@/models/ordem-servico.model'
 
 export const Route = createFileRoute('/_app/ordens-servico/')({
@@ -75,11 +74,7 @@ const colunas: Coluna<OrdemServicoListada>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => (
-      <Badge variant={row.original.status === 'FECHADO' ? 'default' : 'secondary'}>
-        {ROTULO_STATUS[row.original.status]}
-      </Badge>
-    ),
+    cell: ({ row }) => <EtiquetaStatus status={row.original.status} />,
   },
   { accessorKey: 'solucionado', header: 'Problema solucionado' },
   {

@@ -103,6 +103,36 @@ describe('ClienteFormulario: atalhos de OS salvam antes de sair', () => {
   })
 })
 
+describe('ClienteFormulario: mensagens de erro (R-UX-18)', () => {
+  it('passar pelo Nome sem digitar e ir para outro campo não acusa erro; salvar acusa', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => new Promise(() => undefined)),
+    )
+    const aoSalvar = vi.fn(async () => undefined)
+    render(
+      <ClienteFormulario
+        valoresIniciais={clienteVazio()}
+        aoSalvar={aoSalvar}
+        aoCancelar={vi.fn()}
+      />,
+    )
+    // O Nome começa com o cursor; sair dele para o CEP o marcava como "mexido".
+    fireEvent.blur(screen.getByLabelText('Nome'))
+    fireEvent.change(screen.getByLabelText('CEP'), { target: { value: '23' } })
+    fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'a' } })
+    await waitFor(() => expect(screen.getByLabelText('E-mail')).toHaveAttribute('aria-invalid'))
+    expect(screen.queryByText('Informe o nome')).toBeNull()
+
+    // E-mail vazio de novo: o campo de e-mail do navegador barraria o envio antes do formulário.
+    fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: '' } })
+    fireEvent.click(screen.getByRole('button', { name: /Salvar/ }))
+    expect(await screen.findByText('Informe o nome')).toBeInTheDocument()
+    expect(aoSalvar).not.toHaveBeenCalled()
+    vi.unstubAllGlobals()
+  })
+})
+
 describe('ClienteFormulario: endereço pelo CEP (R-CLI-02)', () => {
   /** ViaCEP falso: cada CEP fica pendente até o teste responder. */
   const respostas = new Map<string, (corpo: object) => void>()

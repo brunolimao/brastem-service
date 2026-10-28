@@ -11,7 +11,7 @@ import { configurarApi } from '@/services/api'
 import { router } from './router'
 import './index.css'
 
-aplicarTema(useThemeStore.getState().tema)
+aplicarTema(useThemeStore.getState().tema, useThemeStore.getState().paleta)
 
 configurarApi({
   aoExpirarSessao: () => {

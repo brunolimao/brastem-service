@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useFieldContext } from './contexto'
-import { erroDoCampo } from './form-errors'
+import { useErroDoCampo } from './form-errors'
 import { ariaDoErro, MolduraCampo } from './moldura-campo'
 
 interface CampoSelectProps {
@@ -17,7 +17,7 @@ interface CampoSelectProps {
 
 export function CampoSelect({ rotulo, opcoes, className }: CampoSelectProps) {
   const campo = useFieldContext<string>()
-  const erro = erroDoCampo(campo)
+  const erro = useErroDoCampo(campo)
   const id = `campo-${campo.name}`
 
   return (

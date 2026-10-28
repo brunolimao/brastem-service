@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { useFieldContext } from './contexto'
-import { erroDoCampo } from './form-errors'
+import { useErroDoCampo } from './form-errors'
 import { ariaDoErro, MolduraCampo } from './moldura-campo'
 
 interface CampoTextareaProps
@@ -11,7 +11,7 @@ interface CampoTextareaProps
 
 export function CampoTextarea({ rotulo, className, ...props }: CampoTextareaProps) {
   const campo = useFieldContext<string>()
-  const erro = erroDoCampo(campo)
+  const erro = useErroDoCampo(campo)
   const id = `campo-${campo.name}`
 
   return (

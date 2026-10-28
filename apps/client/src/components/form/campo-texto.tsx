@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react'
 import { Input } from '@/components/ui/input'
 import { useFieldContext } from './contexto'
-import { erroDoCampo } from './form-errors'
+import { useErroDoCampo } from './form-errors'
 import { ariaDoErro, MolduraCampo } from './moldura-campo'
 
 interface CampoTextoProps
@@ -14,7 +14,7 @@ interface CampoTextoProps
 /** Uso: `<form.AppField name="nome">{(campo) => <campo.CampoTexto rotulo="Nome" />}</form.AppField>` */
 export function CampoTexto({ rotulo, formatar, className, ...props }: CampoTextoProps) {
   const campo = useFieldContext<string>()
-  const erro = erroDoCampo(campo)
+  const erro = useErroDoCampo(campo)
   const id = `campo-${campo.name}`
 
   return (

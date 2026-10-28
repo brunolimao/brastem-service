@@ -54,7 +54,7 @@ for (const tema of ['light', 'dark'] as const) {
       await fotoDaTela(page, `clientes-${tema}.png`)
     })
 
-    test('cores exatas: rodapé da tabela igual ao cabeçalho, menu ativo laranja (R-UX-15, R-UX-17)', async ({
+    test('cores exatas: rodapé da tabela igual ao cabeçalho, marca tomate no menu ativo (R-UX-15, R-UX-17)', async ({
       page,
     }) => {
       await page.goto('/clientes')
@@ -69,7 +69,14 @@ for (const tema of ['light', 'dark'] as const) {
       const cabecalho = await fundo('thead')
       expect(cabecalho).not.toBe('rgba(0, 0, 0, 0)')
       expect(await fundo('[data-slot=table-container] + div')).toBe(cabecalho)
-      expect(await fundo('a[aria-current=page]')).toBe('oklch(0.58 0.19 35)')
+      // Paleta padrão: fundo do menu um pouco mais claro e a marca tomate (#FF6347) à esquerda.
+      expect(await fundo('a[aria-current=page]')).toBe('rgb(33, 41, 54)')
+      expect(
+        await page
+          .locator('a[aria-current=page]')
+          .first()
+          .evaluate((elemento) => getComputedStyle(elemento).boxShadow),
+      ).toContain('rgb(255, 99, 71) 3px 0px 0px 0px inset')
     })
 
     test('ficha do cliente', async ({ page }) => {

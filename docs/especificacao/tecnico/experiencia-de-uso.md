@@ -53,8 +53,10 @@
   fundo do cartão, borda mais forte que a das linhas e uma sombra leve. As cores vêm só dos tokens de
   `index.css` (trocar um token muda o sistema inteiro).
 - **R-UX-15**: O fundo de hover (`--accent`: botões contornados e fantasmas, itens de menus e de listas) é um tom
-  discreto da paleta azul nos dois temas, nunca o laranja. O laranja da marca fica para o item ativo do menu
-  (`--sidebar-primary`), escuro o bastante para o texto branco passar no contraste de acessibilidade (4,6:1).
+  discreto da cor principal nos dois temas, nunca o destaque. O item ativo do menu tem fundo um pouco mais
+  claro que o menu, contorno sutil, letra em negrito e uma marca na cor de destaque (`--sidebar-primary`) à
+  esquerda. Os botões do menu (recolher, _Buscar_, tema) mantêm as cores do menu nos dois temas, também com o
+  menu recolhido; _Sair_ fica vermelho ao passar o mouse.
 - **R-UX-16**: Nos formulários longos (cliente, OS, receita/despesa), _Voltar_ e _Salvar_ ficam numa barra
   flutuante, compacta e arredondada, no canto de baixo à direita: acompanha a rolagem sem uma faixa de ponta a
   ponta cortando os campos. No fim do formulário ela fica embaixo do último cartão da página: na OS, os
@@ -63,6 +65,19 @@
   pequenos e a paginação (quantidade, linhas por página, anterior/próxima) dentro do mesmo cartão da tabela,
   num rodapé com o mesmo fundo cinza do cabeçalho. Os cantos da tabela são menos arredondados (6 px) que os
   dos cartões (10 px).
+
+- **R-UX-18**: Mensagem de erro de um campo só aparece depois que a pessoa digitou nele ou tentou salvar. Só
+  passar pelo campo não conta: o _Nome_ começa com o cursor, e clicar em outro campo acusava "Informe o nome"
+  antes de a pessoa chegar lá. Vale para todos os formulários.
+- **R-UX-19**: Cores e letra: em _Configurações → Aparência_ há 8 paletas (Azul e tomate, a padrão; Petróleo e
+  âmbar; Grafite e tomate; Índigo e coral; Verde-azulado e laranja; Azul royal e amarelo; Verde-floresta e
+  terracota; Violeta e pêssego), cada uma com versão clara e escura, que trocam a cor principal, o hover e o
+  menu. A escolha fica guardada neste computador e vale para todos os usuários dele. Toda paleta passa no
+  contraste: texto dos botões e links 4,5:1 nos dois temas, letra do menu 4,5:1 e a marca do item ativo 3:1. A
+  impressão da OS não muda de cor. A letra é a Inter, que vem com o app (funciona sem internet).
+- **R-UX-20**: Status da OS em etiquetas coloridas, uma cor por status, as mesmas dos gráficos (Aberto azul,
+  Aguardando âmbar, Aprovado roxo, Fechado verde, Cancelado vermelho), com fundo suave e a letra num tom mais
+  forte da mesma cor. Os nomes das colunas das tabelas ficam em negrito.
 
 ## Onde está no código
 
@@ -73,6 +88,9 @@
 - `apps/client/src/components/data-table/data-table.tsx`, `apps/client/src/libs/ordenacao.ts`; no servidor, `ordenar` em `apps/server/src/common/utils/pagination.ts`
 - `apps/client/src/components/form/botao-salvar.tsx`, `apps/client/src/components/form/botao-voltar.tsx`, `apps/client/src/components/ui/button.tsx`
 - `apps/client/src/hooks/use-listas-lembradas.ts` (lembrar listas), `acaoVazia` do `DataTable`
+- `apps/client/src/components/form/form-errors.ts` (quando o erro aparece)
+- `apps/client/src/libs/paletas.ts`, `apps/client/src/hooks/use-theme-store.ts`, `apps/client/src/components/domain/aparencia-card.tsx`, `apps/client/src/index.css`
+- `apps/client/src/components/domain/etiqueta-status.tsx`, `apps/client/src/components/ui/table.tsx`
 
 ## Testes
 
@@ -88,5 +106,10 @@
 - `apps/server/test/painel.e2e-spec.ts`, `apps/client/src/test/telas/inicio.spec.tsx` — resumo, gráfico, OS paradas, financeiro só para o administrador, ordem dos cartões (R-UX-12).
 - `apps/client/src/libs/estilo.spec.ts` — largura máxima do conteúdo e classes que deixam o conteúdo encolher e quebrar linha (R-UX-13). O jsdom não mede layout: o efeito foi conferido no app a 560 px e 700 px, rota por rota.
 - `apps/client/src/libs/estilo.spec.ts` — fundo dos campos e contraste do botão contornado (R-UX-14).
-- `apps/client/src/libs/estilo.spec.ts` — hover discreto e laranja do menu com contraste (R-UX-15); barra de
+- `apps/client/src/libs/estilo.spec.ts` — hover discreto, item ativo do menu, Buscar recolhido e Sair (R-UX-15); barra de
   salvar flutuante e tabela compacta (R-UX-16, R-UX-17). A aparência é conferida pelas fotos de `visual/` (R-TST-08).
+- `apps/client/src/components/domain/cliente-form.spec.tsx` — passar pelo Nome não acusa erro; salvar acusa (R-UX-18).
+- `apps/client/src/libs/paletas.spec.ts`, `apps/client/src/components/domain/aparencia-card.spec.tsx` — 8 paletas,
+  contraste de cada uma nos dois temas, troca na hora e versão escura (R-UX-19).
+- `apps/client/src/libs/estilo.spec.ts` — letra Inter local, colunas em negrito e uma cor por status, a mesma
+  dos gráficos (R-UX-19, R-UX-20).

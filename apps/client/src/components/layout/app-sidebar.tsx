@@ -39,6 +39,14 @@ interface ItemMenu {
   exato?: boolean
 }
 
+/** Item ativo do menu: a marca à esquerda é uma sombra interna, que acompanha o canto arredondado. */
+export const MENU_ATIVO =
+  'bg-sidebar-accent font-semibold text-sidebar-accent-foreground shadow-[inset_3px_0_0_var(--sidebar-primary)] ring-1 ring-sidebar-border ring-inset'
+
+/** Botões só de ícone do menu: as cores do menu nos dois temas, também no hover. */
+export const BOTAO_DO_MENU =
+  'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground dark:hover:bg-sidebar-accent dark:hover:text-sidebar-foreground'
+
 const itens: ItemMenu[] = [
   { to: '/', rotulo: 'Início', icone: Home, somenteAdmin: false, grupo: null, exato: true },
   { to: '/clientes', rotulo: 'Clientes', icone: UserRound, somenteAdmin: false, grupo: null },
@@ -132,6 +140,7 @@ export function AppSidebar() {
         <Button
           variant="ghost"
           size="icon-sm"
+          className={BOTAO_DO_MENU}
           aria-label={recolhido ? 'Expandir menu (Ctrl+B)' : 'Recolher menu (Ctrl+B)'}
           aria-expanded={!recolhido}
           onClick={alternarMenu}
@@ -169,9 +178,10 @@ export function AppSidebar() {
                       'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent',
                       recolhido && 'justify-center px-0',
                     )}
+                    // Ativo: fundo um pouco mais claro, contorno sutil e a marca da cor de destaque à
+                    // esquerda (R-UX-15).
                     activeProps={{
-                      className:
-                        'bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary',
+                      className: MENU_ATIVO,
                     }}
                   >
                     <Icone className="size-4 shrink-0" />
@@ -208,6 +218,8 @@ export function AppSidebar() {
             variant="ghost"
             size="icon"
             aria-label="Sair"
+            // Vermelho só ao passar o mouse: avisa que sai do sistema sem chamar atenção o tempo todo.
+            className="text-sidebar-foreground/80 hover:bg-destructive/20 hover:text-red-400 dark:hover:bg-destructive/20 dark:hover:text-red-400"
             onClick={sair}
             disabled={logout.isPending}
           >

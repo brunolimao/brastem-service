@@ -12,7 +12,9 @@ import {
 } from '@/hooks/use-busca-rapida'
 import { formatarData } from '@/libs/formatters'
 import { mascararCpfCnpj } from '@/libs/masks'
+import { cn } from '@/libs/utils'
 import { ROTULO_STATUS } from '@/models/ordem-servico.model'
+import { BOTAO_DO_MENU } from './app-sidebar'
 
 interface Resultado {
   chave: string
@@ -21,6 +23,10 @@ interface Resultado {
   detalhe: string
   ir: () => void
 }
+
+/** As cores do menu nos dois temas: o contornado comum escurecia a letra no hover (R-UX-15). */
+const CORES_DO_BOTAO =
+  'border-sidebar-border bg-transparent text-sidebar-foreground/80 shadow-none hover:bg-sidebar-accent hover:text-sidebar-foreground dark:border-sidebar-border dark:bg-transparent dark:hover:bg-sidebar-accent dark:hover:text-sidebar-foreground'
 
 /** Ctrl+K (ou ⌘K) abre de qualquer tela. */
 const ehAtalho = (evento: KeyboardEvent) =>
@@ -84,12 +90,14 @@ export function BuscaRapida({ compacta = false }: { compacta?: boolean }) {
   return (
     <>
       {compacta ? (
+        // Recolhido: só o ícone, como os outros do menu, e a dica do próprio botão à direita. Com o
+        // "fantasma" comum, no modo claro o ícone ficava apagado sobre o menu escuro (R-UX-15).
         <Button
           variant="ghost"
           size="icon"
           aria-label="Buscar (Ctrl+K)"
-          title="Buscar (Ctrl+K)"
-          className="w-full hover:bg-sidebar-accent"
+          ladoDaDica="right"
+          className={cn('w-full', BOTAO_DO_MENU)}
           onClick={abrir}
         >
           <Search />
@@ -97,8 +105,7 @@ export function BuscaRapida({ compacta = false }: { compacta?: boolean }) {
       ) : (
         <Button
           variant="outline"
-          // As cores do menu nos dois temas: o contornado comum escurecia a letra no hover (R-UX-15).
-          className="w-full justify-start border-sidebar-border bg-transparent text-sidebar-foreground/80 shadow-none hover:bg-sidebar-accent hover:text-sidebar-foreground dark:border-sidebar-border dark:bg-transparent dark:hover:bg-sidebar-accent dark:hover:text-sidebar-foreground"
+          className={cn('w-full justify-start', CORES_DO_BOTAO)}
           onClick={abrir}
         >
           <Search /> Buscar

@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { CLASSES_DO_STATUS } from '@/components/domain/etiqueta-status'
+import { COR_DO_STATUS } from '@/models/ordem-servico.model'
 
 // O jsdom não aplica CSS: aqui só garantimos que as regras continuam lá (o efeito foi conferido no app).
 const ler = (caminho: string) => readFileSync(new URL(caminho, import.meta.url), 'utf8')
@@ -136,15 +138,60 @@ describe('cores de hover e destaque (R-UX-15)', () => {
   const tema = (nome: ':root' | '.dark') => css.split(`${nome} {`)[1]?.split('}')[0] ?? ''
 
   it('o hover (accent) é um tom discreto, não o laranja da marca, nos dois temas', () => {
+    // Valores padrão; cada paleta troca o tom, sempre bem claro (libs/paletas.ts).
     // Laranja tem matiz perto de 35; o hover fica no azul-acinzentado da paleta.
     expect(tema(':root')).toMatch(/--accent: oklch\(0\.93 0\.025 255\)/)
     expect(tema(':root')).toMatch(/--accent-foreground: oklch\(0\.2 /)
     expect(tema('.dark')).toMatch(/--accent: oklch\(0\.3 0\.035 260\)/)
   })
 
-  it('o laranja do item ativo do menu é escuro o bastante para o texto branco (4,6:1)', () => {
-    expect(tema(':root')).toMatch(/--sidebar-primary: oklch\(0\.58 0\.19 35\)/)
-    expect(tema(':root')).toMatch(/--sidebar-primary-foreground: oklch\(0\.99 0 0\)/)
+  it('item ativo do menu: fundo um pouco mais claro, contorno e a marca do destaque à esquerda', () => {
+    const menu = ler('../components/layout/app-sidebar.tsx')
+    expect(menu).toContain('shadow-[inset_3px_0_0_var(--sidebar-primary)]')
+    expect(menu).toContain('bg-sidebar-accent font-semibold')
+    // Antes o item ativo era todo laranja.
+    expect(menu).not.toContain('bg-sidebar-primary')
+  })
+
+  it('Buscar com o menu recolhido: só o ícone, nas cores do menu (no claro sumia), sem contorno', () => {
+    const busca = ler('../components/layout/busca-rapida.tsx')
+    expect(busca).toContain("className={cn('w-full', BOTAO_DO_MENU)}")
+    expect(busca).toContain('ladoDaDica="right"')
+    // A dica vem do próprio botão; envolver em outra `Dica` mostrava duas.
+    expect(busca).not.toContain('<Dica')
+    expect(busca).not.toContain('title=')
+  })
+
+  it('Sair fica vermelho ao passar o mouse; os outros botões do menu ficam nas cores do menu', () => {
+    const menu = ler('../components/layout/app-sidebar.tsx')
+    expect(menu).toContain('hover:bg-destructive/20 hover:text-red-400')
+    expect(ler('../components/layout/theme-toggle.tsx')).toContain('className={BOTAO_DO_MENU}')
+  })
+})
+
+describe('letra, cabeçalhos e status (R-UX-19, R-UX-20)', () => {
+  it('a letra é a Inter, que vem com o app (funciona sem internet)', () => {
+    const css = ler('../index.css')
+    expect(css).toContain('@import "@fontsource-variable/inter";')
+    expect(css).toMatch(/--font-sans: "Inter Variable"/)
+    expect(css).not.toContain('fonts.googleapis')
+  })
+
+  it('nomes das colunas das tabelas em negrito', () => {
+    expect(ler('../components/ui/table.tsx')).toContain('font-semibold text-foreground/75 text-xs')
+  })
+
+  it('status da OS em etiquetas coloridas, uma cor por status, as mesmas dos gráficos', () => {
+    const classes = Object.values(CLASSES_DO_STATUS)
+    expect(new Set(classes).size).toBe(classes.length)
+    for (const [status, classe] of Object.entries(CLASSES_DO_STATUS)) {
+      const cor = COR_DO_STATUS[status as keyof typeof COR_DO_STATUS].slice(2)
+      expect(classe, status).toContain(`bg-${cor}/`)
+      expect(classe, status).toContain(`color-mix(in_oklab,var(--${cor}),var(--foreground)`)
+    }
+    for (const tela of ['../routes/_app/ordens-servico/index.tsx', '../routes/_app/index.tsx']) {
+      expect(ler(tela), tela).toContain('<EtiquetaStatus status=')
+    }
   })
 })
 

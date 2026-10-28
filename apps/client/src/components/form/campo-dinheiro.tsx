@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input'
 import { centavosParaReais, reaisParaCentavos } from '@/libs/formatters'
 import { useFieldContext } from './contexto'
-import { erroDoCampo } from './form-errors'
+import { useErroDoCampo } from './form-errors'
 import { ariaDoErro, MolduraCampo } from './moldura-campo'
 
 interface CampoDinheiroProps {
@@ -12,7 +12,7 @@ interface CampoDinheiroProps {
 /** Guarda o texto digitado ("1.250,5"); ao sair do campo, normaliza para "1.250,50". */
 export function CampoDinheiro({ rotulo, className }: CampoDinheiroProps) {
   const campo = useFieldContext<string>()
-  const erro = erroDoCampo(campo)
+  const erro = useErroDoCampo(campo)
   const id = `campo-${campo.name}`
 
   return (

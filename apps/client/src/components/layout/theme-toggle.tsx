@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { temaEfetivo, useThemeStore } from '@/hooks/use-theme-store'
+import { BOTAO_DO_MENU } from './app-sidebar'
 
 export function ThemeToggle() {
   const { tema, definirTema } = useThemeStore()
@@ -15,7 +16,7 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Alterar tema">
+        <Button variant="ghost" size="icon" aria-label="Alterar tema" className={BOTAO_DO_MENU}>
           <Icone />
         </Button>
       </DropdownMenuTrigger>

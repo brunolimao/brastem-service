@@ -43,10 +43,13 @@ function Button({
   size = 'default',
   asChild = false,
   title,
+  ladoDaDica,
   ...props
 }: React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    /** De que lado a dica aparece (ex.: à direita no menu recolhido). */
+    ladoDaDica?: React.ComponentProps<typeof Dica>['lado']
   }) {
   const Comp = asChild ? Slot.Root : 'button'
   // Botão só com ícone mostra o que faz ao parar o mouse (o mesmo texto dos leitores de tela). O `title`
@@ -64,7 +67,11 @@ function Button({
 
   // Botão desabilitado não recebe o mouse, então não mostra dica; quem precisa explicar o porquê
   // envolve o botão (ex.: excluir a si mesmo, em Usuários).
-  return <Dica texto={dica}>{botao}</Dica>
+  return (
+    <Dica texto={dica} lado={ladoDaDica}>
+      {botao}
+    </Dica>
+  )
 }
 
 export { Button, buttonVariants }
