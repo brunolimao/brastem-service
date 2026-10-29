@@ -2,6 +2,12 @@
 @import "tw-animate-css";
 /* Inter vem com o app (sem internet): a mesma letra em todo computador (R-UX-19). */
 @import "@fontsource-variable/inter";
+/* Letras dos modelos de tela em teste (libs/modelos-de-tela.ts). */
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-sans/700.css";
+@import "@fontsource-variable/nunito-sans";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -87,6 +93,33 @@
 
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+
+/* Modelos de tela em teste: letra e cantos de cada um. O menu claro reaproveita os tokens do menu. */
+html[data-modelo="painel"],
+html[data-modelo="planilha"] {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+html[data-modelo="planilha"] {
+  --radius: 0.3rem;
+}
+html[data-modelo="balcao"],
+html[data-modelo="cartoes"] {
+  --font-sans: "Nunito Sans Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --radius: 0.875rem;
+}
+html[data-modelo="cartoes"] {
+  --radius: 1.1rem;
+}
+html[data-modelo="balcao"] [data-menu],
+html[data-modelo="cartoes"] [data-menu] {
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-primary: var(--primary);
+  border-right: 1px solid var(--border);
 }
 
 @theme inline {

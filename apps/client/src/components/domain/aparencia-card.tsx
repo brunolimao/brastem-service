@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { TAMANHOS_DE_LETRA, usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useThemeStore } from '@/hooks/use-theme-store'
+import { MODELOS_DE_TELA } from '@/libs/modelos-de-tela'
 import { PALETAS } from '@/libs/paletas'
 import { cn } from '@/libs/utils'
 
@@ -10,7 +11,7 @@ const ROTULOS = ['Menor', 'Normal', 'Maior', 'Bem maior'] as const
 /** Tamanho da letra e cores de todo o sistema, neste computador (ficam guardados). */
 export function AparenciaCard() {
   const { tamanhoDeLetra, definirTamanhoDeLetra } = usePreferenciasStore()
-  const { paleta: paletaAtual, definirPaleta } = useThemeStore()
+  const { paleta: paletaAtual, definirPaleta, modelo: modeloAtual, definirModelo } = useThemeStore()
 
   return (
     <Card>
@@ -34,6 +35,30 @@ export function AparenciaCard() {
               {ROTULOS[indice]}
             </Button>
           ))}
+        </fieldset>
+
+        <fieldset className="grid gap-2">
+          <legend className="mb-2 font-medium text-sm">Modelo de tela (em teste)</legend>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {MODELOS_DE_TELA.map((modelo) => {
+              const escolhido = modelo.id === modeloAtual
+              return (
+                <button
+                  key={modelo.id}
+                  type="button"
+                  aria-pressed={escolhido}
+                  onClick={() => definirModelo(modelo.id)}
+                  className={cn(
+                    'grid rounded-md border bg-card px-3 py-2 text-left text-sm transition-colors hover:bg-accent',
+                    escolhido && 'border-primary ring-2 ring-primary/40',
+                  )}
+                >
+                  <span className="font-medium">{modelo.nome}</span>
+                  <span className="text-muted-foreground text-xs">{modelo.descricao}</span>
+                </button>
+              )
+            })}
+          </div>
         </fieldset>
 
         <fieldset className="grid gap-2">

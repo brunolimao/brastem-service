@@ -29,7 +29,7 @@ import { ROTULO_ROLE } from '@/models/usuario.model'
 import { BuscaRapida } from './busca-rapida'
 import { ThemeToggle } from './theme-toggle'
 
-interface ItemMenu {
+export interface ItemMenu {
   to: string
   rotulo: string
   icone: LucideIcon
@@ -47,7 +47,7 @@ export const MENU_ATIVO =
 export const BOTAO_DO_MENU =
   'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground dark:hover:bg-sidebar-accent dark:hover:text-sidebar-foreground'
 
-const itens: ItemMenu[] = [
+export const ITENS_DO_MENU: ItemMenu[] = [
   { to: '/', rotulo: 'Início', icone: Home, somenteAdmin: false, grupo: null, exato: true },
   { to: '/clientes', rotulo: 'Clientes', icone: UserRound, somenteAdmin: false, grupo: null },
   {
@@ -128,6 +128,7 @@ export function AppSidebar() {
 
   return (
     <aside
+      data-menu
       data-recolhido={recolhido}
       className={cn(
         'flex shrink-0 print:hidden flex-col bg-sidebar text-sidebar-foreground transition-[width]',
@@ -154,9 +155,8 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
-        {itens
-          .filter((item) => !item.somenteAdmin || usuario?.role === 'admin')
-          .map((item, indice, visiveis) => {
+        {ITENS_DO_MENU.filter((item) => !item.somenteAdmin || usuario?.role === 'admin').map(
+          (item, indice, visiveis) => {
             const Icone = item.icone
             const novoGrupo = item.grupo && item.grupo !== visiveis[indice - 1]?.grupo
             return (
@@ -191,7 +191,8 @@ export function AppSidebar() {
                 </Dica>
               </Fragment>
             )
-          })}
+          },
+        )}
       </nav>
 
       <Separator className="bg-sidebar-border" />

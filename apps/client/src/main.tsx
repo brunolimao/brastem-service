@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import { toast } from 'sonner'
 import { useSessionStore } from '@/hooks/use-session-store'
 import { aplicarTema, useThemeStore } from '@/hooks/use-theme-store'
+import { aplicarModelo } from '@/libs/modelos-de-tela'
 import { queryClient } from '@/libs/query-client'
 import '@/libs/zod'
 import { configurarApi } from '@/services/api'
@@ -12,6 +13,7 @@ import { router } from './router'
 import './index.css'
 
 aplicarTema(useThemeStore.getState().tema, useThemeStore.getState().paleta)
+aplicarModelo(useThemeStore.getState().modelo)
 
 configurarApi({
   aoExpirarSessao: () => {

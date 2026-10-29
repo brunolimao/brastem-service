@@ -13,6 +13,12 @@ import { GraficoPizza } from '@/components/charts/grafico-pizza'
 import { AvisoBackup } from '@/components/domain/aviso-backup'
 import { EtiquetaStatus } from '@/components/domain/etiqueta-status'
 import { Indicador } from '@/components/domain/indicador'
+import {
+  InicioBalcao,
+  InicioCartoes,
+  InicioPainel,
+  InicioPlanilha,
+} from '@/components/domain/inicio-modelos'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,11 +27,22 @@ import { useBuscaRapidaStore } from '@/hooks/use-busca-rapida'
 import { usePainel } from '@/hooks/use-painel'
 import { useRecentes } from '@/hooks/use-recentes'
 import { useSessionStore } from '@/hooks/use-session-store'
+import { useThemeStore } from '@/hooks/use-theme-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
 import { COR_DO_STATUS, ROTULO_STATUS } from '@/models/ordem-servico.model'
 import { type Painel, STATUS_EM_ANDAMENTO } from '@/models/painel.model'
 
-export const Route = createFileRoute('/_app/')({ component: InicioPage })
+export const Route = createFileRoute('/_app/')({ component: InicioDoModelo })
+
+/** Cada modelo de tela em teste tem o seu Início; o A · Oficina é o de sempre (abaixo). */
+function InicioDoModelo() {
+  const modelo = useThemeStore((estado) => estado.modelo)
+  if (modelo === 'painel') return <InicioPainel />
+  if (modelo === 'balcao') return <InicioBalcao />
+  if (modelo === 'planilha') return <InicioPlanilha />
+  if (modelo === 'cartoes') return <InicioCartoes />
+  return <InicioPage />
+}
 
 interface Atalho {
   to: string
