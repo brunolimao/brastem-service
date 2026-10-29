@@ -32,7 +32,10 @@ function LayoutDoApp() {
     >
       {noTopo ? <BarraTopo compacta={modelo === 'planilha'} /> : <AppSidebar />}
       <AvisoSairSemSalvar />
-      <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-8 print:overflow-visible print:p-0">
+      <main
+        data-conteudo
+        className="min-w-0 flex-1 overflow-y-auto p-4 md:p-8 print:overflow-visible print:p-0"
+      >
         {/* grid-cols-1 = minmax(0, 1fr): tabela larga rola dentro dela, em vez de alargar a página inteira.
             max-w-screen-2xl: tela grande aproveita a largura (a tabela de OS cabe sem rolar), mas sem esticar
             demais o texto em monitores muito largos. */}

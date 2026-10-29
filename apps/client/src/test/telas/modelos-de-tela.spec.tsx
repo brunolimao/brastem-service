@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { AparenciaCard } from '@/components/domain/aparencia-card'
@@ -50,6 +51,24 @@ describe('modelos de tela (em teste)', () => {
     expect(modeloPorId('nao-existe')).toBe('oficina')
     expect(menuDoModelo('painel')).toBe('topo')
     expect(menuDoModelo('cartoes')).toBe('lateral-claro')
+  })
+
+  it('cada modelo muda os componentes em todas as telas, não só as desenhadas', () => {
+    // O jsdom não aplica CSS: aqui só se confere que as regras existem. O efeito foi medido no app,
+    // tela por tela (14 telas x 5 modelos), e conferido em fotos.
+    const css = readFileSync('src/index.css', 'utf8')
+    const regras = [
+      /html\[data-modelo="painel"\] \[data-slot="button"\] \{\s*border-radius: 999px;/,
+      /"cartoes"\]\)\s+\[data-slot="button"\]:not\(\[data-size\^="icon"\]\) \{\s*min-height: 2\.75rem;/,
+      /html\[data-modelo="planilha"\] \[data-slot="button"\]:not\(\[data-size\^="icon"\]\) \{\s*height: 2rem;/,
+      /html\[data-modelo="planilha"\] \[data-slot="table"\] \{\s*font-size: 0\.8125rem;/,
+      /"planilha"\]\)\s+\[data-slot="card"\] \{\s*border-radius: var\(--radius\);/,
+      /@media print \{\s*html\[data-modelo\] \{\s*--font-sans: "Inter Variable"/,
+    ]
+    for (const regra of regras) expect(css).toMatch(regra)
+    expect(readFileSync('src/components/layout/page-header.tsx', 'utf8')).toContain(
+      'data-slot="page-title"',
+    )
   })
 
   it('o seletor em Aparência troca o modelo e marca a página', () => {

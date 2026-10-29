@@ -194,3 +194,110 @@ html[data-modelo="cartoes"] [data-menu] {
   size: A4;
   margin: 12mm;
 }
+
+/*
+ * Modelos de tela em teste: o jeito de cada componente, em qualquer tela (não só nas desenhadas). Fora
+ * das camadas do Tailwind de propósito, para valer por cima das classes de cada componente.
+ */
+html[data-modelo="painel"] {
+  --radius: 0.375rem;
+}
+/* B · Painel: botões em pílula, títulos firmes. */
+html[data-modelo="painel"] [data-slot="button"] {
+  border-radius: 999px;
+}
+html[data-modelo="painel"] [data-slot="page-title"] {
+  font-size: 1.75rem;
+}
+/* B e D: cartões quase retos, como no desenho (o padrão é o canto do cartão 4 px maior). */
+html:is([data-modelo="painel"], [data-modelo="planilha"]) [data-slot="card"] {
+  border-radius: var(--radius);
+}
+
+/* C · Balcão e E · Cartões: controles altos (alvo de toque de 44 px), letra mais forte, mais espaço. */
+html:is([data-modelo="balcao"], [data-modelo="cartoes"])
+  [data-slot="button"]:not([data-size^="icon"]) {
+  min-height: 2.75rem;
+  padding-inline: 1.125rem;
+  font-weight: 700;
+}
+html:is([data-modelo="balcao"], [data-modelo="cartoes"]) [data-slot="button"][data-size^="icon"] {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+html:is([data-modelo="balcao"], [data-modelo="cartoes"])
+  :is([data-slot="input"], [data-slot="select-trigger"]) {
+  height: 2.75rem;
+  font-size: 1rem;
+}
+html:is([data-modelo="balcao"], [data-modelo="cartoes"]) [data-slot="textarea"] {
+  font-size: 1rem;
+}
+html:is([data-modelo="balcao"], [data-modelo="cartoes"]) [data-slot="page-title"] {
+  font-size: 1.875rem;
+  font-weight: 800;
+}
+html:is([data-modelo="balcao"], [data-modelo="cartoes"]) [data-slot="badge"] {
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+}
+html:is([data-modelo="balcao"], [data-modelo="cartoes"]) [data-slot="card-title"] {
+  font-weight: 800;
+}
+html[data-modelo="balcao"] [data-slot="table-cell"] {
+  padding-block: 0.625rem;
+}
+html[data-modelo="cartoes"] [data-slot="table-cell"] {
+  padding-block: 0.75rem;
+}
+html[data-modelo="cartoes"] [data-slot="card"] {
+  padding-block: 1.75rem;
+}
+
+/* D · Planilha: tudo compacto, letra menor, menos respiro. */
+html[data-modelo="planilha"] [data-slot="button"]:not([data-size^="icon"]) {
+  height: 2rem;
+  padding-inline: 0.75rem;
+  font-size: 0.8125rem;
+}
+html[data-modelo="planilha"] [data-slot="button"][data-size^="icon"] {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+html[data-modelo="planilha"] :is([data-slot="input"], [data-slot="select-trigger"]) {
+  height: 2rem;
+  font-size: 0.8125rem;
+}
+html[data-modelo="planilha"] [data-slot="textarea"] {
+  font-size: 0.8125rem;
+}
+html[data-modelo="planilha"] [data-slot="page-title"] {
+  font-size: 1.125rem;
+}
+html[data-modelo="planilha"] [data-slot="card"] {
+  padding-block: 0.875rem;
+  gap: 0.75rem;
+}
+html[data-modelo="planilha"]
+  :is([data-slot="card-header"], [data-slot="card-content"], [data-slot="card-footer"]) {
+  padding-inline: 1rem;
+}
+html[data-modelo="planilha"] [data-slot="table"] {
+  font-size: 0.8125rem;
+}
+html[data-modelo="planilha"] [data-slot="table-cell"] {
+  padding-block: 0.25rem;
+}
+html[data-modelo="planilha"] [data-slot="table-head"] {
+  height: 2rem;
+}
+html[data-modelo="planilha"] main[data-conteudo] {
+  padding: 1rem 1.25rem;
+}
+
+/* A OS impressa não muda com o modelo: mesma letra e mesmo papel em qualquer um. */
+@media print {
+  html[data-modelo] {
+    --font-sans: "Inter Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  }
+}
