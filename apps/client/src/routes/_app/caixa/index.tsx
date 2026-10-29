@@ -4,12 +4,14 @@ import { GraficoPizza } from '@/components/charts/grafico-pizza'
 import { type Coluna, DataTable } from '@/components/data-table/data-table'
 import { BotaoExcluir } from '@/components/domain/botao-excluir'
 import { FiltroPeriodo } from '@/components/domain/filtro-periodo'
+import { EntradaSaida, GraficoSemanal } from '@/components/domain/modelos-telas'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCaixa, useRemoverTransacao } from '@/hooks/use-financeiro'
 import { usePreferenciasStore } from '@/hooks/use-preferencias-store'
 import { useSessionStore } from '@/hooks/use-session-store'
+import { useThemeStore } from '@/hooks/use-theme-store'
 import { formatarData, formatarMoeda } from '@/libs/formatters'
 import { ordenacaoDaUrl, ordenacaoNaUrl, urlDaOrdenacao } from '@/libs/ordenacao'
 import { resolverPeriodo } from '@/libs/periodo'
@@ -90,12 +92,31 @@ const colunas: Coluna<ItemCaixa>[] = [
 
 const SEM_DADOS: ItemCaixa[] = []
 
+/** D · Planilha (em teste): entrada e saída em colunas separadas, como num livro-caixa. */
+const colunasDoLivro: Coluna<ItemCaixa>[] = colunas.flatMap((coluna) =>
+  'accessorKey' in coluna && coluna.accessorKey === 'valor'
+    ? [
+        {
+          accessorKey: 'valor',
+          header: 'Entrada',
+          cell: ({ row }) => <EntradaSaida valor={row.original.valor} lado="entrada" />,
+        },
+        {
+          id: 'saida',
+          header: 'Saída',
+          cell: ({ row }) => <EntradaSaida valor={row.original.valor} lado="saida" />,
+        },
+      ]
+    : [coluna],
+)
+
 function CaixaPage() {
   const { inicio, fim, page, ordem, direcao } = Route.useSearch()
   const periodo = resolverPeriodo(inicio, fim)
   const navigate = useNavigate({ from: Route.fullPath })
   const pageSize = usePreferenciasStore((estado) => estado.linhasPorPagina)
   const { data, isLoading } = useCaixa(periodo, { page, pageSize, ordem, direcao })
+  const modelo = useThemeStore((estado) => estado.modelo)
 
   const formas = data
     ? Object.entries(data.formas).map(([tipo, quantidade]) => ({
@@ -135,30 +156,88 @@ function CaixaPage() {
         aoMudar={(novo) => navigate({ search: { ...novo, page: undefined } })}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Saldo do período</CardTitle>
-          </CardHeader>
-          <CardContent>
+      {modelo === 'planilha' ? (
+        <section
+          aria-label="Totais do período"
+          className="grid grid-cols-2 rounded-sm border bg-card md:grid-cols-4"
+        >
+          <div className="border-r px-4 py-2.5">
+            <p className="font-semibold text-muted-foreground text-xs uppercase">
+              Saldo do período
+            </p>
             <p
               className={cn(
-                'font-semibold text-4xl tracking-tight',
+                'font-semibold text-xl tabular-nums',
                 data && data.total < 0 && 'text-destructive',
               )}
             >
               {data ? formatarMoeda(data.total) : '—'}
             </p>
-            <p className="mt-1 text-muted-foreground text-sm">
-              {data?.quantidade ?? 0} movimentações
+          </div>
+          <div className="border-r px-4 py-2.5">
+            <p className="font-semibold text-muted-foreground text-xs uppercase">Movimentações</p>
+            <p className="font-semibold text-xl tabular-nums">{data?.quantidade ?? 0}</p>
+          </div>
+          <div className="col-span-2 px-4 py-2.5">
+            <p className="font-semibold text-muted-foreground text-xs uppercase">Por forma</p>
+            <p className="text-sm">
+              {formas.every((forma) => forma.value === 0)
+                ? '—'
+                : formas
+                    .filter((forma) => forma.value > 0)
+                    .map((forma) => `${forma.name}: ${forma.value}`)
+                    .join(' · ')}
             </p>
-          </CardContent>
-        </Card>
-        <GraficoPizza titulo="Formas de pagamento" dados={formas} />
-      </div>
+          </div>
+        </section>
+      ) : modelo === 'cartoes' ? (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl bg-primary p-6 text-primary-foreground">
+              <p className="font-semibold opacity-90">Sobrou no período</p>
+              <p className="mt-1 font-extrabold text-4xl tabular-nums">
+                {data ? formatarMoeda(data.total) : '—'}
+              </p>
+            </div>
+            <div className="rounded-2xl border bg-card p-6">
+              <p className="font-semibold text-muted-foreground">Movimentações</p>
+              <p className="mt-1 font-extrabold text-4xl tabular-nums">{data?.quantidade ?? 0}</p>
+              <p className="mt-1 text-muted-foreground text-sm">
+                {formas
+                  .filter((forma) => forma.value > 0)
+                  .map((forma) => `${forma.name}: ${forma.value}`)
+                  .join(' · ')}
+              </p>
+            </div>
+          </div>
+          <GraficoSemanal periodo={periodo} />
+        </>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Saldo do período</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p
+                className={cn(
+                  'font-semibold text-4xl tracking-tight',
+                  data && data.total < 0 && 'text-destructive',
+                )}
+              >
+                {data ? formatarMoeda(data.total) : '—'}
+              </p>
+              <p className="mt-1 text-muted-foreground text-sm">
+                {data?.quantidade ?? 0} movimentações
+              </p>
+            </CardContent>
+          </Card>
+          <GraficoPizza titulo="Formas de pagamento" dados={formas} />
+        </div>
+      )}
 
       <DataTable
-        colunas={colunas}
+        colunas={modelo === 'planilha' ? colunasDoLivro : colunas}
         dados={data?.itens ?? SEM_DADOS}
         carregando={isLoading}
         mensagemVazia="Nenhuma movimentação neste período"
@@ -190,7 +269,9 @@ function CaixaPage() {
           aoMudarPagina: (novaPagina) =>
             navigate({ search: (anterior) => ({ ...anterior, page: novaPagina }) }),
         }}
-        classeDaLinha={(item) => (item.valor < 0 ? 'text-destructive' : undefined)}
+        classeDaLinha={(item) =>
+          item.valor < 0 && modelo !== 'planilha' ? 'text-destructive' : undefined
+        }
       />
     </>
   )
